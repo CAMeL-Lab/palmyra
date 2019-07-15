@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<!--
+Palmyra
+(c) 2017, Talha Javed
+
+License: MIT BSD-3
+
+THIS SOFTWARE IS PROVIDED ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE U.S. GOVERNMENT OR ANY DEPARTMENTS OR EMPLOYEES THEREOF BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+-->
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="main.css">
+        <title>Palmyra</title>
+    </head>
+
+<body class="viewtree">
+      
+    <div class="navbar">
+        <div class="container">
+            <a href="index.html"><img src="fonts/logo.png" alt="palmyra" id='logo'/></a>
+            <div class="toolbar btn-initial" align="left">
+                <!-- <input type="button" value="upload" onClick="$('#upload').toggle(); $('#upload2').toggle()" /> -->
+                <input type="button" value="clear" onClick="clearTree()" />
+            </div>
+            <div>
+                <p id="currentTreeNumber" onClick="$('#gototree').toggle()"></p>
+            </div>
+            <div class="toolbar btn-nav" align="center">
+                <input type="button" value="&#x21E4" onClick="firstTree()"/>
+                <input type="button" value="&#x2190" onClick="prevTree()"/>
+                <input type="button" value="&#x2192" onClick="nextTree()"/>
+                <input type="button" value="&#x21E5" onClick="lastTree()"/>
+            </div>
+            
+            <div class="toolbar btn-options" align="right">
+                <input type="button" value="+ Tree" onClick="addNewTree()"/>
+                <input type="button" value="- Tree" onClick="deleteCurrentTree()"/>
+                <input type="button" id="editbtn" value="edit" onClick="$('.morphologyMerge').toggle()"/>
+                <input type="button" value="download" onClick="$('#download').toggle()"/>
+                <input type="button" value="direction" onClick="directionToggle()"/>
+<!--                 <input type="button" value="reset" onClick="massReset()" /> -->
+                <input type="button" value="tags" onClick="tagsToggle()" />
+            </div>
+        </div>
+
+        <div class="container" style="width:100%">
+        <section id="upload" class="upload">
+            <p>Enter .DEP file:</p>
+            <input type="file" id="inputFile" name="treefiles[]"/>
+            <!-- <input type="file" id="inputFile" name="treefiles[]" multiple/><br> -->
+            <input type="button" id="treebtn" value="Upload file" onClick="setJSONtreeData()" />
+        </section>
+        </div>
+        <div class="container" style="width:100%">
+        <section id="upload2" class="upload">
+            <form id="upload2">
+                <p>Enter text -- Each line will be a seperate tree:</p><br>
+                <textarea id="treedata2" rows="5"></textarea>
+            </form>
+            <input style="float:none" type="button" id="treebtn2" value="Upload" onClick="setphrasetreeData()" />
+        </section>
+        </div>
+        <div class="container" style="width:100%">
+        <section id="upload3" class="upload">
+            <p>Optional Configuration File:</p>
+            <input type="file" value="catib.config" name="configFile" id="configFile"/>
+            <p style="float:right">(Default Configuration = CATIB Treebank)</p>
+        </section>
+        </div>
+      
+        <section id="jsontext">
+            <div id="jsontext">
+                <p>Your tree in JSON format:</p>
+                <textarea id="jsonfield" rows="5"></textarea>
+            </div>
+            <input type="button" id="closebtn" value="Close" onClick="$('#jsontext').hide()" />
+        </section>
+        
+        <section id="download">
+            <form id="download">
+                <p>Please select format and a filename:</p>
+                <div>
+                  <input type="radio" name="downloadChoice" id="downloadChoiceTree" checked><label>DEP&emsp;&emsp;</label>
+                  
+                  <input type="radio" name="downloadChoice" id="downloadChoiceImage"><label>PNG</label>
+                </div>
+                <input type="text" id="filename" value="tree_output_file"/>
+            </form>
+            <input type="button" id="dwnbtn" value="Download" onClick="downloadTree()"/>
+            <button onClick="$('#download').hide()">Close</button>
+        </section>
+
+        <section id="gototree">
+            <form id="gototree">
+                <p>Please select tree number:</p>
+                <input type="number" id="treeNumberInput" min="1" max="1">
+            </form><br>
+            <input type="button" id="goTreebtn" value="Go" onClick="goToTree()"/>
+            <button onClick="$('#gototree').hide()">Close</button>
+        </section>
+        
+        <!-- <section id="settings">
+            <p>Settings</p>
+            <table>
+                <tr>
+                    <td>Tree Width</td>
+                    <td><input type="button" class="setbtn" value="−" onClick="narrowTree()"/></td>
+                    <td><input type="button" class="setbtn" value="+" onClick="widerTree()"/></td>
+                </tr>
+                <tr>
+                    <td>Tree Height</td>
+                    <td><input type="button" class="setbtn" value="−" onClick="shorterTree()"/></td>
+                    <td><input type="button" class="setbtn" value="+" onClick="tallerTree()"/></td>
+                </tr>
+                <tr>
+                    <td>Node Size</td>
+                    <td><input type="button" class="setbtn" value='−' onClick='smallerNode()'/></td>
+                    <td><input type='button' class="setbtn" value='+' onClick='biggerNode()'/></td>
+                </tr>
+                <tr>
+                    <td>Text X-Values</td>
+                    <td><input type="button" class="setbtn" value="−" onClick="smallerX()" /></td>
+                    <td><input type="button" class="setbtn" value="+" onClick="biggerX()" /></td>
+                </tr>
+                <tr>
+                    <td>Text Y-Values</td>
+                    <td><input type="button" class="setbtn" value="−" onClick="smallerY()" /></td>
+                    <td><input type="button" class="setbtn" value="+" onClick="biggerY()" /></td>
+                </tr>
+            </table>
+            <table>
+                <tr><td>Font Family</td>
+                    <td>
+                        <select id="fonts">
+                            <option value="serif">Serif</option>
+                            <option value="sans-serif">Sans-serif</option>
+                            <option value="monospace">Monospace</option>
+                            <option value="standard">Standard</option>
+                        </select>
+                    </td>
+                    <td><button onClick="customFont()">Go</button></td>
+                </tr>
+            </table>
+            <input type="button" id="reset" value="Reset" onClick="reset()"/>
+            <input type="button" id="settingbtn" value="Close" onClick="$('#settings').hide()" />
+        </section> -->
+        
+        <section id='labels'>
+            <label class='labelsp'>Link Label</label>
+<!--             <button onClick="finishLabel()">Cancel</button> -->
+            <div>
+                <input type='button' id='labelbutton0' value='One' onClick="freqLabel(this.value)"/>
+                <input type='button' id='labelbutton1' value='Two' onClick='freqLabel(this.value)'/>
+                <input type='button' id='labelbutton2' value='Three' onClick='freqLabel(this.value)'/>
+                <input type='button' id='labelbutton3' value='Four' onClick="freqLabel(this.value)"/>
+                <input type='button' id='labelbutton4' value='Five' onClick='freqLabel(this.value)'/>
+                <input type='button' id='labelbutton5' value='Six' onClick='freqLabel(this.value)'/>
+                <input type='button' id='labelbutton6' value='Seven' onClick="freqLabel(this.value)"/>
+                <input type='button' id='labelbutton7' value='Eight' onClick='freqLabel(this.value)'/>
+                <input type='button' id='labelbutton8' value='Nine' onClick='freqLabel(this.value)'/>
+                <input type='button' id='labelbutton9' value='Ten' onClick='freqLabel(this.value)'/>
+            </div>
+        </section>
+        
+        <section id='postags'>
+            <label class='labelsp'>POS Tags</label>
+<!--             <button onClick="finishPOS()">Cancel</button> -->
+            <div>
+                <input type='button' id='posbutton0' value='One' onClick="freqPOS(this.value)"/>
+                <input type='button' id='posbutton1' value='Two' onClick='freqPOS(this.value)'/>
+                <input type='button' id='posbutton2' value='Three' onClick='freqPOS(this.value)'/>
+                <input type='button' id='posbutton3' value='Four' onClick="freqPOS(this.value)"/>
+                <input type='button' id='posbutton4' value='Five' onClick='freqPOS(this.value)'/>
+                <input type='button' id='posbutton5' value='Six' onClick='freqPOS(this.value)'/>
+                <input type='button' id='posbutton6' value='Seven' onClick="freqPOS(this.value)"/>
+                <input type='button' id='posbutton7' value='Eight' onClick='freqPOS(this.value)'/>
+                <input type='button' id='posbutton8' value='Nine' onClick='freqPOS(this.value)'/>
+                <input type='button' id='posbutton9' value='Ten' onClick='freqPOS(this.value)'/>
+            </div>
+        </section>
+
+        <section id='morphology'>
+            <p class='labelsp'>Node Name:</p>
+            <div>
+                <input type="text" id="morphologyName"><br>
+            </div><br>
+            <button onClick="saveMorphology()">OK</button>
+            <button onClick="cancelMorphology()">Cancel</button>
+        </section>
+
+    </div>
+
+    <div id="sents" class="standard">
+        <p id="fullSentence"></p>
+        <p id="print"></p>
+        <hr>
+    </div>
+
+
+    <script src="scripts/jquery-1.11.3.min.js"></script>
+    <script src="scripts/d3.v3.min.js"></script>
+    <script src="scripts/blob.js"></script>
+    <script src="scripts/FileSaver.min.js"></script>
+    <script src="scripts/saveSvgAsPng.js"></script>
+    <script src="scripts/underscore-min.js"></script>
+    <script src="scripts/cycle.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
