@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<!--
+Palmyra
+(c) 2017, Talha Javed
+
+License: MIT BSD-3
+
+THIS SOFTWARE IS PROVIDED ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE U.S. GOVERNMENT OR ANY DEPARTMENTS OR EMPLOYEES THEREOF BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
+-->
+<html>
+    <head>
+        <title>Palmyra: Help</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="main.css"> 
+    </head>
+    
+    <body class="gen">
+        
+        <div class="navbar">
+            <h2><a href="index.html" id="logo" onClick="saveTree()">Palmyra</a></h2>
+            <nav>
+                <div class="navlinks">
+                    <a href="viewtree.html" onClick="saveTree()">VIEW TREE</a>
+                    <a href="about.html" onClick="saveTree()">ABOUT</a>
+                    <a href="help.html" onClick="saveTree()">HELP</a>
+                </div>
+            </nav>
+        </div>
+        
+        <div class="mainbox" style="overflow:auto;">
+            <h2>Help!</h2>
+            <p>FAQ:</p>
+            <ul>
+                <li>
+                    <h5>I got an alert: "Your browser will not support EasyTree!" Why?</h5>
+                    <p id="faq">You are using an outdated browser, and EasyTree will not have the support functions to operate properly. Try updating your browser or using a different one.</p>
+                </li>
+                <li>
+                    <h5>Why aren't the graphics showing?</h5>
+                    <p id='faq'>Check that main.css, the fonts folder, and the bkgds folder are all present in the package. If you have made changes to the CSS file, double-check that they are valid CSS.</p>
+                </li>
+                <li>
+                    <h5>How do I change the tree display settings?</h5>
+                    <p id="faq">Click the "SETTINGS" button on the tree editor toolbar. There are various display options and a reset button. Changes to settings are shown in real time.</p>
+                </li>
+                <li>
+                    <h5>How do I change the part-of-speech labels?</h5>
+                    <p id="faq">Click the "KEY" button on the tree editor toolbar. This displays the current POS settings. Click "Customize" to change the labels, and "Done" to apply the changes. </p>
+                </li>
+                <li>
+                    <h5>Why is my sentence backwards?</h5>
+                    <p id='faq'>If you created your JSON files using makejson.py, try toggling your "reverse" argument settings (i.e., add or remove "reverse" at the end of your command line arguments). 
+                        Otherwise, recall that JSON input files must be ordered in the desired sentence order. If your language is right-to-left, this means that {"name": "." ...} should be the first child of "root". See examples.<br><br>
+                        If you are entering a phrase, make sure you are entering the phrase as it would normally be read (i.e. don't alter or reverse it). If you still experience problems, report the issue via the <a href='https://github.com/alexalittle/easytree.git'>GitHub repository.</a></p>
+                </li>
+                <li>
+                    <h5>Why don't my download files have an extension?</h5>
+                    <p id='faq'>You need to specify the filename with its extension in the filename field. If you want the output to be a JSON file, add ".json" to your desired filename.</p>
+                </li>
+                <li>
+                    <h5>Why can't I label paths to the 'root' node?</h5>
+                    <p id='faq'>Within the program, the 'root' node acts as a placeholder and has special properties. Labeling paths to 'root' is blocked because those labels interfere with the program's function. Besides, 'root' is a meaningless node so you really shouldn't have labels for its child paths!</p>
+                </li>
+                <li>
+                    <h5>Why can't I change the colors in the part-of-speech key?</h5>
+                    <p id='faq'>This functionality is in the works for future editions of Easy Tree. For now, the palette is designed to be distinctive and colorblind-safe.</p>
+                </li>
+                <li>
+                    <h5>Why doesn't "CLEAR" reset the part-of-speech labels?</h5>
+                    <p id='faq'>"CLEAR" just removes the tree data. To reset all settings, use the "RESET" button. To reset only POS settings or tree display settings, open the relevant menu and click "Reset All".</p>
+                </li>
+                <li>
+                    <h5>How do I close toolbar windows once I'm finished?</h5>
+                    <p id="faq">If a window does not automatically close, click the toolbar button once more to close. Most windows also include a "close" button.</p>
+                </li>
+                <li>
+                    <h5>What if the standard font doesn't display my language well?</h5>
+                    <p id='faq'>You can change the font under "SETTINGS". Currently, choices are limited to web-safe fonts and the standard font, "Copse".</p>
+                </li>
+                <li>
+                    <h5>Why do I get the pop-up 'Sorry, something went wrong!'?</h5>
+                    <p id='faq'>Double-check your JSON file -- are there any typos? Do you have a single "root" node? Does every node have a "name" value? Are there extra brackets or commas?<br><br>
+                        If you previously saved your tree and are trying to reload it, double-check the brackets and commas in the JSON file.<br><br>
+                        If you still can't find a problem, or you think it's a regular expression error, please report the issue via the <a href='https://github.com/alexalittle/easytree.git'>GitHub repository.</a></p>
+                </li>
+                <li>
+                    <h5>Can I make changes to the Easy Tree program?</h5>
+                    <p id="faq">Absolutely! Feel free to change the HTML, CSS, and Javascript files as much as you want.</p>
+                </li>
+                                <li>
+                    <h5>What is the license for Easy Tree?</h5>
+                    <p id="faq">Easy Tree is provided with a CC BY-SA 4.0 license (as required by some of its design elements) and with a BSD-3 license (as required by some of its Javascript source packages). You can find these licenses in the "licenses" folder of Easy Tree.</p>
+                </li>
+                <li>
+                    <h5>Who created the design elements for this project?</h5>
+                    <p id="faq">See the <a href="credits.html">credits</a> here, or check the README for more details.</p>
+                </li>
+                <li>
+                    <h5>Where can I get more help?</h5>
+                    <p id="faq">If you find a bug in the program, please submit an issue report via the <a href='https://github.com/alexalittle/easytree.git'>GitHub repository.</a> If you are having trouble running this program, you can contact the author at alexa (dot) little (at) yale.edu.</p>
+                    <br>
+                </li>
+            </ul>
+            <p></p>
+        </div>
+        
+<!--         <footer>
+            Code by Alexa Little<br>
+            Army Research Labs, 2015<br>
+            Library and design element <a href="credits.html">credits</a><br>
+        </footer> -->
+        
+    </body>
+    
+</html>

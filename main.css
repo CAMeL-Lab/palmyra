@@ -1,0 +1,576 @@
+/* * * * * * * * * * *
+Palmyra
+(c) 2017, Talha Javed
+
+License: MIT BSD-3
+
+THIS SOFTWARE IS PROVIDED ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE U.S. GOVERNMENT OR ANY DEPARTMENTS OR EMPLOYEES THEREOF BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.) 
+* * * * * * * * * * */
+
+/* OVERALL APPLICATION STYLING */
+
+/* background */
+body.gen {
+    background-color: #57068c;
+}
+
+/* other headings */
+h3 {
+    font-family: 'nobile';
+    text-align: center;
+    color: #fff;
+    margin-top: 0;
+    margin-bottom: auto;
+}
+
+#logo-container {
+    width:100%;
+    text-align:center;
+}
+#logo-container img {
+    width:250px;
+    display:inline-block;
+    margin: 0px auto;
+    margin-top: 40px;
+}
+#logo-container p {
+    padding: 0px 150px;
+    margin:15px;
+    text-decoration: none;
+    color: #fff;
+    font-family: 'nobile';
+    font-size: 1.5em;
+}
+#btn-container {
+    width:60%;
+    margin:70px auto;
+}
+.main-buttons {
+    font-size: 1.9em;
+    width: 160px;
+    height:120px;
+    background: linear-gradient(to bottom, #fff 25%, #c8c8c8 100%);;
+    border: none;
+    border-radius: 30px;
+    text-decoration: none;
+    font-family: 'bebas';
+    color: #303030;
+    padding: 4px 15px 6px 15px;
+    cursor: pointer;
+}
+
+.main-buttons:hover {
+    background: #fff;
+}
+
+/* toolbar buttons (when pressed) */
+.main-buttons:active {
+    box-shadow: inset 0 0 0 1px #545454,inset 0 5px 30px #545454;
+}
+
+/* overrides dotted-box outline on buttons (in Firefox) */
+.main-buttons input::-moz-focus-inner {
+    border: 0;
+}
+
+#about-container p {
+    padding: 0px 100px;
+    margin:15px;
+    text-decoration: none;
+    color: #404040;
+    font-family: 'nobile';
+    font-size: 1.5em;
+    text-align: center;
+}
+
+/* central content boxes on each page */
+.mainbox {
+    background-color: #545454;
+    width: 500px;
+    height: 500px;
+    padding: 25px;
+    -webkit-box-shadow: 10px 10px 43px -4px rgba(0,0,0,0.75);
+    -moz-box-shadow: 10px 10px 43px -4px rgba(0,0,0,0.75);
+    box-shadow: 10px 10px 43px -4px rgba(0,0,0,0.75);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+}
+
+/* start page content box */
+.mainbox nav {
+    margin: auto;
+    width: 50%;
+    text-align: center;
+}
+
+/* start page navigation links */
+.mainbox nav a {
+    text-decoration: none;
+    color: #fff;
+    font-family: 'bebas';
+    font-size: 30px;
+}
+
+/* start page - spacing between navigation links */
+.mainbox nav div {
+    width: 500px;
+    height: 50px;
+}
+
+/* content box heading */
+.mainbox h2 {
+    font-family: 'nobile';
+    text-align: left;
+    color: #fff;
+    margin-left: 20px;
+    margin-bottom: 20px;
+}
+
+/* content box text */
+.mainbox p {
+    font-family: 'nobile';
+    text-align: left;
+    color: #fff;
+    margin-left: 20px;
+    font-size: 18px;
+}
+
+/* content box lists */
+li {
+    font-family: 'nobile';
+    text-align: left;
+    color: #fff;
+    margin-left: 20px;
+    font-size: 18px;
+}
+
+li #faq {
+    font-family: 'nobile';
+    text-align: left;
+    color: #000;
+    margin-left: 20px;
+    font-size: 16px;
+}
+
+/* navigation menu background */
+.navbar {
+    background-color: #57068c;
+    width: 100%;
+    height: 65px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    float: top;
+    z-index: 5;
+}
+
+.container {
+  display: flex;                  /* establish flex container */
+  flex-direction: row;            /* default value; can be omitted */
+  flex-wrap: nowrap;              /* default value; can be omitted */
+  justify-content: space-between; /* switched from default (flex-start, see below) */
+}
+
+/* navigation menu logo */
+.navbar #logo {
+    color: #fff;
+    font-family:'hennypenny';
+    text-decoration: none;
+    width: 70px;
+    height: 60px;
+    margin: 4px 0px 6px 4px;
+    display: inline-block; 
+    vertical-align:middle;
+}
+
+/* navigation menu logo */
+.navbar #currentTreeNumber {
+    color: #fff;
+    font-family: 'bebas';
+    font-size: 18px;
+    margin: 22px 15px 0px 4px;
+    display: inline-block; 
+    vertical-align:middle;
+    cursor:pointer;
+}
+
+/* navigation menu links */
+.navlinks a {
+    text-decoration: none;
+    font-family: 'bebas';
+    font-size: 15px;
+    color: #fff;
+    padding: 10px 20px 10px 20px;
+}
+
+/* navigation menu links */
+.navlinks {
+    position: fixed;
+    top: 2%;
+    left: 150px;
+    display: inline-block;
+}
+
+/* links within content paragraphs */
+p a {
+    color: steelblue;
+    text-decoration: none;
+}
+
+/* application footer */
+footer {
+    color: #fff;
+    text-align: center;
+    font-size: 10px;
+    font-family: 'Trebuchet MS', sans-serif;
+    padding: 5px;
+    position: absolute;
+    top: 95%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+}
+
+/* links within application footer */
+footer a {
+    text-decoration: none;
+    color: steelblue;
+}
+
+/* Henny Penny font */
+@font-face {
+    font-family: 'hennypenny';
+    src: url('fonts/HennyPenny-Regular.otf');
+}
+
+/* BEBAS font */
+@font-face {
+    font-family: 'bebas';
+    src: url('fonts/BEBAS___.ttf');
+}
+
+/* Copse font */
+@font-face {
+    font-family: 'copse';
+    src: url('fonts/Copse-Regular.ttf');
+}
+
+/* Isotek font */
+@font-face {
+    font-family: 'isotek';
+    src: url('fonts/IstokWeb-Regular.ttf');
+}
+
+/* Nobile font */
+@font-face {
+    font-family: 'nobile';
+    src: url('fonts/Nobile.ttf');
+}
+
+/* Roboto font */
+@font-face {
+    font-family: 'roboto';
+    src: url('fonts/Roboto-regular.ttf');
+}
+
+/* TREE VIEWER STYLING */
+
+/* background for tree viewer */
+body.viewtree {
+    background-color: white;
+    z-index: -2;
+}
+
+/* background for tree itself */
+.overlay {
+    background-color: white;
+    display: block;
+    padding: 100px 0px 50px 0px;
+/*    margin: 0px 100px 0px 0px;*/
+    clear: both;
+}
+
+/* toolbar for tree editing */
+/*#fullmenu {
+    width: 100%;
+    height: 60px;
+    background-color: #000;
+    background-image: url('bkgds/black-paper.png');
+    position: fixed;
+    top: 70px;
+    left: 0;
+    z-index: 5;
+}
+*/
+/* toolbar buttons */
+.toolbar { 
+    display: inline-block; 
+ } 
+
+.toolbar input {
+    background: linear-gradient(to bottom, #fff 25%, #c8c8c8 100%);
+    border: none;
+    border-radius: 2px;
+    text-decoration: none;
+    font-family: 'bebas';
+    font-size: 15px;
+    color: #000;
+    padding: 4px 15px 6px 15px;
+    margin-top: 18px;
+    cursor: pointer;
+    display: none;
+}
+
+/* toolbar buttons (when hovered) */
+.toolbar input:hover {
+    background: #fff;
+}
+
+/* toolbar buttons (when pressed) */
+.toolbar input:active {
+    box-shadow: inset 0 0 0 1px #545454,inset 0 5px 30px #545454;
+}
+
+/* overrides dotted-box outline on buttons (in Firefox) */
+.toolbar input::-moz-focus-inner {
+    border: 0;
+}
+
+/* toolbar div boxes alignment */
+.btn-initial{
+    width:20%;
+    margin-left: 10px;
+}
+.btn-initial input{
+    margin-right: 20px
+}
+.btn-nav{
+    width:40%;
+}
+.btn-nav input {
+    font-size: 20px;
+    padding: 2px 10px 3px 10px;
+}
+.btn-options { 
+    width:45%;
+    margin-right: 12px;
+}
+
+/* toolbar pop-ups */
+section {
+    background-color: rgba(87,6,140,.7);
+/*    background-color: #000;*/
+    font-family: "nobile";
+    text-align: center;
+    color: #fff;
+    width: 250px;
+    margin: 20px 20px 10px 20px;
+    padding: 10px 10px 10px 10px;
+    float: right;
+    display: none;
+}
+
+/* toolbar text area styling */
+section textarea {
+    border-color: #000;
+}
+
+/* sentence text display area */
+/* >>>>>>>>>>>>>>>>>>>>
+*:after {
+    content: "\200E‎";
+}
+*:before {
+    content: "\200E‎";
+}*/
+
+#sents {
+    margin-top: 55px;
+    width: 100%;
+    background-color: #fff;
+    left: 0;
+    position: fixed;
+    display: none;
+}
+
+
+
+#sents p {
+    font-size: 1.2em;
+    font-weight: 900;
+    color: #404040;
+    padding: 0px;
+    text-align: center;
+    margin: .8em 0 .6em 0;
+}
+
+#sents hr {
+    display: block;
+    height: 1px;
+    width: 90%;
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 1em 20;
+    padding: 0px 0px;
+}
+
+.upload {
+    width: 100%;
+}
+
+.upload p {
+    margin: 5px 0px 0px 10px;
+    float: left;
+}
+
+.upload textarea {
+    width: 96%;
+    margin: 15px 0px 7px 0px;
+    resize: none;
+}
+
+.upload input {
+    float: left;
+    margin: 3px 0px 2px 30px;
+}
+
+#filename {
+    margin: 10px 0px 10px 0px;
+}
+
+#settings p {
+    margin-bottom: 0;
+}
+
+#settings {
+    height: 300px;
+}
+
+#settings table {
+    width: 90%;
+    margin-left: 5%;
+    text-align: left;
+}
+
+.setbtn {
+    padding-right: 15px;
+    padding-left: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+/* TREE STYLING */
+
+/* ordinary links */
+.link {
+    cursor: pointer;
+    fill: none;
+    stroke: #545454;
+    stroke-width: 3px;
+}
+
+/* labels on links */
+.linktext {
+    font-size: 16px;
+    paint-order: stroke;
+    stroke: #ffffff;
+    stroke-width: 10px;
+    stroke-linecap: butt;
+    stroke-linejoin: miter;
+    font-weight: 800;
+/*    fill: #ff0000;*/
+    /*text-shadow: 0 1px 0 #dcdcdc, 1px 0 0 #dcdcdc, 0 -1px 0 #dcdcdc, -1px 0 0 #dcdcdc;*/
+}
+
+.standard {
+    font-family: 'nobile';
+/*    font-family:Helvetica;*/
+}
+
+.serif {
+    font-family: 'serif';
+}
+
+.sans-serif {
+    font-family: 'sans-serif';
+}
+
+.monospace {
+    font-family: 'monospace';
+}
+
+/* temporary links while dragging nodes */
+.templink {
+    fill: none;
+    stroke: red;
+    stroke-width: 3px;
+}
+
+/* node cursor */
+.node {
+    cursor: pointer;
+}
+
+/* circle representing node */
+.node circle {
+    fill: #fff;
+    stroke: #000;
+    stroke-width: 3px;
+}
+
+/* label on node */
+/*.node text { 
+    font-size: 14px;
+}
+*/
+
+.nodelabel {
+    cursor: pointer;
+    fill-opacity: 0;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.nodepos {
+    cursor: pointer;
+    fill-opacity: 1;
+    font-size: 1em;
+}
+
+.morphology {
+    font-size: 1.6em;
+    font-weight: 900;
+    cursor: pointer;
+    fill-opacity: 1;
+}
+
+.morphology {
+    font-size: 1.6em;
+    font-weight: 900;
+    cursor: pointer;
+    fill-opacity: 1;
+}
+
+.morphologyMerge {
+    display: none;
+}
+
+/* temporary circle when dragging node */
+.ghostCircle.show{
+    display: block;
+}
+
+/* supresses temporary circle on dragged node */
+.ghostCircle, .activeDrag .ghostCircle{
+    display: none;
+}
