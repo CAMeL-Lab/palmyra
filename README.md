@@ -3,8 +3,10 @@
 |	A GUI for Dependency Annotation         
 +-----------------------------------------------+
 
-Author: Talha Javed
-Last update: August 6, 2017
+Original Author: Talha Javed
+
+Last update: July 15, 2019
+
 
 CONTENTS OF THIS FILE
 ---------------------
