@@ -1,0 +1,7 @@
+camel parser: python code - combines 
+
+takes a sentence
+runs it throug morphological anyslis - madamira
+does dependecy parsing
+produces TreD output and latex pdf
+
