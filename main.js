@@ -550,7 +550,7 @@ var updateLabels = function() {
     //TEST ADD BUTTON
     // var btn = document.createElement("Button");
     // btn.innerHTML = "CLICK ME";
-    // document.body.getElementsByTagName('lebels').appendChild(btn);
+    // document.body.getElementsById('labels').appendChild(btn);
 };
 
 // find the most frequent labels
@@ -1059,7 +1059,6 @@ var getTree = function(treeData) {
                 }
             });
             d.collapsed = true
-            console.log("???")
         }
 
         // if (d.children) {
@@ -1754,29 +1753,6 @@ var getTree = function(treeData) {
         }
     }
 
-    // for nodes with ids less than subjectNode.id that have been collapsed,
-    // count and return nodes in their sub-trees
-    // countCollapsedNodes = function(nodes, subjectNode) {
-    //     var deduct = 0;
-
-    //     for (var ii = 0; ii < nodes.length; ii++) {
-
-    //         // if nodes[ii] is to the right of subjectNode and nodes[ii] is collapsed, then deduct for subject node.
-    //         if (nodes[ii].id < subjectNode.id && nodes[ii].collapsed === true) {
-    //           deduct = deduct + numNodesInSubtree(nodes[ii], nodes[ii], subjectNode);
-    //         }
-    //     }
-
-    //     // // for a range of 13..235 words in a sentance, and a corresponding correction of 0.8..0.95,
-    //     // // compute linear correction ...
-    //     // slope = 0.0006
-    //     // y_int = 0.79
-
-    //     // correction = slope*deduct + y_int;
-
-    //     return deduct;
-    // }
-
     countCollapsedNodes = function(nodes, subjectNode) {
         var deduct = 0;
         for (var ii = 0; ii < nodes.length && ii < subjectNode.id; ii++) {
@@ -1843,13 +1819,13 @@ var getTree = function(treeData) {
                 }
             }
 
-            console.log("node id = ", d.id, " - node name = ", d.name, " - counter = ", counter);
+            // console.log("node id = ", d.id, " - node name = ", d.name, " - counter = ", counter);
 
             if (d.y > lowestNodeY) {
                 lowestNodeY = d.y
             }
             if (d.id == 0) {
-                d.x = orient(parseFloat(localStorage['customwidth']) * 250) ;
+                d.x = orient(parseFloat(localStorage['customwidth']) * 300) ;
             }
             else if (d.id % 2 == 0) {
                 // if leaf node
@@ -1858,7 +1834,7 @@ var getTree = function(treeData) {
                 }
                 else {
 //                     d.x =  orient((d.id-1-deduct) * parseFloat(localStorage['customwidth']) * 250 + wordOffset(nodes, d.id-1, sentenceArray)) ;
-                    d.x =  orient(counter * parseFloat(localStorage['customwidth']) * 250 + wordOffset(nodes, d.id-1, sentenceArray)) ;
+                    d.x =  orient(counter * parseFloat(localStorage['customwidth']) * 300 + wordOffset(nodes, d.id-1, sentenceArray)) ;
                 }
             }
             else {
@@ -1868,7 +1844,7 @@ var getTree = function(treeData) {
                 }
                 else {
 //                     d.x = orient((d.id-deduct) * parseFloat(localStorage['customwidth']) * 250 + wordOffset(nodes, d.id, sentenceArray));
-                    d.x = orient(counter * parseFloat(localStorage['customwidth']) * 250 + wordOffset(nodes, d.id, sentenceArray));
+                    d.x = orient(counter * parseFloat(localStorage['customwidth']) * 300 + wordOffset(nodes, d.id, sentenceArray));
                 }
             }
         });
@@ -2113,8 +2089,8 @@ var getTree = function(treeData) {
                     .classed("morphology", true)
                     .classed("morphologyMerge", true)
                     // these (x,y) coordinates seem to be overidden below
-                    .attr("dx", "3em")
-                    .attr("dy", "1em")
+                    .attr("dx", "1.3em")
+                    .attr("dy", "2.6em")
                     .attr("text-anchor", "end")
                     .text("\u25B6")
                     .on("click", morphologyLeftMerge)
@@ -2129,8 +2105,8 @@ var getTree = function(treeData) {
                     .classed("morphology", true)
                     .classed("morphologyMerge", true)
                     // these (x,y) coordinates seem to be overidden below
-                    .attr("dx", "-3em")
-                    .attr("dy", "1em")
+                    .attr("dx", "-1.3em")
+                    .attr("dy", "2.6em")
                     .attr("text-anchor", "start")
                     .text("\u25C0")
                     .on("click",morphologyLeftMerge)
@@ -2148,8 +2124,8 @@ var getTree = function(treeData) {
                     .classed("morphology", true)
                     .classed("morphologyMerge", true)
                     // these (x,y) coordinates seem to be overidden below
-                    .attr("dx", "-3em")
-                    .attr("dy", "1em")
+                    .attr("dx", "-1.3em")
+                    .attr("dy", "2.6em")
                     .attr("text-anchor", "start")
                     .text("\u25C0")
                     .on("click",morphologyRightMerge)
@@ -2164,8 +2140,8 @@ var getTree = function(treeData) {
                     .classed("morphology", true)
                     .classed("morphologyMerge", true)
                     // these (x,y) coordinates seem to be overidden below
-                    .attr("dx", "3em")
-                    .attr("dy", "1em")
+                    .attr("dx", "1.3em")
+                    .attr("dy", "2.6em")
                     .attr("text-anchor", "end")
                     .text("\u25B6")
                     .on("click", morphologyRightMerge)
@@ -2201,8 +2177,8 @@ var getTree = function(treeData) {
                 .classed("morphologyMerge", true)
                 // these (x,y) coordinates seem to be overidden below
                 .attr("dx", function(d) { 
-                    if (orientation == 'r-to-l') return "5em"
-                    else return "-5em"})
+                    if (orientation == 'r-to-l') return "1.7em"
+                    else return "-1.7em"})
                 .attr("dy", "2.6em")
                 .attr("text-anchor", "middle")
                 .style("fill","green")
@@ -2223,8 +2199,8 @@ var getTree = function(treeData) {
                 .classed("morphologyMerge", true)
                 // these (x,y) coordinates seem to be overidden below
                 .attr("dx", function(d) { 
-                    if (orientation == 'r-to-l') return "-5em"
-                    else return "5em"})
+                    if (orientation == 'r-to-l') return "-1.7em"
+                    else return "1.7em"})
                 .attr("dy", "2.6em")
                 .attr("text-anchor", "middle")
                 .style("fill","green")
@@ -2232,6 +2208,7 @@ var getTree = function(treeData) {
                 .on("click", function(d) {
                     addNode(d, "end")
                 });
+            console.log(localStorage['currentFont']);
         } else {
             // add new node icon to morphology
             nodeEnter.filter(function(d, i)
@@ -2244,7 +2221,7 @@ var getTree = function(treeData) {
                 .classed("morphology", true)
                 .classed("morphologyMerge", true)
                 // these (x,y) coordinates seem to be overidden below
-                .attr("dx", "0em")
+                .attr("dx", "1.7em")
                 .attr("dy", "2.6em")
                 .attr("text-anchor", "middle")
                 .style("fill","green")
