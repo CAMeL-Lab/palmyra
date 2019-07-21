@@ -1038,28 +1038,31 @@ var getTree = function(treeData) {
     //instead of relying on the state of children and _children, add a variable to indicate if a node is collapsed
     //keep the duplicate node that will appear at the bottom in the tree
     function toggleChildren(d) {
-        if(d.collapsed == true) {
-            d.children.forEach(function (child_node) {
-                child_node.name = child_node.name.slice(2, -2)
-            });
+        // if(!hasNoChildren(d)) {
+            if(d.collapsed == true) {
+                d.children.forEach(function (child_node) {
+                    child_node.name = child_node.name.slice(2, -2)
+                });
+    
+                d.children = d._children;
+                d._children = null;
+                d.name = d.name.slice(2,-2)
+                d.collapsed = false
+            } else {
+                d._children = d.children;
+                d.children = null;
+                d.name = "<<" + d.name + ">>"
+                d._children.forEach(function (child_node) {
+                    if(child_node.duplicate == true){
+                        d.children = []
+                        child_node.name = "<<" + child_node.name + ">>"
+                        d.children.push(child_node)
+                    }
+                });
+                d.collapsed = true
+            }
+        // }
 
-            d.children = d._children;
-            d._children = null;
-            d.name = d.name.slice(2,-2)
-            d.collapsed = false
-        } else {
-            d._children = d.children;
-            d.children = null;
-            d.name = "<<" + d.name + ">>"
-            d._children.forEach(function (child_node) {
-                if(child_node.duplicate == true){
-                    d.children = []
-                    child_node.name = "<<" + child_node.name + ">>"
-                    d.children.push(child_node)
-                }
-            });
-            d.collapsed = true
-        }
 
         // if (d.children) {
         //     d._children = d.children;
@@ -1111,7 +1114,9 @@ var getTree = function(treeData) {
     // collapse and expand node's children  on click
     function nodeDoubleClick(d) {
         if (d3.event.defaultPrevented) return;
-        d = toggleChildren(d);
+        if(!hasNoChildren(d)) {
+            d = toggleChildren(d);
+        }
         update(d);
     };
 
@@ -1661,6 +1666,10 @@ var getTree = function(treeData) {
         return (node.children === void 0 && node._children === void 0);
     }
 
+    //return true if the node does not have any children, else false
+    hasNoChildren = function(node) {
+        return (node.children.length === 1 && node._children === void 0);
+    }
 
     // return the number of nodes in the subtree of the specified root node
     // that are to the right of the specified subjectNode and to the left of the specified
