@@ -29,7 +29,7 @@ var nodeDeleted = false;
 var orientation = 'r-to-l';
 var newPOSTag = "NOM";
 var newLinkLabel = '---';
-var rootNodeName = "جذر";
+var rootNodeName = "*";
 
 // settings variables are saved as session variables
 // this way, they persist even if user navigates away from tree viewer
@@ -228,7 +228,7 @@ var outputToCONLLFormat = function(inputJSON) {
 
     var rootNode = new Object();
     rootNode.name = "root";
-    rootNode.nameArb = "جذر";
+    rootNode.nameArb = "*";
     rootNode.id = 0;
     rootNode.children = [];
     rootNode.collapsed = false
@@ -1418,7 +1418,7 @@ var getTree = function(treeData) {
     };
 
     // Add a new node to left of an existing node
-    addNode = function(d, position, name ="جديد") {
+    addNode = function(d, position, name ="*") {
 
         var newNodeId;
         var parent = root;
