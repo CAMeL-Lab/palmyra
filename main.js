@@ -137,31 +137,7 @@ var readConfigFile = function() {
             
         }
     }
-
-    // var file = document.getElementById("configFile");
-    // console.log(file)
-    // var input = "";
-
-    // var reader=new FileReader();
-    // reader.onload = function(e) {
-
-    // var labelArray = [];
-    // var posArray = []
-    // if (inputData !== "") {
-    //     var lines = inputData.split("\n");
-    //     for (var i=0; i< (lines.length); i++) {
-    //         var singleLine = lines[i].split("\t");
-    //         var treeNode = new Object();
-    //         var duplicateNode = new Object();
-    //         posArray.push(lines[i]);
-    //         console.log(posArray)
-    //     };
-    // };
-
-
-    // }
-    
-    // reader.readAsText(file);  
+  
     return;  
 };
 
@@ -182,8 +158,6 @@ var convertJSONToCONLL = function(node) {
             fullArray = fullArray.concat(tempArray)
         }
         if (node.id !== 0) {
-//            var nodeFeatures = node.features.join(" ")
-//            console.log(nodeFeatures)
             fullArray.push([(node.id+1)/2,node.name,node.pos,pid,node.link])
         } else {
             fullArray.sort(function(a, b){return a[0]-b[0]})
@@ -207,8 +181,6 @@ var convertJSONToCONLL = function(node) {
             fullArray = fullArray.concat(tempArray)
         }
         if (node.id !== 0) {
-//            var nodeFeatures = node.features.join(" ")
-//            console.log(nodeFeatures)
             fullArray.push([(node.id+1)/2,node.name,node.pos,pid,node.link])
         } else {
             fullArray.sort(function(a, b){return a[0]-b[0]})
@@ -221,7 +193,6 @@ var convertJSONToCONLL = function(node) {
     }
 };
 
-//UNUSED FUNCTION?
 var outputToCONLLFormat = function(inputJSON) {
     var inputArray = [];
     var rootNodeIndex = 0;
@@ -247,7 +218,6 @@ var outputToCONLLFormat = function(inputJSON) {
         }
     };
     return rootNode;
-    // return inputArray[rootNodeIndex];
 };
 
 var convertToJSON = function(inputData) {
@@ -270,7 +240,6 @@ var convertToJSON = function(inputData) {
             var duplicateNode = new Object();
 
             treeNode.id = parseInt(singleLine[0]) * 2 - 1;
-//            treeNode.features = singleLine[5].split(" ");
             treeNode.name = singleLine[1];
             treeNode.pos = singleLine[2];
             treeNode.pid = parseInt(singleLine[3]) * 2 - 1;
@@ -278,7 +247,6 @@ var convertToJSON = function(inputData) {
             treeNode.duplicate = false
             treeNode.collapsed = false
             
-            // console.log(treeNode.features)
             newTree.push(treeNode);
 
             duplicateNode.id = parseInt(singleLine[0]) * 2;
@@ -288,7 +256,6 @@ var convertToJSON = function(inputData) {
             duplicateNode.link = "";
             duplicateNode.duplicate = true
             duplicateNode.collapsed = false
-//            duplicateNode.features = treeNode.features[3];
             newTree.push(duplicateNode);
         };
     };
@@ -299,11 +266,10 @@ var convertToJSON = function(inputData) {
         newTree = []
     }
 
-    //STEP 5.b: connect the nodes to their proper parents (i.e. create the tree)
+    //connect the nodes to their proper parents (i.e. create the tree)
     for (var i=0; i< (inputArray.length); i++) {
         newTree = inputArray[i];
         var rootNode = new Object();
-//        rootNode.name = "root";
         rootNode.name = rootNodeName;
         rootNode.id = 0;
         rootNode.collapsed = false
@@ -328,7 +294,6 @@ var convertToJSON = function(inputData) {
     return inputArray
 };
 
-//STEP 1: CODE STARTS RUNNING FROM HERE
 var setJSONtreeData = function() {
     readConfigFile()
     var x = document.getElementById("inputFile");
@@ -349,10 +314,6 @@ var setJSONtreeData = function() {
                     // hide upload window
                     $('.upload').hide();
                     try {
-                        // try to store tree data and display tree
-                        // sessionStorage.setItem("treeData", treeData);
-                        // var treeData = JSON.parse(input);
-                        // console.log(treeData);
                         getTree(treesArray[0]);
                     } catch(e) {
                         console.log(e)
@@ -509,11 +470,9 @@ var directionToggle = function() {
     if (orientation == 'r-to-l') {
         orientation = 'l-to-r'
         $('.morphologyMerge').hide()
-        // $('#editbtn').attr('disabled','disabled');
     } else {
         orientation = 'r-to-l';
         $('.morphologyMerge').hide()
-        // $('#editbtn').removeAttr('disabled');
     }
     sessionStorage.removeItem("treeData");
     saveTree();
@@ -522,8 +481,8 @@ var directionToggle = function() {
     update(root);
 };
 
-//STEP 3: Creating the list of labels and connecting the labels to the buttons on the Link Label box
-/// Label Handling
+//Creating the list of labels and connecting the labels to the buttons on the Link Label box
+// Label Handling
 // update the buttons for high-frequency labels
 var updateLabels = function() {
     console.log("Update Labels")
@@ -546,11 +505,6 @@ var updateLabels = function() {
         var id = "labelbutton" + j.toString();
         document.getElementById(id).style.display = "none";
     };
-
-    //TEST ADD BUTTON
-    // var btn = document.createElement("Button");
-    // btn.innerHTML = "CLICK ME";
-    // document.body.getElementsById('labels').appendChild(btn);
 };
 
 // find the most frequent labels
@@ -568,10 +522,6 @@ var sortLabels = function() {
 
 // close the label menu and update the tree
 var finishLabel = function() {
-    // $('#labels').hide();
-    // $('#postags').hide();
-    // d3.select("text#nodePOS" + selectedNodeLink.id).style("stroke", "");
-    // d3.select("text#nodeLabel" + selectedNodeLink.id).style("stroke", "");
     update(root);
 };
 
@@ -646,10 +596,6 @@ var updatePOS = function() {
 
 // close the label menu and update the tree
 var finishPOS = function() {
-    // $('#postags').hide();
-    // $('#labels').hide();
-    // d3.select("text#nodePOS" + selectedNodeLink.id).style("stroke", "");
-    // d3.select("text#nodeLabel" + selectedNodeLink.id).style("stroke", "");
     update(root);
 };
 
@@ -783,8 +729,6 @@ var downloadTree = function() {
             };
             // uses Blob and FileSaver libraries
             var blob = new Blob([output], {type: "text/plain;charset=utf-8"});
-            // var blob = new Blob([convertJSONToCONLL(root)], {type: "text/plain;charset=utf-8"});
-            // var blob = new Blob([sessionStorage.treeData], {type: "text/plain;charset=utf-8"});
             saveAs(blob, filename+".dep");
         }
         else {
@@ -1038,7 +982,6 @@ var getTree = function(treeData) {
     //instead of relying on the state of children and _children, add a variable to indicate if a node is collapsed
     //keep the duplicate node that will appear at the bottom in the tree
     function toggleChildren(d) {
-        // if(!hasNoChildren(d)) {
             if(d.collapsed == true) {
                 d.children.forEach(function (child_node) {
                     child_node.name = child_node.name.slice(2, -2)
@@ -1061,24 +1004,6 @@ var getTree = function(treeData) {
                 });
                 d.collapsed = true
             }
-        // }
-
-
-        // if (d.children) {
-        //     d._children = d.children;
-        //     d.children = null;
-        //     d.name = "<<" + d.name + ">>"
-        //     d._children.forEach(function (child_node) {
-        //         if(child_node.duplicate == true){
-        //             d.children.push(child_node)
-        //         }
-        //     });
-        //     console.log("???")
-        // } else if (d._children) {
-        //     d.children = d._children;
-        //     d._children = null;
-        //     d.name = d.name.slice(2,-2)
-        // }
         return d;
     }
 
@@ -1101,13 +1026,10 @@ var getTree = function(treeData) {
         d3.select("#link" + selectedNodeLink.id).select("path").style("stroke", "red");
         d3.select("text#linkLabel" + selectedNodeLink.id).style("stroke", "red");            
 
-        // d3.select(this).select("path").style("stroke", "red");
         d3.select("text#nodePOS" + selectedNodeLink.id).style("stroke", "red");
         d3.select("text#nodeLabel" + selectedNodeLink.id).style("stroke", "red");
         d3.select("circle#nodeCircle" + selectedNodeLink.id).style("fill", "red");
 
-        // $('#postags').show(); 
-        // $('#labels').show();  
         return;
     };
  
@@ -1325,8 +1247,6 @@ var getTree = function(treeData) {
         selectedMorphology = d;
         d3.selectAll(".morphology").style("stroke", "");
         d3.select("text#morphology" + selectedMorphology.id).style("stroke", "blue");
-//        if (orientation == 'l-to-r') document.getElementById('morphologyName').value = d.name;
-//        else document.getElementById('morphologyName').value = d.nameArb;
         document.getElementById('morphologyName').value = d.name;
         $('#morphology').show();
     };
@@ -1334,22 +1254,16 @@ var getTree = function(treeData) {
     // merge node into right neighbor
     function morphologyRightMerge(d) {
         var mergedName = d.name + fullTree.select("#node" + parseInt(d.id+1)).data()[0].name
-//        var mergedNameArb = d.nameArb + fullTree.select("#node" + parseInt(d.id+1)).data()[0].nameArb
         fullTree.select("#node" + parseInt(d.id+1)).data()[0].name = mergedName
         fullTree.select("#node" + parseInt(d.id+2)).data()[0].name = mergedName
-//      fullTree.select("#node" + parseInt(d.id+1)).data()[0].nameArb = mergedNameArb
-//        fullTree.select("#node" + parseInt(d.id+2)).data()[0].nameArb = mergedNameArb
         deleteNode(d)
     };
 
     // merge node into left neighbor
     function morphologyLeftMerge(d) {
         var mergedName = fullTree.select("#node" + parseInt(d.id-3)).data()[0].name + d.name
-//        var mergedNameArb = fullTree.select("#node" + parseInt(d.id-3)).data()[0].nameArb + d.nameArb
         fullTree.select("#node" + parseInt(d.id-3)).data()[0].name = mergedName
         fullTree.select("#node" + parseInt(d.id-2)).data()[0].name = mergedName
-//        fullTree.select("#node" + parseInt(d.id-3)).data()[0].nameArb = mergedNameArb
-//        fullTree.select("#node" + parseInt(d.id-2)).data()[0].nameArb = mergedNameArb
         deleteNode(d)
     };
 
@@ -1413,7 +1327,6 @@ var getTree = function(treeData) {
         d.parent.parent.children = _.without(d.parent.parent.children, nodeToDelete[0]);
         numberOfNodesArray[currentTreeIndex] = numberOfNodesArray[currentTreeIndex] - 1;
 
-        // fullTree.select("#node" + parseInt(d.id-1)).remove()
         updateTreeOrderDelete(root, delNodeId)
         nodeDeleted = true;
         d3.select("body").select("svg").remove()
@@ -1447,23 +1360,19 @@ var getTree = function(treeData) {
 
         duplicateNode.id = newNodeId + 1;
         duplicateNode.name = name;
-//        duplicateNode.nameArb = nameArb; 
         duplicateNode.pos = newPOSTag;
         duplicateNode.pid = newNodeId;
         duplicateNode.link = '';
         duplicateNode.duplicate = true
         duplicateNode.collapsed = false
-//        duplicateNode.features = "New";
 
         treeNode.id = newNodeId;
         treeNode.name = name;
-//        treeNode.nameArb = nameArb;
         treeNode.pos = newPOSTag;
         treeNode.pid = parent.id;
         treeNode.link = newLinkLabel;
         treeNode.collapsed = false
         treeNode.duplicate = false
-//        treeNode.features = "New";
         treeNode.children = [];
         treeNode.children.push(duplicateNode);
         numberOfNodesArray[currentTreeIndex] = numberOfNodesArray[currentTreeIndex] + 1;
@@ -1821,14 +1730,11 @@ var getTree = function(treeData) {
             deduct = countCollapsedNodes(nodes, d);
             
             for (var i = 0; i < indexNodes.length; i++) {
-                console.log()
                 if(indexNodes[i] === d) {
                     counter = i;
                     break;
                 }
             }
-
-            // console.log("node id = ", d.id, " - node name = ", d.name, " - counter = ", counter);
 
             if (d.y > lowestNodeY) {
                 lowestNodeY = d.y
@@ -1842,7 +1748,6 @@ var getTree = function(treeData) {
                   d.x = d.parent.x;
                 }
                 else {
-//                     d.x =  orient((d.id-1-deduct) * parseFloat(localStorage['customwidth']) * 250 + wordOffset(nodes, d.id-1, sentenceArray)) ;
                     d.x =  orient(counter * parseFloat(localStorage['customwidth']) * 300 + wordOffset(nodes, d.id-1, sentenceArray)) ;
                 }
             }
@@ -1852,7 +1757,6 @@ var getTree = function(treeData) {
                   d.x = d.parent.x;
                 }
                 else {
-//                     d.x = orient((d.id-deduct) * parseFloat(localStorage['customwidth']) * 250 + wordOffset(nodes, d.id, sentenceArray));
                     d.x = orient(counter * parseFloat(localStorage['customwidth']) * 300 + wordOffset(nodes, d.id, sentenceArray));
                 }
             }
@@ -1866,15 +1770,11 @@ var getTree = function(treeData) {
 
         // Compute original sentences in both English and Arabic
         var sentenceArray = [];
-//        sentenceArray.push([0,"\t"]);  //>>>>>>>>>>
         nodes.forEach(function(d) {
             if (d.id % 2 == 1)  {
-//                if (orientation == "l-to-r") sentenceArray.push([d.id,d.name]);
-//                else sentenceArray.push([d.id,d.name]);
                 sentenceArray.push([d.id,d.name]);
             }
         });
-//        sentenceArray.push([sentenceArray.length+1,"\t"]);  //>>>>>>>>>>
         sentenceArray.sort(function(a, b){return a[0]-b[0]})
         for (var i=0; i<sentenceArray.length; i++) {
           sentenceArray[i] = sentenceArray[i][1]
@@ -1883,10 +1783,6 @@ var getTree = function(treeData) {
         document.getElementById("fullSentence").textContent = sentenceArray;
         $('#sents').show()
         $('.toolbar input').show()
-
-        // // Revise node coordinates to prevent shifting of the root node
-//         nodes.forEach(function(d) {d.y = d.y+(root.y0-root.y);
-//                                 d.x = d.x+(root.x0-root.x);});
 
         // force full tree redraw to update dynamic changes like doubleclick etc.
         fullTree.selectAll('.node').remove();
@@ -1932,8 +1828,6 @@ var getTree = function(treeData) {
         
         // add labels
         linkEnter.append("text")
-                // "fill" is for inside the class
-                // .attr("fill", "#00000")
                 .attr("dy", ".35em")
                 .attr("text-anchor", "middle")
                 .text(function (d) {
@@ -2019,24 +1913,16 @@ var getTree = function(treeData) {
             .attr("class", localStorage.currentFont)
             .style("direction", nodeTextDirStyle)
             .classed("nodelabel", true)
-            // these (x,y) coordinates seem to be overidden below
             .attr("y", function(d) {
                 return d.children || d._children ? 0 : parseFloat(localStorage['ysep']); })
             .attr("x", function(d) {
                 return d.children || d._children ? parseFloat(localStorage['xsep'])+parseFloat(localStorage['nodesize']) : -parseFloat(localStorage['nodesize']); })
             .attr("dy", ".85em")
             .attr("dx", ".2em")
-            // node label text alignment (left, right, middle)
-            //.attr("text-anchor", "middle")
             .attr("text-anchor", nodeTextAnchorStyle)
-            // Doing this only here is problematic because it won't get updated when children are added/removed
-            //.attr("text-anchor", function(d) { return d.children || d._children ? "left" : "middle"; })
             .text(function(d) {
-//                if (orientation == "l-to-r") return d.name;
-//                else return d.nameArb;
                 return d.name;
             })
-            // .attr('pointer-events', 'mouseover')
 
         // add POS labels to nodes
         nodeEnter.filter(function(d, i)
@@ -2047,18 +1933,11 @@ var getTree = function(treeData) {
             .attr("id", function(d) { return "nodePOS" + d.id; })
             .attr("class", localStorage.currentFont)
             .classed("nodepos", true)
-            // these (x,y) coordinates seem to be overidden below
             .attr("dx", "1.5em")
             .attr("dy", "2.35em")
-            // node label text alignment (left, right, middle)
-            //.attr("text-anchor", "middle")
             .attr("text-anchor", "start")
-            // Doing this only here is problematic because it won't get updated when children are added/removed
-            //.attr("text-anchor", function(d) { return d.children || d._children ? "left" : "middle"; })
             .text(function(d) {
                 return d.pos; })
-            // .attr('pointer-events', 'mouseover')
-
 
         if (nodeCount > 0) {
             // add bottom morphology text
@@ -2071,17 +1950,10 @@ var getTree = function(treeData) {
                 .attr("class", localStorage['currentFont'])
                 .style("direction", nodeTextDirStyle)
                 .classed("morphology", true)
-                // these (x,y) coordinates seem to be overidden below
                 .attr("dx", 0)
                 .attr("dy", "1em")
-                // node label text alignment (left, right, middle)
-                //.attr("text-anchor", "end")
                 .attr("text-anchor", "end")
-                // Doing this only here is problematic because it won't get updated when children are added/removed
-                //.attr("text-anchor", function(d) { return d.children || d._children ? "left" : "middle"; })
                 .text(function(d) { 
-//                    if (orientation == "l-to-r") return d.name;
-//                    else return d.nameArb;
                     return d.name;
                 })
                 .on("click", morphologyClick); 
@@ -2097,7 +1969,6 @@ var getTree = function(treeData) {
                     .attr("class", localStorage['currentFont'])
                     .classed("morphology", true)
                     .classed("morphologyMerge", true)
-                    // these (x,y) coordinates seem to be overidden below
                     .attr("dx", "1.3em")
                     .attr("dy", "2.6em")
                     .attr("text-anchor", "end")
@@ -2113,7 +1984,6 @@ var getTree = function(treeData) {
                     .attr("class", localStorage['currentFont'])
                     .classed("morphology", true)
                     .classed("morphologyMerge", true)
-                    // these (x,y) coordinates seem to be overidden below
                     .attr("dx", "-1.3em")
                     .attr("dy", "2.6em")
                     .attr("text-anchor", "start")
@@ -2132,7 +2002,6 @@ var getTree = function(treeData) {
                     .attr("class", localStorage['currentFont'])
                     .classed("morphology", true)
                     .classed("morphologyMerge", true)
-                    // these (x,y) coordinates seem to be overidden below
                     .attr("dx", "-1.3em")
                     .attr("dy", "2.6em")
                     .attr("text-anchor", "start")
@@ -2148,7 +2017,6 @@ var getTree = function(treeData) {
                     .attr("class", localStorage['currentFont'])
                     .classed("morphology", true)
                     .classed("morphologyMerge", true)
-                    // these (x,y) coordinates seem to be overidden below
                     .attr("dx", "1.3em")
                     .attr("dy", "2.6em")
                     .attr("text-anchor", "end")
@@ -2166,7 +2034,6 @@ var getTree = function(treeData) {
                 .attr("class", localStorage['currentFont'])
                 .classed("morphology", true)
                 .classed("morphologyMerge", true)
-                // these (x,y) coordinates seem to be overidden below
                 .attr("dx", "0")
                 .attr("dy", "2.6em")
                 .attr("text-anchor", "middle")
@@ -2180,14 +2047,19 @@ var getTree = function(treeData) {
               if (d.id != 0 && d.id % 2 == 0) 
                 return true; else return false;
               }).append("text")
-                .attr("id", function(d) { return "morphologyAdd" + d.id; })
+                .attr("id", function(d) { return "morphologyAdd_left" + d.id; })
                 .attr("class", localStorage['currentFont'])
                 .classed("morphology", true)
                 .classed("morphologyMerge", true)
-                // these (x,y) coordinates seem to be overidden below
-                .attr("dx", function(d) { 
-                    if (orientation == 'r-to-l') return "1.7em"
-                    else return "-1.7em"})
+                .attr("x", function(d) { 
+                    x_location = (1 * localStorage['customwidth'] * 300 + d.name.length * 10)/2;
+                    if (orientation == 'r-to-l') {
+                        return x_location + "px";
+                    }
+                    else{ 
+                        return "-" + x_location + "px";
+                    }
+                })
                 .attr("dy", "2.6em")
                 .attr("text-anchor", "middle")
                 .style("fill","green")
@@ -2196,17 +2068,16 @@ var getTree = function(treeData) {
                     addNode(d, "left")
                 });
 
-            // add new node icon to morphology
+            // add new node icon to morphology to the end of the tree (after the last node)
             nodeEnter.filter(function(d, i)
               {
               if (d.id == nodeCount) 
                 return true; else return false;
               }).append("text")
-                .attr("id", function(d) { return "morphologyAdd" + d.id; })
+                .attr("id", function(d) { return "morphologyAdd_end" + d.id; })
                 .attr("class", localStorage['currentFont'])
                 .classed("morphology", true)
                 .classed("morphologyMerge", true)
-                // these (x,y) coordinates seem to be overidden below
                 .attr("dx", function(d) { 
                     if (orientation == 'r-to-l') return "-1.7em"
                     else return "1.7em"})
@@ -2217,20 +2088,18 @@ var getTree = function(treeData) {
                 .on("click", function(d) {
                     addNode(d, "end")
                 });
-            console.log(localStorage['currentFont']);
         } else {
-            // add new node icon to morphology
+            // add new node icon to morphology for a new tree (that only has a root)
             nodeEnter.filter(function(d, i)
               {
               if (d.id == nodeCount) 
                 return true; else return false;
               }).append("text")
-                .attr("id", function(d) { return "morphologyAdd" + d.id; })
+                .attr("id", function(d) { return "morphologyAdd_root" + d.id; })
                 .attr("class", localStorage['currentFont'])
                 .classed("morphology", true)
                 .classed("morphologyMerge", true)
-                // these (x,y) coordinates seem to be overidden below
-                .attr("dx", "1.7em")
+                .attr("dx", "0em")
                 .attr("dy", "2.6em")
                 .attr("text-anchor", "middle")
                 .style("fill","green")
@@ -2239,6 +2108,7 @@ var getTree = function(treeData) {
                     addNode(d, "root")
                 });
         }
+
 
 
         // add circles to nodes
@@ -2283,7 +2153,6 @@ var getTree = function(treeData) {
 
         // fade in labels
         nodeUpdate.selectAll("text")
-            // .attr("class", localStorage['currentFont'])
             .style("fill-opacity", 1);
 
         // node circles "grow" in (animation)
@@ -2314,14 +2183,6 @@ var getTree = function(treeData) {
            d.x0 = d.x,
            d.y0 = d.y;
         });
-
-        // // Morphology Nodes
-        // morphNodes = fullTree.select(".nodes").selectAll(".node")
-        //     .filter(function(d, i)
-        //   {
-        //   if (d.id % 2 == 0) 
-        //     return true; else return false;
-        //   })
 
     };
 
