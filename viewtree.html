@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
 Palmyra
-(c) 2017, Talha Javed
+Copyright (c) 2019 New York University Abu Dhabi
 
 License: MIT BSD-3
 
@@ -19,7 +19,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" type="text/css" href="main.css">
-        <title>Palmyra v0.1</title>
+        <title>Palmyra v2.0</title>
     </head>
 
 <body class="viewtree">
@@ -28,7 +28,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         <div class="container">
             <a href="index.html"><img src="fonts/logo.png" alt="palmyra" id='logo'/></a>
             <div class="toolbar btn-initial" align="left">
-                <!-- <input type="button" value="upload" onClick="$('#upload').toggle(); $('#upload2').toggle()" /> -->
                 <input type="button" value="clear" onClick="clearTree()" />
             </div>
             <div>
@@ -47,33 +46,31 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                 <input type="button" id="editbtn" value="edit" onClick="$('.morphologyMerge').toggle()"/>
                 <input type="button" value="download" onClick="$('#download').toggle()"/>
                 <input type="button" value="direction" onClick="directionToggle()"/>
-<!--                 <input type="button" value="reset" onClick="massReset()" /> -->
                 <input type="button" value="tags" onClick="tagsToggle()" />
+                <input type="button" value="listing" onClick="search()" />
             </div>
         </div>
 
         <div class="container" style="width:100%">
         <section id="upload" class="upload">
-            <p>Enter .DEP file:</p>
+            <p>Select CoNLL-U file:</p>
             <input type="file" id="inputFile" name="treefiles[]"/>
-            <!-- <input type="file" id="inputFile" name="treefiles[]" multiple/><br> -->
             <input type="button" id="treebtn" value="Upload file" onClick="setJSONtreeData()" />
         </section>
         </div>
         <div class="container" style="width:100%">
         <section id="upload2" class="upload">
             <form id="upload2">
-                <p>Enter text -- Each line will be a seperate tree:</p><br>
+                <p>Or: Enter text -- Each line will be a seperate tree:</p><br>
                 <textarea id="treedata2" rows="5"></textarea>
             </form>
-            <input style="float:none" type="button" id="treebtn2" value="Upload" onClick="setphrasetreeData()" />
+            <input style="float:none" type="button" id="treebtn2" value="Upload" onClick="setSentenceTreeData()" />
         </section>
         </div>
         <div class="container" style="width:100%">
         <section id="upload3" class="upload">
-            <p>Optional Configuration File:</p>
+            <p>Configuration File:</p>
             <input type="file" value="catib.config" name="configFile" id="configFile"/>
-            <p style="float:right">(Default Configuration = CATIB Treebank)</p>
         </section>
         </div>
       
@@ -89,14 +86,18 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
             <form id="download">
                 <p>Please select format and a filename:</p>
                 <div>
-                  <input type="radio" name="downloadChoice" id="downloadChoiceTree" checked><label>DEP&emsp;&emsp;</label>
+                  <input type="radio" name="downloadChoice" id="downloadChoiceTree" checked><label>CoNLL-U&emsp;&emsp;</label>
                   
                   <input type="radio" name="downloadChoice" id="downloadChoiceImage"><label>PNG</label>
                 </div>
-                <input type="text" id="filename" value="tree_output_file"/>
+                <input type="text" id="filename" value="treeOutputFile"/>
             </form>
             <input type="button" id="dwnbtn" value="Download" onClick="downloadTree()"/>
             <button onClick="$('#download').hide()">Close</button>
+        </section>
+
+        <section id="search" style="width:25%">
+
         </section>
 
         <section id="gototree">
@@ -108,93 +109,37 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
             <button onClick="$('#gototree').hide()">Close</button>
         </section>
         
-        <!-- <section id="settings">
-            <p>Settings</p>
-            <table>
-                <tr>
-                    <td>Tree Width</td>
-                    <td><input type="button" class="setbtn" value="−" onClick="narrowTree()"/></td>
-                    <td><input type="button" class="setbtn" value="+" onClick="widerTree()"/></td>
-                </tr>
-                <tr>
-                    <td>Tree Height</td>
-                    <td><input type="button" class="setbtn" value="−" onClick="shorterTree()"/></td>
-                    <td><input type="button" class="setbtn" value="+" onClick="tallerTree()"/></td>
-                </tr>
-                <tr>
-                    <td>Node Size</td>
-                    <td><input type="button" class="setbtn" value='−' onClick='smallerNode()'/></td>
-                    <td><input type='button' class="setbtn" value='+' onClick='biggerNode()'/></td>
-                </tr>
-                <tr>
-                    <td>Text X-Values</td>
-                    <td><input type="button" class="setbtn" value="−" onClick="smallerX()" /></td>
-                    <td><input type="button" class="setbtn" value="+" onClick="biggerX()" /></td>
-                </tr>
-                <tr>
-                    <td>Text Y-Values</td>
-                    <td><input type="button" class="setbtn" value="−" onClick="smallerY()" /></td>
-                    <td><input type="button" class="setbtn" value="+" onClick="biggerY()" /></td>
-                </tr>
-            </table>
-            <table>
-                <tr><td>Font Family</td>
-                    <td>
-                        <select id="fonts">
-                            <option value="serif">Serif</option>
-                            <option value="sans-serif">Sans-serif</option>
-                            <option value="monospace">Monospace</option>
-                            <option value="standard">Standard</option>
-                        </select>
-                    </td>
-                    <td><button onClick="customFont()">Go</button></td>
-                </tr>
-            </table>
-            <input type="button" id="reset" value="Reset" onClick="reset()"/>
-            <input type="button" id="settingbtn" value="Close" onClick="$('#settings').hide()" />
-        </section> -->
-        
         <section id='labels'>
-            <label class='labelsp'>Link Label</label>
-<!--             <button onClick="finishLabel()">Cancel</button> -->
-            <div>
-                <input type='button' id='labelbutton0' value='One' onClick="freqLabel(this.value)"/>
-                <input type='button' id='labelbutton1' value='Two' onClick='freqLabel(this.value)'/>
-                <input type='button' id='labelbutton2' value='Three' onClick='freqLabel(this.value)'/>
-                <input type='button' id='labelbutton3' value='Four' onClick="freqLabel(this.value)"/>
-                <input type='button' id='labelbutton4' value='Five' onClick='freqLabel(this.value)'/>
-                <input type='button' id='labelbutton5' value='Six' onClick='freqLabel(this.value)'/>
-                <input type='button' id='labelbutton6' value='Seven' onClick="freqLabel(this.value)"/>
-                <input type='button' id='labelbutton7' value='Eight' onClick='freqLabel(this.value)'/>
-                <input type='button' id='labelbutton8' value='Nine' onClick='freqLabel(this.value)'/>
-                <input type='button' id='labelbutton9' value='Ten' onClick='freqLabel(this.value)'/>
-            </div>
+            <label class='labelsp'>Relation Labels</label>
+            
         </section>
         
         <section id='postags'>
             <label class='labelsp'>POS Tags</label>
-<!--             <button onClick="finishPOS()">Cancel</button> -->
-            <div>
-                <input type='button' id='posbutton0' value='One' onClick="freqPOS(this.value)"/>
-                <input type='button' id='posbutton1' value='Two' onClick='freqPOS(this.value)'/>
-                <input type='button' id='posbutton2' value='Three' onClick='freqPOS(this.value)'/>
-                <input type='button' id='posbutton3' value='Four' onClick="freqPOS(this.value)"/>
-                <input type='button' id='posbutton4' value='Five' onClick='freqPOS(this.value)'/>
-                <input type='button' id='posbutton5' value='Six' onClick='freqPOS(this.value)'/>
-                <input type='button' id='posbutton6' value='Seven' onClick="freqPOS(this.value)"/>
-                <input type='button' id='posbutton7' value='Eight' onClick='freqPOS(this.value)'/>
-                <input type='button' id='posbutton8' value='Nine' onClick='freqPOS(this.value)'/>
-                <input type='button' id='posbutton9' value='Ten' onClick='freqPOS(this.value)'/>
-            </div>
+            
         </section>
 
         <section id='morphology'>
-            <p class='labelsp'>Node Name:</p>
+            <p class='labelsp'>Token:</p>
             <div>
                 <input type="text" id="morphologyName"><br>
-            </div><br>
-            <button onClick="saveMorphology()">OK</button>
-            <button onClick="cancelMorphology()">Cancel</button>
+            </div>
+
+            <p class='labelsp'>Lemma:</p>
+            <div>
+                <input type="text" id="lemma"><br>
+            </div>
+
+            <div id='lexicalFeats'>
+            </div>
+
+            <p class ='labelsp' id='labelspMorphoFeats'>Morphological Features:</p>
+            <div id='morphoFeats'>
+            </div>
+            <p>
+                <button onClick="saveMorphology()">OK</button>
+                <button onClick="cancelMorphology()">Cancel</button>
+            </p>
         </section>
 
     </div>

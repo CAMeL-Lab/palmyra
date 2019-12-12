@@ -1,6 +1,6 @@
 /* * * * * * * * * *
-Palmyra
-(c) 2017, Talha Javed
+PALMYRA
+Copyright (c) 2019 New York University Abu Dhabi
 
 License: MIT BSD-3
 
@@ -26,53 +26,27 @@ var viewerHeight = 0;
 var addNode;
 var selectedNodeLink, selectedMorphology
 var nodeDeleted = false;
+var rootNodeName = '*';
+
+// default settings that can be configured
 var orientation = 'r-to-l';
-var newPOSTag = "NOM";
+var newPOSTag = 'NOM';
 var newLinkLabel = '---';
-var rootNodeName = "*";
+var newNodeName = '*'
 
-// settings variables are saved as session variables
-// this way, they persist even if user navigates away from tree viewer
+// keeping tack of the pos tags, relation labels, and features, their values, and their defaults
+var posTags = {}
+var relLabels = {}
+var featureValues = {}
+var defaultFeatValues = {}
+// lexical features that will be displayed as text fields
+var lexicalFeatsList = []
 
-var standardPOS = function() {
-    localStorage['posarray'] = [
-        "---",
-        "ERR",
-        "NOM",
-        "PNX",
-        "PROP",
-        "PRT",
-        "VRB",
-        "VRB-pass"
-    ];
-};
-
-var standardLabels = function() {
-    localStorage['labels'] = [
-        "---",
-        "IDF",
-        "MOD",
-        "OBJ",
-        "PRD",
-        "SBJ",
-        "TMZ",
-        "TPC",
-    ];
-};
-
-// if no POS customization saved, initialize with defaults
-if (!localStorage['posarray']) {
-    standardPOS();
-};
-
-// if no POS customization saved, initialize with defaults
-if (!localStorage['labels']) {
-    standardLabels();
-};
-
-if (!localStorage['counts']) {
-    localStorage['counts'] = JSON.stringify({});
-};
+// variables to keep track of the keystrokes related to the editing of POS tags and relation labels
+var pointer = 0
+var lastKeyStroke = ''
+var editingControl = 'pos'
+var lastClickedNodeId = 0
 
 var settings = [['customwidth', 0.25], ['customdepth', 100], ['nodesize', 10], ['xsep', 5], ['ysep', 10], ['currentFont', 'standard']];
 
@@ -89,56 +63,242 @@ var main = function() {
     $('#jsontext').hide();
     $('#download').hide();
     $('#linktext').hide();
+    $('#search').hide();
     findStorage();
     $('.upload').show();
 };
 
 var findStorage = function() {
-    var check = "check";
+    var check = 'check';
     try {
         localStorage.setItem(check, check);
         localStorage.removeItem(check);
         return true;
     } catch (e) {
-        alert('Your browser will not support Palmyra (See FAQ or README for details.)');
+        alert('Your browser does not support Palmyra.');
     }
 };
 
-// wait to call "main" until the page has finished loading
+// wait to call 'main' until the page has finished loading
 $(document).ready(main);
 
 $( window ).resize(function() {
-    sessionStorage.removeItem("treeData");
+    sessionStorage.removeItem('treeData');
     saveTree();
-    d3.select("body").select("svg").remove()
+    d3.select('body').select('svg').remove()
     getTree(treesArray[currentTreeIndex])
     update(root);
 });
 
-//STEP 2: Read the config file - currently is useless
+//Read the config file
 var readConfigFile = function() {
 
-    var x = document.getElementById("configFile");
-    var input = "";
+    var x = document.getElementById('configFile');
+    var input = '';
 
     if ('files' in x) {
         if (x.files.length == 0) {
-            txt = "Select config file.";
-            console.log(txt)
+            var morphoLabel = document.getElementById('labelspMorphoFeats')
+            morphoLabel.style.visibility = 'hidden';
+            txt = 'Select config file.';
         } else {
 
             var file = x.files[0];
             var reader=new FileReader();
             reader.onload = function(e) {
-                console.log("config success")
+                parseConfig(reader.result);
             }
-            console.log(file)
-            reader.readAsText(file);    
-            
+            reader.readAsText(file);                
         }
     }
   
     return;  
+};
+
+var parseConfig = function(content) {
+
+    var configs = JSON.parse(content)
+    orientation = configs.orientation
+
+    var posContainer = document.getElementById('postags')
+    var divs = {}
+    
+    for (var i = 0; i < configs.pos.values.length; i++) {
+        if(configs.pos.values[i].key in posTags) {
+            posTags[configs.pos.values[i].key].push(configs.pos.values[i].label)
+            var btn = document.createElement('BUTTON')
+            var text = document.createTextNode(configs.pos.values[i].label.toUpperCase())
+            btn.appendChild(text);
+            btn.value = configs.pos.values[i].label.toUpperCase()
+            btn.onclick = editPOSByButton
+
+            group = configs.pos.values[i].group;
+            if (group in divs) {
+                divs[group].appendChild(btn)
+            } else {
+                divs[group] = document.createElement('div'); 
+                divs[group].appendChild(btn)
+            }
+        } else {
+            posTags[configs.pos.values[i].key] = []
+            posTags[configs.pos.values[i].key].push(configs.pos.values[i].label)
+            var btn = document.createElement('BUTTON')
+            var text = document.createTextNode(configs.pos.values[i].label.toUpperCase())
+            btn.appendChild(text);
+            btn.value = configs.pos.values[i].label.toUpperCase()
+            btn.onclick = editPOSByButton
+
+            group = configs.pos.values[i].group;
+            if (group in divs) {
+                divs[group].appendChild(btn)
+            } else {
+                divs[group] = document.createElement('div'); 
+                divs[group].appendChild(btn)
+            }
+        }
+    }
+
+    for (var div in divs) {
+        var hzRule = document.createElement('hr')
+        posContainer.appendChild(hzRule)
+        posContainer.appendChild(divs[div])
+    }
+    
+
+    var labelContainer = document.getElementById('labels')
+    var divs = {}
+
+    for (var i = 0; i < configs.relation.values.length; i++) {
+        if(configs.relation.values[i].key in relLabels) {
+            relLabels[configs.relation.values[i].key].push(configs.relation.values[i].label)
+            var btn = document.createElement('BUTTON')
+            var text = document.createTextNode(configs.relation.values[i].label.toUpperCase())
+            btn.appendChild(text);
+            btn.setAttribute('id', configs.relation.values[i].label.toUpperCase())
+            btn.value = configs.relation.values[i].label.toUpperCase()
+            btn.onclick = editLabelByButton
+
+            group = configs.relation.values[i].group;
+            if (group in divs) {
+                divs[group].appendChild(btn)
+            } else {
+                divs[group] = document.createElement('div'); 
+                divs[group].appendChild(btn)
+            }
+
+        } else {
+            relLabels[configs.relation.values[i].key] = []
+            relLabels[configs.relation.values[i].key].push(configs.relation.values[i].label)
+            var btn = document.createElement('BUTTON')
+            var text = document.createTextNode(configs.relation.values[i].label.toUpperCase())
+            btn.appendChild(text);
+            btn.setAttribute('id', configs.relation.values[i].label.toUpperCase())
+            btn.value = configs.relation.values[i].label.toUpperCase()
+            btn.onclick = editLabelByButton
+
+            group = configs.relation.values[i].group;
+            if (group in divs) {
+                divs[group].appendChild(btn)
+            } else {
+                divs[group] = document.createElement('div'); 
+                divs[group].appendChild(btn)
+            }
+        }
+    }
+
+    for (var div in divs) {
+        var hzRule = document.createElement('hr')
+        labelContainer.appendChild(hzRule)
+        labelContainer.appendChild(divs[div])
+    }
+
+    if(configs.hasOwnProperty('features') == false) {
+        var morphoLabel = document.getElementById('labelspMorphoFeats')
+        morphoLabel.style.visibility = 'hidden';
+    } else {
+
+        var morphoLabel = document.getElementById('labelspMorphoFeats')
+        morphoLabel.style.visibility = 'visible';
+
+        var item = document.getElementById('morphoFeats');
+        var lexicalFeats = document.getElementById('lexicalFeats');
+
+        for (var i = 0; i < configs.features.length; i++) {
+
+            var div = document.createElement('div')
+            div.setAttribute('id', configs.features[i].name)
+            div.setAttribute('class', 'morphoFeat')
+
+            var fieldName = document.createElement('div')
+            fieldName.style.width = '100px'
+            fieldName.style.right = '0px'
+            fieldName.style.display = 'inline-block'
+
+            var displayName = document.createTextNode(configs.features[i].display);
+            fieldName.appendChild(displayName)
+
+            var menu = document.createElement('select')
+            menu.setAttribute('id', configs.features[i].name + 'Array')
+            menu.setAttribute('class', 'inputArray')
+            menu.style.width = '100px'
+            menu.style.left = '0px'
+            menu.style.display = 'inline-block'
+
+            if (configs.features[i].type === 'list') {
+                featureValues[configs.features[i].name] = configs.features[i].values;
+
+                for (var j = 0; j < configs.features[i].values.length; j++) {
+                    var opt = document.createElement('option');
+                    var name = document.createTextNode(configs.features[i].values[j].display);
+                    opt.setAttribute('value', configs.features[i].values[j].display)
+                    opt.setAttribute('id', configs.features[i].values[j].value)
+                    opt.appendChild(name)
+                    menu.appendChild(opt);
+                }
+
+                div.appendChild(fieldName)
+                div.appendChild(menu)
+
+                item.appendChild(div)
+            } else {
+                lexicalFeatsList.push(configs.features[i].name)
+
+                var titleParagraph = document.createElement('P')
+                titleParagraph.setAttribute('class', 'labelsp')
+                titleParagraph.innerHTML = configs.features[i].display + ':'
+
+                var field = document.createElement('INPUT');
+                field.setAttribute('type','text')
+                field.setAttribute('id',configs.features[i].name)
+
+                var lexDiv = document.createElement('div')
+                lexDiv.appendChild(field)
+
+                lexicalFeats.append(titleParagraph)
+                lexicalFeats.appendChild(lexDiv)
+                console.log()
+            }
+        }
+
+        for (var i = 0; i < configs.defaultFeatures.length; i++) {
+            var posTag = configs.defaultFeatures[i].pos.toUpperCase();
+
+            var defaultFeatValuePairs = {};
+            for (var j = 0; j < configs.defaultFeatures[i].features.length; j++) {
+                var featName = configs.defaultFeatures[i].features[j].name;
+                var featValue = configs.defaultFeatures[i].features[j].value
+                defaultFeatValuePairs[featName] = featValue
+            }
+
+            defaultFeatValues[posTag] = defaultFeatValuePairs
+        }
+    }
+
+    newPOSTag = configs.newNodeDefaults.pos.toUpperCase();
+    newLinkLabel = configs.newNodeDefaults.relation;
+    newNodeName = configs.newNodeDefaults.name;
+
+    return;
 };
 
 // converts JSON format tree to CONLL format
@@ -148,6 +308,18 @@ var convertJSONToCONLL = function(node) {
     }
 
     if (node.collapsed === false) {
+
+        node.features = ''
+        
+        for (var featKey in node.feats) {
+            if (node.features === '') {
+                node.features = featKey + '=' + node.feats[featKey]
+            } else {
+                node.features += '|' + featKey + '=' + node.feats[featKey]
+            }
+        }
+
+
         var fullArray = [];
         if (typeof node.parent !== 'undefined' && node.parent.id ) {
             var pid = (node.parent.id+1)/2
@@ -158,13 +330,13 @@ var convertJSONToCONLL = function(node) {
             fullArray = fullArray.concat(tempArray)
         }
         if (node.id !== 0) {
-            fullArray.push([(node.id+1)/2,node.name,node.pos,pid,node.link])
+            fullArray.push([(node.id+1)/2,node.name,node.lemma,node.pos,node.xpos,node.features,pid,node.link,node.deps,node.misc])
         } else {
             fullArray.sort(function(a, b){return a[0]-b[0]})
             for (var i=0; i<fullArray.length; i++) {
-              fullArray[i] = fullArray[i].join("\t")
+              fullArray[i] = fullArray[i].join('\t')
             }
-            fullArray = fullArray.join("\n")
+            fullArray = fullArray.join('\n')
         }
         return fullArray
     }
@@ -181,13 +353,13 @@ var convertJSONToCONLL = function(node) {
             fullArray = fullArray.concat(tempArray)
         }
         if (node.id !== 0) {
-            fullArray.push([(node.id+1)/2,node.name,node.pos,pid,node.link])
+            fullArray.push([(node.id+1)/2,node.name,node.lemma,node.pos,node.xpos,node.feats,pid,node.link,node.deps,node.misc])
         } else {
             fullArray.sort(function(a, b){return a[0]-b[0]})
             for (var i=0; i<fullArray.length; i++) {
-              fullArray[i] = fullArray[i].join("\t")
+              fullArray[i] = fullArray[i].join('\t')
             }
-            fullArray = fullArray.join("\n")
+            fullArray = fullArray.join('\n')
         }
         return fullArray
     }
@@ -198,8 +370,7 @@ var outputToCONLLFormat = function(inputJSON) {
     var rootNodeIndex = 0;
 
     var rootNode = new Object();
-    rootNode.name = "root";
-    rootNode.nameArb = "*";
+    rootNode.name = 'root';
     rootNode.id = 0;
     rootNode.children = [];
     rootNode.collapsed = false
@@ -211,7 +382,7 @@ var outputToCONLLFormat = function(inputJSON) {
             rootNode.children.push(inputArray[i])
         }
         else {
-            if (typeof inputArray[pid].children == "undefined") {
+            if (typeof inputArray[pid].children == 'undefined') {
                 inputArray[pid].children = [];
             }
             inputArray[pid].children.push(inputArray[i]);
@@ -224,39 +395,75 @@ var convertToJSON = function(inputData) {
     var inputArray = [];
     numberOfNodesArray = []
     var newTree = [];
-    if (inputData !== "") {
-        var lines = inputData.split("\n");
+    newTree.meta = {};
+    var sentenceText = ''
+    if (inputData !== '') {
+        var lines = inputData.split('\n');
         for (var i=0; i< (lines.length); i++) {
             if (lines[i].trim().length == 0 ) {
                 if (newTree.length>0) {
+                    newTree.meta['sentenceText'] = sentenceText .trim()
                     inputArray.push(newTree);
                     numberOfNodesArray.push(newTree.length/2)
                     newTree = []
+                    newTree.meta = {}
+                    sentenceText = ''
                 }
                 continue;
             }
-            var singleLine = lines[i].split("\t");
+            if (lines[i].trim().startsWith('#')) {
+                lineToks = lines[i].trim().split(' ')
+                key = lineToks[1]
+                value = lineToks[3]
+                newTree.meta[key] = value
+                continue;
+            }
+            if (lines[i].trim().match(/^\d+-\d+\s/)) {
+                continue;
+            }
+            
+            var singleLine = lines[i].split('\t');
             var treeNode = new Object();
-            var duplicateNode = new Object();
+            var projectedNode = new Object();
 
             treeNode.id = parseInt(singleLine[0]) * 2 - 1;
             treeNode.name = singleLine[1];
-            treeNode.pos = singleLine[2];
-            treeNode.pid = parseInt(singleLine[3]) * 2 - 1;
-            treeNode.link = singleLine[4];
+            treeNode.lemma = singleLine[2]
+            treeNode.pos = singleLine[3];
+            treeNode.xpos = singleLine[4]
+
+            treeNode.feats = {}
+
+            if (singleLine[5] == '_') { 
+                
+            } else {
+                var featToks = singleLine[5].split('|')
+                for (var j = 0; j < featToks.length; j++) {
+                    var featKey = featToks[j].split('=')[0]
+                    var featValue = featToks[j].split('=')[1]
+                    treeNode.feats[featKey] = featValue;
+                }
+            }
+
+            treeNode.pid = parseInt(singleLine[6]) * 2 - 1;
+            treeNode.link = singleLine[7];
+            treeNode.deps = singleLine[8];
+            treeNode.misc = singleLine[9]
             treeNode.duplicate = false
             treeNode.collapsed = false
             
+            sentenceText += treeNode.name + ' '
             newTree.push(treeNode);
 
-            duplicateNode.id = parseInt(singleLine[0]) * 2;
-            duplicateNode.name = treeNode.name;
-            duplicateNode.pos = singleLine[2];
-            duplicateNode.pid = parseInt(singleLine[0]) * 2 - 1;
-            duplicateNode.link = "";
-            duplicateNode.duplicate = true
-            duplicateNode.collapsed = false
-            newTree.push(duplicateNode);
+            projectedNode.id = parseInt(singleLine[0]) * 2;
+            projectedNode.name = treeNode.name;
+            projectedNode.pos = singleLine[3];
+            //the parent of the projected node is the original node itself
+            projectedNode.pid = parseInt(singleLine[0]) * 2 - 1;
+            projectedNode.link = '';
+            projectedNode.duplicate = true
+            projectedNode.collapsed = false
+            newTree.push(projectedNode);
         };
     };
 
@@ -264,6 +471,8 @@ var convertToJSON = function(inputData) {
         inputArray.push(newTree);
         numberOfNodesArray.push(newTree.length/2)
         newTree = []
+        newTree.meta = {}
+        sentenceText = ''
     }
 
     //connect the nodes to their proper parents (i.e. create the tree)
@@ -274,6 +483,7 @@ var convertToJSON = function(inputData) {
         rootNode.id = 0;
         rootNode.collapsed = false
         rootNode.children = [];
+        rootNode.meta = inputArray[i].meta
 
         for (var j=0; j< (newTree.length); j++) {
             var pid = newTree[j].pid - 1;
@@ -282,7 +492,7 @@ var convertToJSON = function(inputData) {
                 rootNode.children.push(newTree[j])
             }
             else {
-                if (typeof newTree[pid].children == "undefined") {
+                if (typeof newTree[pid].children == 'undefined') {
                     newTree[pid].children = [];
                 }
                 newTree[pid].children.push(newTree[j]);
@@ -296,13 +506,11 @@ var convertToJSON = function(inputData) {
 
 var setJSONtreeData = function() {
     readConfigFile()
-    var x = document.getElementById("inputFile");
-    updateLabels();
-    updatePOS();
+    var x = document.getElementById('inputFile');
 
     if ('files' in x) {
         if (x.files.length == 0) {
-            txt = "Select one or more files.";
+            txt = 'Select one or more files.';
         } else {
             for (var i = 0; i < x.files.length; i++) {
                 var file = x.files[i];
@@ -318,7 +526,7 @@ var setJSONtreeData = function() {
                     } catch(e) {
                         console.log(e)
                         // alert user if error occurs
-                        alert("Sorry, something went wrong!");
+                        alert('Sorry, something went wrong!');
                     };
                 }
                 reader.readAsText(file);    
@@ -327,31 +535,30 @@ var setJSONtreeData = function() {
     } 
 };
 
-var setphrasetreeData = function() {
-    var original = $("#treedata2").val();
-    updateLabels();
-    updatePOS();
-    if (original !== "") {
+var setSentenceTreeData = function() {
+    var original = $('#treedata2').val();
+
+    if (original !== '') {
         var treeDataArray = [];
-        var inputTextArray = original.split("\n").filter(function(entry) { return entry.trim() != ''; });
+        var inputTextArray = original.split('\n').filter(function(entry) { return entry.trim() != ''; });
         for (var i=0; i< (inputTextArray.length); i++) {
-            var singleLine = inputTextArray[i].split(" ").filter(function(entry) { return entry.trim() != ''; });
+            var singleLine = inputTextArray[i].split(' ').filter(function(entry) { return entry.trim() != ''; });
             for (var j=0; j< (singleLine.length); j++) {
-                treeDataArray.push([j+1,singleLine[j],newPOSTag,0,newLinkLabel].join("\t"))
+                treeDataArray.push([j+1,singleLine[j],newPOSTag,0,newLinkLabel].join('\t'))
             };
-            treeDataArray.push("\n")
+            treeDataArray.push('\n')
         };
         try {
             // try to store tree data and display tree
-            treesArray = convertToJSON(treeDataArray.join("\n"));
+            treesArray = convertToJSON(treeDataArray.join('\n'));
             getTree(treesArray[0]);
             $('.upload').hide();
         } catch(e) {
             // alert user if error occurs
-            alert("Sorry, something went wrong!");
+            alert('Sorry, something went wrong!');
         };
     } else {
-        //alert("You forgot to enter a phrase!");
+        //alert('You forgot to enter a phrase!');
         $('.upload').hide();
         addNewTree()
     };
@@ -360,15 +567,15 @@ var setphrasetreeData = function() {
 // helper function
 // reset the tree data (to an empty string) and reload the window
 var clearTree = function() {
-    if (window.confirm("Do you really want to clear?")) {
-        sessionStorage.removeItem("treeData");
+    if (window.confirm('Do you really want to clear?')) {
+        sessionStorage.removeItem('treeData');
         window.location.reload();
     }
 };
 
 // add a new tree at the end
 var addNewTree = function() {
-    sessionStorage.removeItem("treeData");
+    sessionStorage.removeItem('treeData');
     saveTree();
 
     var rootNode = new Object();
@@ -377,8 +584,21 @@ var addNewTree = function() {
     rootNode.collapsed = false
     rootNode.children = [];
 
+
+    rootNode.meta = {}
+    rootNode.meta['sentenceText'] = ''
+
+    rootNode.lemma = ''
+    rootNode.pos = ''
+    rootNode.xpos = ''
+
+    rootNode.feats = {}
+
+    rootNode.deps = ''
+    rootNode.misc = ''
+
     currentTreeIndex = treesArray.length
-    d3.select("body").select("svg").remove()
+    d3.select('body').select('svg').remove()
     treesArray.push(rootNode)
     numberOfNodesArray.push(0)
     getTree(treesArray[currentTreeIndex])
@@ -388,9 +608,9 @@ var addNewTree = function() {
 
 // delete the current tree
 var deleteCurrentTree = function() {
-    if (window.confirm("Do you want to delete this tree?")) {
+    if (window.confirm('Do you want to delete this tree?')) {
         if (numberOfNodesArray.length > 1) {
-            d3.select("body").select("svg").remove()
+            d3.select('body').select('svg').remove()
             treesArray.splice(currentTreeIndex,1)
             numberOfNodesArray.splice(currentTreeIndex,1)
             if (currentTreeIndex > 0) currentTreeIndex = currentTreeIndex - 1
@@ -404,10 +624,10 @@ var deleteCurrentTree = function() {
 var firstTree = function() {
     if (currentTreeIndex != 0) 
         { 
-            sessionStorage.removeItem("treeData");
+            sessionStorage.removeItem('treeData');
             saveTree();
             currentTreeIndex = 0;
-            d3.select("body").select("svg").remove()
+            d3.select('body').select('svg').remove()
             getTree(treesArray[currentTreeIndex])
             update(root);
         }
@@ -417,10 +637,10 @@ var firstTree = function() {
 var lastTree = function() {
     if (currentTreeIndex != treesArray.length - 1) 
         { 
-            sessionStorage.removeItem("treeData");
+            sessionStorage.removeItem('treeData');
             saveTree();
             currentTreeIndex = treesArray.length - 1;
-            d3.select("body").select("svg").remove()
+            d3.select('body').select('svg').remove()
             getTree(treesArray[currentTreeIndex])
             update(root);
         }
@@ -430,10 +650,10 @@ var lastTree = function() {
 var nextTree = function() {
     if (currentTreeIndex < treesArray.length - 1) 
         { 
-            sessionStorage.removeItem("treeData");
+            sessionStorage.removeItem('treeData');
             saveTree();
             currentTreeIndex++;
-            d3.select("body").select("svg").remove()
+            d3.select('body').select('svg').remove()
             getTree(treesArray[currentTreeIndex])
             update(root);
         }
@@ -443,10 +663,10 @@ var nextTree = function() {
 var prevTree = function() {
     if (currentTreeIndex > 0) 
         { 
-            sessionStorage.removeItem("treeData");
+            sessionStorage.removeItem('treeData');
             saveTree();
             currentTreeIndex--;
-            d3.select("body").select("svg").remove()
+            d3.select('body').select('svg').remove()
             getTree(treesArray[currentTreeIndex])
             update(root);
         }
@@ -454,12 +674,12 @@ var prevTree = function() {
 
 // go to the input tree number
 var goToTree = function() {
-    if (currentTreeIndex !== (document.getElementById("treeNumberInput").value - 1)) 
+    if (currentTreeIndex !== (document.getElementById('treeNumberInput').value - 1)) 
         { 
-            sessionStorage.removeItem("treeData");
+            sessionStorage.removeItem('treeData');
             saveTree();
-            currentTreeIndex = document.getElementById("treeNumberInput").value - 1;
-            d3.select("body").select("svg").remove()
+            currentTreeIndex = document.getElementById('treeNumberInput').value - 1;
+            d3.select('body').select('svg').remove()
             getTree(treesArray[currentTreeIndex])
             update(root);
         }
@@ -474,124 +694,44 @@ var directionToggle = function() {
         orientation = 'r-to-l';
         $('.morphologyMerge').hide()
     }
-    sessionStorage.removeItem("treeData");
+    sessionStorage.removeItem('treeData');
     saveTree();
-    d3.select("body").select("svg").remove()
+    d3.select('body').select('svg').remove()
     getTree(treesArray[currentTreeIndex])
     update(root);
 };
 
-//Creating the list of labels and connecting the labels to the buttons on the Link Label box
-// Label Handling
-// update the buttons for high-frequency labels
-var updateLabels = function() {
-    console.log("Update Labels")
-    var stop;
-    if (localStorage['labels']) {
-        var labels = sortLabels();
-        // limit total labels to 10
-        stop = labels.length;
-        // display up to 10 labels on buttons
-        for (var i=0; i<stop; i++) {
-            var id = "labelbutton" + i.toString();
-            document.getElementById(id).value = labels[i];
-            document.getElementById(id).style.display = "inline-block";
-        };
-    } else {
-        stop = 0;
-    };
-    // if extra buttons, hide them
-    for (var j=9; j>=stop; j--) {
-        var id = "labelbutton" + j.toString();
-        document.getElementById(id).style.display = "none";
-    };
-};
-
-// find the most frequent labels
-var sortLabels = function() {
-    var labels = localStorage['labels'].split(',');
-    var counts = JSON.parse(localStorage['counts']);
-    labels = labels.sort(function(a, b) {
-        return counts[b] - counts[a];
-    });
-    if (labels.length > 10) {
-        labels = labels.slice(0,9);
-    };
-    return labels;
-};
-
-// close the label menu and update the tree
-var finishLabel = function() {
+// edit the relation labels through keystrokes
+var editLabel = function(labelText) {
+    console.log()
+    selectedNodeLink.link = labelText;
     update(root);
+    console.log()
+
+    d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'red');
+    d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'red');
+    d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'red');
+
+    d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'red');
+    d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'red');                    
 };
 
-// handle a user-customized label
-var newLabel = function() {
-    // get the user's label
-    var labelText = $('#textLabel').val();
-    // update the tree data
-    selectedNodeLink.link = labelText;
-    // get list of top labels from storage; initialize if not stored
-    var labels;
-    if (!localStorage['labels']) {
-        labels = [];
-    } else {
-        labels = localStorage['labels'].split(',');
-    };
-    // get the label counts
-    var counts = JSON.parse(localStorage['counts']);
-    // if this is a new label, add it to the list
-    if (!counts[labelText]) {
-        counts[labelText] = 1;
-        labels.push(labelText);
-    } else {
-        // otherwise just up its count
-        counts[labelText] += 1;
-    };
-    localStorage['counts'] = JSON.stringify(counts);
-    localStorage['labels'] = labels.toString();
-    finishLabel();
-};
+// edit the relation labels through button clicks
+var editLabelByButton = function(inputSource) {
+    if(selectedNodeLink) {
+        labelText = inputSource.currentTarget.value
+        console.log()
+        selectedNodeLink.link = labelText;
+        update(root);
+        console.log()
 
-// handle a button press for high-frequency labels
-var freqLabel = function(labelText) {
-    selectedNodeLink.link = labelText;
-    var counts = JSON.parse(localStorage['counts']);
-    counts[labelText] += 1;
-    localStorage['counts'] = JSON.stringify(counts);
-    finishLabel();
-};
+        d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'red');
+        d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'red');
+        d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'red');
 
-// reset the label frequencies
-var resetLabels = function() {
-    localStorage.removeItem('labels');
-    localStorage['counts'] = JSON.stringify({});
-    finishLabel();
-    updateLabels();
-};
-
-/// POS Handling
-// update the buttons for high-frequency labels
-var updatePOS = function() {
-    var stop;
-    if (localStorage['posarray']) {
-        var posarray = localStorage['posarray'].split(',');
-        // limit total labels to 10
-        stop = posarray.length
-        // display up to 10 labels on buttons
-        for (var i=0; i<stop; i++) {
-            var id = "posbutton" + i.toString();
-            document.getElementById(id).value = posarray[i];
-            document.getElementById(id).style.display = "inline-block";
-        };
-    } else {
-        stop = 0;
-    };
-    // if extra buttons, hide them
-    for (var j=9; j>=stop; j--) {
-        var id = "posbutton" + j.toString();
-        document.getElementById(id).style.display = "none";
-    };
+        d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'red');
+        d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'red');            
+    }
 };
 
 // close the label menu and update the tree
@@ -599,64 +739,80 @@ var finishPOS = function() {
     update(root);
 };
 
-// handle a user-customized label
-var newPOS = function() {
-    // get the user's label
-    var posText = $('#textPOS').val();
-    // update the tree data
-    d3.select("text#nodePOS" + selectedNodeLink.id).text(posText);
-    // get list of top labels from storage; initialize if not stored
-    var posarray;
-    if (!localStorage['labels']) {
-        posarray = [];
-    } else {
-        posarray = localStorage['posarray'].split(',');
-    };
-    posarray.push(posText)
-    localStorage['labels'] = posarray.toString();
-    finishPOS();
-};
-
-// handle a button press for high-frequency labels
-var freqPOS = function(posText) {
-    d3.select("text#nodePOS" + selectedNodeLink.id).text(posText)
+// edit the POS tags through keystrokes
+var editPOS = function(posText) {
+    console.log()
+    d3.select('text#nodePOS' + selectedNodeLink.id).text(posText)
     selectedNodeLink.pos = posText;
-    finishPOS();
+	nodeSingleClick(selectedNodeLink);
+    finishPOS();   
 };
 
-// reset the label frequencies
-var resetPOSTags = function() {
-    localStorage.removeItem('posarray');
-    finishPOS();
-    updatePOS();
+// edit the POS tags through button clicks
+var editPOSByButton = function(inputSource) {
+    if(selectedNodeLink) {
+        posText = inputSource.currentTarget.value
+        console.log()
+        d3.select('text#nodePOS' + selectedNodeLink.id).text(posText)
+        selectedNodeLink.pos = posText;
+        nodeSingleClick(selectedNodeLink);
+        finishPOS();   
+    }
 };
 
 // Morhology Handling
 // reset the morphology changes
 var cancelMorphology = function() {
-    d3.selectAll(".morphology").style("stroke", "");
+    d3.selectAll('.morphology').style('stroke', '');
     $('#morphology').hide();
 };
 
 // reset the morphology changes
 var saveMorphology = function() {
-    var morphologyArray = document.getElementById('morphologyName').value.split(" ");
+    var morphologyArray = document.getElementById('morphologyName').value.split(' ');
     var morphologyText = morphologyArray.shift()
-    console.log(morphologyArray)
 
-    d3.select("text#nodeLabel" + selectedMorphology.parent.id).text(morphologyText);
-    d3.select("text#morphology" + selectedMorphology.id).text(morphologyText);
-    // d3.select("#node" + parseInt(selectedMorphology.id-1)).data()[0].name = morphologyText;
+    d3.select('text#nodeLabel' + selectedMorphology.parent.id).text(morphologyText);
+    d3.select('text#morphology' + selectedMorphology.id).text(morphologyText);
     selectedMorphology.name = morphologyText;
     selectedMorphology.parent.name = morphologyText;
 
+    selectedMorphology.parent.lemma = document.getElementById('lemma').value
+
+    for (var i = 0; i < lexicalFeatsList.length; i++) {
+            selectedMorphology.parent.feats[lexicalFeatsList] = document.getElementById(lexicalFeatsList[i]).value
+    }
+
     while (morphologyArray.length > 0) {
         morphologyText = morphologyArray.shift()
-        if (morphologyText.length > 0) addNode(selectedMorphology,"right", morphologyText)
+        if (morphologyText.length > 0) addNode(selectedMorphology,'right', morphologyText)
+    }
+
+    var morphologyFeatures = document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')
+
+    for (var i = 0; i < morphologyFeatures.length; i++) {
+        feature = document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].id
+        selectedIndex = document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].selectedIndex
+
+        if(selectedIndex != -1) {
+        	featureDisplay = document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].options[selectedIndex].value
+        	featureValue = ''
+
+        	for(var j = 0; j < featureValues[feature].length; j++) { 
+				if(featureValues[feature][j]['display'] === featureDisplay) {
+            		featureValue = featureValues[feature][j]['value']
+            	}
+        	}
+
+        	if(feature in selectedMorphology.parent.feats) {
+            	selectedMorphology.parent.feats[feature] = featureValue
+            	console.log(feature + '\t' + featureValue)
+        	}
+    	}   
     }
 
     $('#morphology').hide();
-    d3.select("text#morphology" + selectedMorphology.id).style("stroke", "");
+    d3.select('text#morphology' + selectedMorphology.id).style('stroke', '');
     update(root);
 };
 
@@ -674,17 +830,17 @@ var saveTree = function() {
     treesArray[currentTreeIndex] = root;
     }
     catch(err) {
-        alert("Sorry, something went wrong!");
+        alert('Sorry, something went wrong!');
     }
 };
 
 // regex to remove d3 'junk' variables from tree data
 var cleanjson = function() {
     var json = sessionStorage.treeData;
-    json = json.replace(/\"parent\":\"PARENT\",/g, "");
-    json = json.replace(/\"depth\":[0-9]*,/g, "");
-    json = json.replace(/\"(x|x0|y|y0)\":([0-9]+\.[0-9]+|[0-9]+),/g, "");
-    json = json.replace(/,\"(x|x0|y|y0)":[0-9]+/g, "");
+    json = json.replace(/\'parent\':\'PARENT\',/g, '');
+    json = json.replace(/\'depth\':[0-9]*,/g, '');
+    json = json.replace(/\'(x|x0|y|y0)\':([0-9]+\.[0-9]+|[0-9]+),/g, '');
+    json = json.replace(/,\'(x|x0|y|y0)':[0-9]+/g, '');
     sessionStorage.treeData = json;
 };
 
@@ -692,200 +848,114 @@ var cleanjson = function() {
 var textTree = function() {
     saveTree();
     var output;
-    if (sessionStorage.treeData !== "undefined") {
+    if (sessionStorage.treeData !== 'undefined') {
         cleanjson();
         if (sessionStorage.original && sessionStorage.translation) {
-            output = sessionStorage.original + "\n" 
-                + sessionStorage.translation + "\n" 
+            output = sessionStorage.original + '\n' 
+                + sessionStorage.translation + '\n' 
                 + sessionStorage.treeData;
         } else if (sessionStorage.original) {
-            output = sessionStorage.original + "\n" + sessionStorage.treeData;
+            output = sessionStorage.original + '\n' + sessionStorage.treeData;
         } else {
             output = sessionStorage.treeData;
         }
     }
     else {
-        output = "Tree not found.";
+        output = 'Tree not found.';
     }
-    document.getElementById("jsonfield").innerHTML = output;
+    document.getElementById('jsonfield').innerHTML = output;
 };
-
-///////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
 
 // output CONLL files for the tree
 var downloadTree = function() {
     saveTree();
-    var filename = $("#filename").val();
-    if (document.getElementById("downloadChoiceImage").checked == true) {
-        saveSvgAsPng(document.getElementsByTagName("svg")[0], filename+".png");
+    var filename = $('#filename').val();
+    if (document.getElementById('downloadChoiceImage').checked == true) {
+        saveSvgAsPng(document.getElementsByTagName('svg')[0], filename+'.png');
     } else {
         var output = '';
-        if (sessionStorage.treeData !== "undefined") {
+        if (sessionStorage.treeData !== 'undefined') {
             for (var i=0; i<treesArray.length; i++) {
                 // clone treeArray and remove cycles through nested parents.
                 let clone = JSON.parse(JSON.stringify(JSON.decycle(treesArray[i])));
                 output = output + convertJSONToCONLL(clone) + '\n\n';
             };
             // uses Blob and FileSaver libraries
-            var blob = new Blob([output], {type: "text/plain;charset=utf-8"});
-            saveAs(blob, filename+".dep");
+            var blob = new Blob([output], {type: 'text/plain;charset=utf-8'});
+            saveAs(blob, filename+'.conllu');
         }
         else {
-            alert("Tree not found.");
+            alert('Tree not found.');
+        }
+    }
+    $('#download').hide();
+};
+
+var search = function() {
+
+    if(window.getComputedStyle(document.getElementById('search')).display === 'none') {
+        var list = document.createElement('OL')
+        list.setAttribute('id', 'searchList')
+        if (orientation === 'r-to-l') {
+            list.setAttribute('dir', 'rtl')
+        } else {
+            list.setAttribute('dir', 'ltr')
         }
 
-    }
-    $("#download").hide();
-};
+        for (var i=0; i<treesArray.length; i++) {
+            var x = document.createElement('LI')
+            x.setAttribute('id', i)
+            
+            var t = document.createTextNode(treesArray[i].meta['sentenceText']);
+            x.appendChild(t);
+            x.onclick = function() {
+                if (currentTreeIndex !== event.target.id) 
+                { 
+                    sessionStorage.removeItem('treeData');
+                    saveTree();
+                    currentTreeIndex = event.target.id;
+                    d3.select('body').select('svg').remove()
+                    getTree(treesArray[currentTreeIndex])
+                    update(root);
+                 }
+            }
+            list.appendChild(x);
+        }
 
+        document.getElementById('search').appendChild(list)
+        $('#search').show()
+    } else {
+        document.getElementById('search').removeChild(document.getElementById('searchList'))
+        $('#search').hide()
+    }
+
+}
 
 // SETTINGS
-// helper functions called by buttons in "SETTINGS" menu
-
-// increases node radius by 5
-var biggerNode = function() {
-    localStorage['nodesize'] = parseFloat(localStorage['nodesize']) + 5;
-    if (sessionStorage.treeData) {
-        update(root);
-    };
-};
-
-// decreases node radius by 5
-var smallerNode = function() {
-    if(parseFloat(localStorage['nodesize'])>5) {
-        localStorage['nodesize'] = parseFloat(localStorage['nodesize']) - 5;
-        if (sessionStorage.treeData) {
-            update(root);
-        };
-    }
-};
-
-// increases branch separation by 0.5
-var widerTree = function() {
-    localStorage['customwidth'] = parseFloat(localStorage['customwidth']) + 0.5;
-    if (sessionStorage.treeData) {
-        update(root);
-    };
-};
-
-// decreases branch separation by 0.5
-var narrowTree = function() {
-    localStorage['customwidth'] = parseFloat(localStorage['customwidth']) - 0.5;
-    if (sessionStorage.treeData) {
-        update(root);
-    };
-};
-
-// increases height of each layer by 25
-var tallerTree = function() {
-    localStorage['customdepth'] = parseFloat(localStorage['customdepth']) + 25;
-    if (sessionStorage.treeData) {
-        update(root);
-    };
-};
-
-// decreases height of each layer by 25
-var shorterTree = function() {
-    localStorage['customdepth'] = parseFloat(localStorage['customdepth']) - 25;
-    if (sessionStorage.treeData) {
-        update(root);
-    };
-};
-
-// increases text distance from node
-// (horiziontally, +5 each time)
-var biggerX = function() {
-    localStorage['xsep'] = parseFloat(localStorage['xsep']) + 5;
-    if (sessionStorage.treeData) {
-        update(root);
-    };
-};
-
-// decreases text distance from node
-// (vertically, -5 each time)
-var smallerX = function() {
-    localStorage['xsep'] = parseFloat(localStorage['xsep']) - 5;
-    if (sessionStorage.treeData) {
-        update(root);
-    };
-};
-
-// increases text distance from node
-// (vertically, +5 each time)
-var biggerY = function() {
-    localStorage['ysep'] = parseFloat(localStorage['ysep']) + 5;
-    if (sessionStorage.treeData) {
-        update(root);
-    };
-};
-
-// decreases text distance from node
-// (vertically, -5 each time)
-var smallerY = function() {
-    localStorage['ysep'] = parseFloat(localStorage['ysep']) - 5;
-    if (sessionStorage.treeData) {
-        update(root);
-    };
-};
-
-var customFont = function() {
-    localStorage['currentFont'] = $("#fonts").val();
-    document.getElementById("sents").className = localStorage['currentFont'];
-    if (sessionStorage.treeData) {
-        update(root);
-    };
-};
-
-// return all settings to defaults
-var reset = function() {
-    for (var k=0; k<settings.length; k++) {
-        localStorage[settings[k][0]] = settings[k][1];
-    };
-    document.getElementById('sents').className = localStorage['currentFont'];
-    // if tree data, update the tree!
-    if (sessionStorage.treeData) {
-        update(root);
-    };
-};
+// helper functions called by buttons in 'SETTINGS' menu
 
 // return all settings to defaults
 var tagsToggle = function() {
     $('#labels').toggle();
     $('#postags').toggle();
-    // nodeSingleClick(selectedNodeLink);
 };
 
 // END SETTINGS
-
-var massReset = function() {
-    var c = confirm("Are you sure? This will reset ALL settings!");
-    if (c === true) {
-        saveTree();
-        localStorage.clear();
-        window.location.reload();
-        reset();
-        haveTree();
-    } else {
-        return;
-    };
-};
 
 // ************** Generate the tree diagram  *****************
 var getTree = function(treeData) {
     // set height and width equal to HTML doc properties
     numberOfNodes = numberOfNodesArray[currentTreeIndex]
     var requiredWidth = parseFloat(localStorage['customwidth']) * 500 * numberOfNodes * 1.37;
-    console.log(numberOfNodes, requiredWidth)
+    // console.log(numberOfNodes, requiredWidth)
     if (requiredWidth > $(document).width()) var viewerWidth = requiredWidth
         else var viewerWidth = $(document).width();
     viewerHeight = $(document).height();
-    d3.select("svg").attr("dir", "rtl")
-    d3.select("#sents").attr("dir", "rtl")
-    document.getElementById("currentTreeNumber").textContent = (currentTreeIndex + 1) + "/" + numberOfNodesArray.length;
-    document.getElementById("treeNumberInput").max = numberOfNodesArray.length;
-    document.getElementById("treeNumberInput").value = currentTreeIndex + 1;
-
+    d3.select('svg').attr('dir', 'rtl')
+    d3.select('#sents').attr('dir', 'rtl')
+    document.getElementById('currentTreeNumber').textContent = (parseInt(currentTreeIndex) + 1) + '/' + numberOfNodesArray.length;
+    document.getElementById('treeNumberInput').max = numberOfNodesArray.length;
+    document.getElementById('treeNumberInput').value = currentTreeIndex + 1;
 
     // initialize misc. variables
     var lowestNodeY = 0;
@@ -897,12 +967,12 @@ var getTree = function(treeData) {
     var selectedNode = null;
     var draggingNode = null;
     var orient = function(xcoord) { 
-        if (orientation == "r-to-l") 
+        if (orientation == 'r-to-l') 
             {return viewerWidth - xcoord; }
         else {return xcoord};
     }
 
-    // names the tree layout "tree" and gives it a size value
+    // names the tree layout 'tree' and gives it a size value
     var tree = d3.layout.tree()
      .size([viewerWidth, viewerHeight]);
 
@@ -921,18 +991,18 @@ var getTree = function(treeData) {
 
     // Define the zoom function for the zoomable tree
     function zoom() {
-        fullTree.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+        fullTree.attr('transform', 'translate(' + d3.event.translate + ')scale(' + d3.event.scale + ')');
     }
 
-    // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
-    var zoomListener = d3.behavior.zoom().scaleExtent([0.5, 2]).on("zoom", zoom);
+    // define the zoomListener which calls the zoom function on the 'zoom' event constrained within the scaleExtents
+    var zoomListener = d3.behavior.zoom().scaleExtent([0.5, 2]).on('zoom', zoom);
 
-    // appends svg to html area tagged "body"
-    var baseSvg = d3.select("body").append("svg")
-     .attr("width", viewerWidth)
-     .attr("height", viewerHeight)
-     .attr("class", "overlay")
-     .call(zoomListener).on("dblclick.zoom", null)
+    // appends svg to html area tagged 'body'
+    var baseSvg = d3.select('body').append('svg')
+     .attr('width', viewerWidth)
+     .attr('height', viewerHeight)
+     .attr('class', 'overlay')
+     .call(zoomListener).on('dblclick.zoom', null)
 
 
     //translate and scale to whatever value you wish
@@ -942,19 +1012,19 @@ var getTree = function(treeData) {
         zoomListener.translate([viewerWidth*.318,30]).scale(.67);
     } else {
         zoomListener.translate([20,30]).scale(.67);
-        d3.select("svg").attr("dir", "ltr")
-        d3.select("#sents").attr("dir","ltr")
+        d3.select('svg').attr('dir', 'ltr')
+        d3.select('#sents').attr('dir','ltr')
     }
     zoomListener.event(baseSvg.transition().duration(50));//does a zoom
      
-    // creates a group for holding the whole tree, which allows "zoom" to function
-    var fullTree = baseSvg.append("g").attr("class", "fulltree");
+    // creates a group for holding the whole tree, which allows 'zoom' to function
+    var fullTree = baseSvg.append('g').attr('class', 'fulltree');
     // create a group for holding the links -- this group will be drawn first
-    var lgroup = fullTree.append("g").attr("class", "links");
+    var lgroup = fullTree.append('g').attr('class', 'links');
     // create a group for holding the nods -- this group will be drawn second
-    var ngroup = fullTree.append("g").attr("class", "nodes");
+    var ngroup = fullTree.append('g').attr('class', 'nodes');
     // create a group for holding the temporary link(s) -- this group will be drawn last
-    fullTree.append("g").attr("class", "templinks");
+    fullTree.append('g').attr('class', 'templinks');
 
     // define the root and its initial location
     root = treeData;
@@ -977,14 +1047,12 @@ var getTree = function(treeData) {
             d._children = null;
         }
     }
-
-    //function modified by Dima
     //instead of relying on the state of children and _children, add a variable to indicate if a node is collapsed
     //keep the duplicate node that will appear at the bottom in the tree
     function toggleChildren(d) {
             if(d.collapsed == true) {
-                d.children.forEach(function (child_node) {
-                    child_node.name = child_node.name.slice(2, -2)
+                d.children.forEach(function (childNode) {
+                    childNode.name = childNode.name.slice(2, -2)
                 });
     
                 d.children = d._children;
@@ -994,12 +1062,12 @@ var getTree = function(treeData) {
             } else {
                 d._children = d.children;
                 d.children = null;
-                d.name = "<<" + d.name + ">>"
-                d._children.forEach(function (child_node) {
-                    if(child_node.duplicate == true){
+                d.name = '<<' + d.name + '>>'
+                d._children.forEach(function (childNode) {
+                    if(childNode.duplicate == true){
                         d.children = []
-                        child_node.name = "<<" + child_node.name + ">>"
-                        d.children.push(child_node)
+                        childNode.name = '<<' + childNode.name + '>>'
+                        d.children.push(childNode)
                     }
                 });
                 d.collapsed = true
@@ -1009,7 +1077,7 @@ var getTree = function(treeData) {
 
     // focus link on click
     function nodeSingleClick(d) {
-
+    	
         if (d3.event.defaultPrevented) return
 
         if (d.hasOwnProperty('source')) {
@@ -1018,17 +1086,24 @@ var getTree = function(treeData) {
             selectedNodeLink = d
         }
 
-        d3.select(".links").selectAll("path").style("stroke", "#545454");
-        d3.select(".links").selectAll("text").style("stroke", "#fff");
-        d3.select(".nodes").selectAll("text").style("stroke", "");
-        d3.selectAll(".nodeCircle").style("fill", "#fff");
- 
-        d3.select("#link" + selectedNodeLink.id).select("path").style("stroke", "red");
-        d3.select("text#linkLabel" + selectedNodeLink.id).style("stroke", "red");            
+        if(lastClickedNodeId !== selectedNodeLink.id) {
+            lastKeyStroke = ''
+            pointer = 0
+            lastClickedNodeId = selectedNodeLink.id
 
-        d3.select("text#nodePOS" + selectedNodeLink.id).style("stroke", "red");
-        d3.select("text#nodeLabel" + selectedNodeLink.id).style("stroke", "red");
-        d3.select("circle#nodeCircle" + selectedNodeLink.id).style("fill", "red");
+        }
+
+        d3.select('.links').selectAll('path').style('stroke', '#545454');
+        d3.select('.links').selectAll('text').style('stroke', '#fff');
+        d3.select('.nodes').selectAll('text').style('stroke', '');
+        d3.selectAll('.nodeCircle').style('fill', '#fff');
+ 
+        d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'red');
+        d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'red');            
+
+        d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'red');
+        d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'red');
+        d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'red');
 
         return;
     };
@@ -1044,200 +1119,151 @@ var getTree = function(treeData) {
 
     // keypress handler for nodes
     function nodeKeypress(d) {
+
         if (d3.event.defaultPrevented) return;
-        if (d3.event.altKey) {
-            switch (d3.event.keyCode) {
-                case 71: 
-                    $('#gototree').show()
-                    break;
-            }
-        } else if (d3.event.shiftKey) {
-            switch (d3.event.key) {
-                case "_": 
-                    freqPOS("---");
-                    break;
-                case "E": 
-                    freqPOS("ERR"); 
-                    break;
-                case "N": 
-                    freqPOS("NOM") 
-                    break;
-                case "X": 
-                    freqPOS("PNX") 
-                    break;
-                case "O": 
-                    freqPOS("PROP") 
-                    break;
-                case "P": 
-                    freqPOS("PRT") 
-                    break;
-                case "V": 
-                    freqPOS("VRB") 
-                    break;
-                case "A": 
-                    freqPOS("VRB-pass")
-                    break;
-                case "ArrowLeft":
-                    if (orientation == "l-to-r") {
-                        var neighborNode = fullTree.select("#node" + parseInt(selectedNodeLink.id-2)).data()[0];
-                        if (typeof neighborNode !== "undefined") nodeSingleClick(neighborNode);
-                    } else {
-                        var neighborNode = fullTree.select("#node" + parseInt(selectedNodeLink.id+2)).data()[0]
-                        if (typeof neighborNode !== "undefined") nodeSingleClick(neighborNode);
-                    }
-                    break;
-                case "ArrowRight":
-                    if (orientation == "r-to-l") {
-                        var neighborNode = fullTree.select("#node" + parseInt(selectedNodeLink.id-2)).data()[0];
-                        if (typeof neighborNode !== "undefined") nodeSingleClick(neighborNode);
-                    } else {
-                        var neighborNode = fullTree.select("#node" + parseInt(selectedNodeLink.id+2)).data()[0]
-                        if (typeof neighborNode !== "undefined") nodeSingleClick(neighborNode);
-                    }
-                    break;
-            }
-        } else if (d3.event.ctrlKey) {
-            switch (d3.event.key) {
-            case "-": 
-                freqLabel("---");
-                break;
-            case "i":
-            case "I":   
-                freqLabel("IDF");
-                break;
-            case "m": 
-            case "M": 
-                freqLabel("MOD"); 
-                break;
-            case "o":
-            case "O": 
-                freqLabel("OBJ") 
-                break;
-            case "p":
-            case "P": 
-                freqLabel("PRD") 
-                break;
-            case "s":
-            case "S": 
-                freqLabel("SBJ") 
-                break;
-            case "z": 
-            case "Z": 
-                freqLabel("TMZ") 
-                    break;
-            case "t": 
-            case "T": 
-                freqLabel("TPC") 
-                    break;
+        if(d3.event.keyCode === 9) {
+            if(editingControl === 'pos') {
+                editingControl = 'rel';
+                lastKeyStroke = ''
+            } else {
+                editingControl = 'pos'
+                lastKeyStroke = ''
             }
         } else {
-            switch (d3.event.key) {
-              case "ArrowDown":
-                if (selectedNodeLink.children.length > 1) {
-                    var childNode = selectedNodeLink.children[0]
-                    if (childNode.id == selectedNodeLink.id + 1) {
-                        nodeSingleClick(selectedNodeLink.children[1])
-                    } else {
-                        nodeSingleClick(selectedNodeLink.children[0])
-                    }
-                }
-                break;
-              case "ArrowUp":
-                if (selectedNodeLink.pid !== 0) {
-                    nodeSingleClick(selectedNodeLink.parent)
-                }
-                break;
-              case "ArrowRight":
-                var neighborCheck = 2
-                if (selectedNodeLink.pid !== 0) neighborCheck = 1;
-                if (orientation == "r-to-l") {
-                    if (selectedNodeLink.parent.children.length > neighborCheck) {
-                        var neighborArray = selectedNodeLink.parent.children;
-                        var neighborID = -1;
-                        for (var k=0; k<neighborArray.length; k++) {
-                            if (neighborArray[k].id == selectedNodeLink.id) {
-                                if (neighborID !== -1) nodeSingleClick(neighborArray[neighborID]);
-                                break;
-                            } else if (neighborArray[k].id !== selectedNodeLink.pid + 1) neighborID = k;
-                        }
+            if(d3.event.keyCode >= 65 && d3.event.keyCode <= 90) {
+                if(editingControl === 'pos') {
+                    for (var posKey in posTags) {
+                        if (d3.event.key.toUpperCase() === posKey.toUpperCase()) {
+                            if(lastKeyStroke.toUpperCase() !== d3.event.key.toUpperCase()) {
+                                pointer = 0;
+                                lastKeyStroke = d3.event.key.toUpperCase();
+                                editPOS(posTags[posKey][pointer].toUpperCase())
+                            } else {
+                                if(pointer === posTags[posKey].length - 1) {
+                                    pointer = 0;
+                                } else {
+                                    pointer++;
+                                }
+                                editPOS(posTags[posKey][pointer].toUpperCase())
+                            }
+                        } 
                     }
                 } else {
-                    if (selectedNodeLink.parent.children.length > neighborCheck) {
-                        var neighborArray = selectedNodeLink.parent.children;
-                        var neighborID = -1;
-                        for (var k=neighborArray.length-1; k>-1; k--) {
-                            if (neighborArray[k].id == selectedNodeLink.id) {
-                                if (neighborID !== -1) nodeSingleClick(neighborArray[neighborID]);
-                                break;
-                            } else if (neighborArray[k].id !== selectedNodeLink.pid + 1) neighborID = k;
-                        }
+                    for (var relKey in relLabels) {
+                        if (d3.event.key.toUpperCase() === relKey.toUpperCase()) {
+                            if(lastKeyStroke.toUpperCase() !== d3.event.key.toUpperCase()) {
+                                pointer = 0;
+                                lastKeyStroke = d3.event.key.toUpperCase();
+                                editLabel(relLabels[relKey][pointer])
+                            } else {
+                                if(pointer === relLabels[relKey].length - 1) {
+                                    pointer = 0;
+                                } else {
+                                    pointer++;
+                                }
+                                editLabel(relLabels[relKey][pointer])
+                            }
+                        } 
                     }
                 }
-                break;
-              case "ArrowLeft":
-                var neighborCheck = 2
-                if (selectedNodeLink.pid !== 0) neighborCheck = 1;
-                if (orientation == "l-to-r") {
-                    if (selectedNodeLink.parent.children.length > neighborCheck) {
-                        var neighborArray = selectedNodeLink.parent.children;
-                        var neighborID = -1;
-                        for (var k=0; k<neighborArray.length; k++) {
-                            if (neighborArray[k].id == selectedNodeLink.id) {
-                                if (neighborID !== -1) nodeSingleClick(neighborArray[neighborID]);
-                                break;
-                            } else if (neighborArray[k].id !== selectedNodeLink.pid + 1) neighborID = k;
+            } else {
+                switch (d3.event.key) {
+                    case 'ArrowDown':
+                        if (selectedNodeLink.children.length > 1) {
+                            var childNode = selectedNodeLink.children[0]
+                            if (childNode.id == selectedNodeLink.id + 1) {
+                                nodeSingleClick(selectedNodeLink.children[1])
+                            } else {
+                                nodeSingleClick(selectedNodeLink.children[0])
+                            }
                         }
-                    }
-                } else {
-                    if (selectedNodeLink.parent.children.length > neighborCheck) {
-                        var neighborArray = selectedNodeLink.parent.children;
-                        var neighborID = -1;
-                        for (var k=neighborArray.length-1; k>-1; k--) {
-                            if (neighborArray[k].id == selectedNodeLink.id) {
-                                if (neighborID !== -1) nodeSingleClick(neighborArray[neighborID]);
-                                break;
-                            } else if (neighborArray[k].id !== selectedNodeLink.pid + 1) neighborID = k;
+                        break;
+                    case 'ArrowUp':
+                        if (selectedNodeLink.pid !== 0) {
+                            nodeSingleClick(selectedNodeLink.parent)
                         }
-                    }
+                        break;
+                    case 'ArrowRight':
+                        var neighborCheck = 2
+                        if (selectedNodeLink.pid !== 0) neighborCheck = 1;
+                        if (orientation == 'r-to-l') {
+                            if (selectedNodeLink.parent.children.length > neighborCheck) {
+                                var neighborArray = selectedNodeLink.parent.children;
+                                var neighborID = -1;
+                                for (var k=0; k<neighborArray.length; k++) {
+                                    if (neighborArray[k].id == selectedNodeLink.id) {
+                                        if (neighborID !== -1) nodeSingleClick(neighborArray[neighborID]);
+                                        break;
+                                    } else if (neighborArray[k].id !== selectedNodeLink.pid + 1) neighborID = k;
+                                }
+                            }
+                        } else {
+                            if (selectedNodeLink.parent.children.length > neighborCheck) {
+                                var neighborArray = selectedNodeLink.parent.children;
+                                var neighborID = -1;
+                                for (var k=neighborArray.length-1; k>-1; k--) {
+                                    if (neighborArray[k].id == selectedNodeLink.id) {
+                                        if (neighborID !== -1) nodeSingleClick(neighborArray[neighborID]);
+                                        break;
+                                    } else if (neighborArray[k].id !== selectedNodeLink.pid + 1) neighborID = k;
+                                }
+                            }
+                        }
+                        break;
+                    case 'ArrowLeft':
+                        var neighborCheck = 2
+                        if (selectedNodeLink.pid !== 0) neighborCheck = 1;
+                        if (orientation == 'l-to-r') {
+                            if (selectedNodeLink.parent.children.length > neighborCheck) {
+                                var neighborArray = selectedNodeLink.parent.children;
+                                var neighborID = -1;
+                                for (var k=0; k<neighborArray.length; k++) {
+                                    if (neighborArray[k].id == selectedNodeLink.id) {
+                                        if (neighborID !== -1) nodeSingleClick(neighborArray[neighborID]);
+                                        break;
+                                    } else if (neighborArray[k].id !== selectedNodeLink.pid + 1) neighborID = k;
+                                }
+                            }
+                        } else {
+                            if (selectedNodeLink.parent.children.length > neighborCheck) {
+                                var neighborArray = selectedNodeLink.parent.children;
+                                var neighborID = -1;
+                                for (var k=neighborArray.length-1; k>-1; k--) {
+                                    if (neighborArray[k].id == selectedNodeLink.id) {
+                                        if (neighborID !== -1) nodeSingleClick(neighborArray[neighborID]);
+                                        break;
+                                    } else if (neighborArray[k].id !== selectedNodeLink.pid + 1) neighborID = k;
+                                }
+                            }
+                        }
+                        break;
+
+                    case 'Home':
+                        firstTree()
+                        break;
+                    case 'End':
+                        lastTree()
+                        break;
+                    case 'PageUp':
+                        nextTree();
+                        break;
+                    case 'PageDown':
+                        prevTree();
+                        break;
+                    case 'Escape':
+                        console.log('Escape')
+                        $('#labels').hide();
+                        $('#postags').hide();
+                        d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', '#545454');
+                        d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', '#ffffff');
+                        update(root);
+                        break;
+                    default:
+                        return; // Quit when this doesn't handle the key event.
                 }
-                break;
-
-              case "Enter":
-                // Do something for "enter" or "return" key press.
-                console.log("Arrow ")
-                break;
-              case "Home":
-                // Do something for "enter" or "return" key press.
-                firstTree()
-                break;
-              case "End":
-                // Do something for "enter" or "return" key press.
-                lastTree()
-                break;
-              case "PageUp":
-                // Do something for "enter" or "return" key press.
-                nextTree();
-                break;
-              case "PageDown":
-                // Do something for "enter" or "return" key press.
-                prevTree();
-                break;
-              case "Escape":
-                console.log("Escape")
-                $('#labels').hide();
-                $('#postags').hide();
-                // document.getElementById('textLabel').value = "";
-                d3.select("text#nodePOS" + selectedNodeLink.id).style("stroke", "#545454");
-                d3.select("text#nodeLabel" + selectedNodeLink.id).style("stroke", "#ffffff");
-                // document.getElementsByClassName("fulltree")[0].blur();
-                update(root);
-                // Do something for "esc" key press.
-
-                break;
-              default:
-                return; // Quit when this doesn't handle the key event.
             }
         }
+
         d3.event.preventDefault();
         return;
     };
@@ -1245,26 +1271,66 @@ var getTree = function(treeData) {
     // toggle morphology info window
     function morphologyClick(d) {
         selectedMorphology = d;
-        d3.selectAll(".morphology").style("stroke", "");
-        d3.select("text#morphology" + selectedMorphology.id).style("stroke", "blue");
+        d3.selectAll('.morphology').style('stroke', '');
+        d3.select('text#morphology' + selectedMorphology.id).style('stroke', 'blue');
         document.getElementById('morphologyName').value = d.name;
+
+        document.getElementById('lemma').value = d.parent.lemma
+
+        for (var i = 0; i < lexicalFeatsList.length; i++) {
+            document.getElementById(lexicalFeatsList[i]).value = d.parent.feats[lexicalFeatsList[i]]   
+        }
+
+        
+        for (var i = 0; i < document.getElementById('morphoFeats').getElementsByClassName('morphoFeat').length; i++) {
+            document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].disabled = false
+        }
+
+        for (var i = 0; i < document.getElementById('morphoFeats').getElementsByClassName('morphoFeat').length; i++) {
+            featName = document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].id
+
+            
+            if(d.parent.pos.toUpperCase() in defaultFeatValues && featName in defaultFeatValues[d.parent.pos.toUpperCase()]) {
+                if(defaultFeatValues[d.parent.pos.toUpperCase()][featName] === 'N/A') {
+                    document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].value = 'N/A'
+                    document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].disabled = true
+                } else {
+                    if(featName in selectedMorphology.parent.feats) {
+                    	for(var j = 0; j < featureValues[featName].length; j++) { 
+                    		if(featureValues[featName][j]['value'] === selectedMorphology.parent.feats[featName]) {
+                     	   		document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].value = featureValues[featName][j]['display']
+                     		}
+                    	}
+                    } else {
+                        document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].value = defaultFeatValues[d.parent.pos][featName]
+                    }
+                }
+            } else {
+                document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].value = document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0][0].value
+            }
+        }
+
         $('#morphology').show();
     };
 
     // merge node into right neighbor
     function morphologyRightMerge(d) {
-        var mergedName = d.name + fullTree.select("#node" + parseInt(d.id+1)).data()[0].name
-        fullTree.select("#node" + parseInt(d.id+1)).data()[0].name = mergedName
-        fullTree.select("#node" + parseInt(d.id+2)).data()[0].name = mergedName
+        var mergedName = d.name + fullTree.select('#node' + parseInt(d.id+1)).data()[0].name
+        fullTree.select('#node' + parseInt(d.id+1)).data()[0].name = mergedName
+        fullTree.select('#node' + parseInt(d.id+2)).data()[0].name = mergedName
         deleteNode(d)
+        saveMorphology(d)
+        update(root)
     };
 
     // merge node into left neighbor
     function morphologyLeftMerge(d) {
-        var mergedName = fullTree.select("#node" + parseInt(d.id-3)).data()[0].name + d.name
-        fullTree.select("#node" + parseInt(d.id-3)).data()[0].name = mergedName
-        fullTree.select("#node" + parseInt(d.id-2)).data()[0].name = mergedName
+        var mergedName = fullTree.select('#node' + parseInt(d.id-3)).data()[0].name + d.name
+        fullTree.select('#node' + parseInt(d.id-3)).data()[0].name = mergedName
+        fullTree.select('#node' + parseInt(d.id-2)).data()[0].name = mergedName
         deleteNode(d)
+        saveMorphology(d)
+        update(root)
     };
 
     // Updates the ids of the nodes to correspond to sentence order
@@ -1329,42 +1395,43 @@ var getTree = function(treeData) {
 
         updateTreeOrderDelete(root, delNodeId)
         nodeDeleted = true;
-        d3.select("body").select("svg").remove()
+        d3.select('body').select('svg').remove()
         getTree(root)
         update(root)
         $('.morphologyMerge').toggle()
+        saveMorphology(d)
     };
 
     // Add a new node to left of an existing node
-    addNode = function(d, position, name ="*") {
+    addNode = function(d, position, name = newNodeName) {
 
         var newNodeId;
         var parent = root;
 
-        if (position == "left") {
+        if (position == 'left') {
             newNodeId = d.id - 1;
             updateTreeOrderAdd(root, newNodeId)
-        } else if (position == "right") {
+        } else if (position == 'right') {
             newNodeId = d.id + 1;
             parent = d.parent.parent;
             updateTreeOrderAdd(root, newNodeId)
-        } else if (position == "end") {
+        } else if (position == 'end') {
             newNodeId = d.id + 1;
-        } else if (position == "root") {
+        } else if (position == 'root') {
             newNodeId = d.id + 1;
             root.children = [];
         } 
 
         var treeNode = new Object();
-        var duplicateNode = new Object();
+        var projectedNode = new Object();
 
-        duplicateNode.id = newNodeId + 1;
-        duplicateNode.name = name;
-        duplicateNode.pos = newPOSTag;
-        duplicateNode.pid = newNodeId;
-        duplicateNode.link = '';
-        duplicateNode.duplicate = true
-        duplicateNode.collapsed = false
+        projectedNode.id = newNodeId + 1;
+        projectedNode.name = name;
+        projectedNode.pos = newPOSTag;
+        projectedNode.pid = newNodeId;
+        projectedNode.link = '';
+        projectedNode.duplicate = true
+        projectedNode.collapsed = false
 
         treeNode.id = newNodeId;
         treeNode.name = name;
@@ -1374,24 +1441,35 @@ var getTree = function(treeData) {
         treeNode.collapsed = false
         treeNode.duplicate = false
         treeNode.children = [];
-        treeNode.children.push(duplicateNode);
+        treeNode.children.push(projectedNode);
         numberOfNodesArray[currentTreeIndex] = numberOfNodesArray[currentTreeIndex] + 1;
+
+        treeNode.meta = {}
+        treeNode.meta['sentenceText'] = ''
+
+        treeNode.lemma = ''
+        treeNode.xpos = ''
+
+        treeNode.feats = {}
+
+        treeNode.deps = ''
+        treeNode.misc = ''
 
         parent.children.push(treeNode)
         nodeDeleted = true;
-        d3.select("body").select("svg").remove()
+        d3.select('body').select('svg').remove()
         getTree(root)
         update(root)
         $('.morphologyMerge').toggle()
     };
 
-    // display "drop zone" on mouseover
+    // display 'drop zone' on mouseover
     var overCircle = function(d) {
         selectedNode = d;
         updateTempConnector();
     };
 
-    // remove "drop zone" on mouseout
+    // remove 'drop zone' on mouseout
     var outCircle = function(d) {
         selectedNode = null;
         updateTempConnector();
@@ -1412,14 +1490,14 @@ var getTree = function(treeData) {
                     }
             }];
         }
-        var link = fullTree.select(".templinks").selectAll(".templink").data(data);
+        var link = fullTree.select('.templinks').selectAll('.templink').data(data);
 
-        link.enter().append("path")
-                .attr("class", "templink")
-                .attr("d", d3.svg.line())
-                .attr("pointer-events", "none");
+        link.enter().append('path')
+                .attr('class', 'templink')
+                .attr('d', d3.svg.line())
+                .attr('pointer-events', 'none');
 
-        link.attr("d", d3.svg.line());
+        link.attr('d', d3.svg.line());
 
         link.exit().remove();
     };
@@ -1432,20 +1510,20 @@ var getTree = function(treeData) {
         d3.selectAll('.ghostCircle').attr('class', 'ghostCircle show');
         d3.select(domNode).attr('class', 'node activeDrag');
 
-        fullTree.select(".nodes").selectAll(".node").sort(function(a, b) { // select the parent and sort the path's
-            if (a.id !== draggingNode.id) return 1; // a is not the hovered element, send "a" to the back
-            else return -1; // a is the hovered element, bring "a" to the front
+        fullTree.select('.nodes').selectAll('.node').sort(function(a, b) { // select the parent and sort the path's
+            if (a.id !== draggingNode.id) return 1; // a is not the hovered element, send 'a' to the back
+            else return -1; // a is the hovered element, bring 'a' to the front
         });
         // if nodes has children, remove the links and nodes
         if (nodes.length > 1) {
             // remove link paths
             links = tree.links(nodes);
-            linktexts = fullTree.select(".links").selectAll(".pathGroup")
+            linktexts = fullTree.select('.links').selectAll('.pathGroup')
                 .data(links, function (d) {
                     return d.target.id;
                 }).remove();
             // remove child nodes
-            nodesExit = fullTree.select(".nodes").selectAll(".node")
+            nodesExit = fullTree.select('.nodes').selectAll('.node')
                 .data(nodes, function(d) {
                     return d.id;
                 }).filter(function(d, i) {
@@ -1457,7 +1535,7 @@ var getTree = function(treeData) {
         };
                 // remove parent link
         parentLink = tree.links(tree.nodes(draggingNode.parent));
-        fullTree.select(".links").selectAll(".pathGroup").filter(function(d, i) {
+        fullTree.select('.links').selectAll('.pathGroup').filter(function(d, i) {
             if (d.target.id === draggingNode.id) {
                 return true;
             }
@@ -1468,7 +1546,7 @@ var getTree = function(treeData) {
 
     // Define the drag listeners for drag/drop behaviour of nodes.
     var dragListener = d3.behavior.drag()
-        .on("dragstart", function(d) {
+        .on('dragstart', function(d) {
             // root and morphology cannot be dragged
             if (d.id % 2 ==0) {
                 return;
@@ -1478,7 +1556,7 @@ var getTree = function(treeData) {
             d3.event.sourceEvent.stopPropagation();
             // it's important that we suppress the mouseover event on the node being dragged. Otherwise it will absorb the mouseover event and the underlying node will not detect it d3.select(this).attr('pointer-events', 'none');
         })
-        .on("drag", function(d) {
+        .on('drag', function(d) {
             if (d === root) {
                 return;
             }
@@ -1490,9 +1568,9 @@ var getTree = function(treeData) {
             d.y0 += d3.event.dy;
             d.x0 += d3.event.dx;
             var node = d3.select(this);
-            node.attr("transform", "translate(" + d.x0 + "," + d.y0 + ")");
+            node.attr('transform', 'translate(' + d.x0 + ',' + d.y0 + ')');
             updateTempConnector();
-        }).on("dragend", function(d) {
+        }).on('dragend', function(d) {
             if (d === root) {
                 return;
             }
@@ -1550,8 +1628,6 @@ var getTree = function(treeData) {
         selectedNode = null;
     };
 
-
-
     // compute word offset based on word length. The offset of
     // the n'th word (word with specified id) in the sentence is
     // the cumulative sum of the offset of all words 1..n in the
@@ -1600,7 +1676,6 @@ var getTree = function(treeData) {
            length = nodeInSubtree._children.length;
         }
 
-
         for (var ii = 0; ii < length; ii++) {
 
             // if not a leaf node
@@ -1621,13 +1696,10 @@ var getTree = function(treeData) {
                num += 1;
             }
 
-
-
             if (nodeInSubtree.collapsed) {
                     num += numNodesInSubtree(subtreeRootNode, nodeInSubtree._children[ii], subjectNode);
             }
             else {
-
                     num += numNodesInSubtree(subtreeRootNode, nodeInSubtree.children[ii], subjectNode);
             }
         }
@@ -1701,22 +1773,28 @@ var getTree = function(treeData) {
         links = tree.links(nodes);
 
         var nodeCount = nodes.length - 1;
-        if (orientation == "l-to-r") {
-            var nodeTextDirStyle = "ltr"
+        if (orientation == 'l-to-r') {
+            var nodeTextDirStyle = 'ltr'
             var nodeTextAnchorStyle = 'start'
         } else {
-            var nodeTextDirStyle = "rtl";
+            var nodeTextDirStyle = 'rtl';
             var nodeTextAnchorStyle = 'end'
         }
 
-        // build sentence
+        // build sentenceArray and sentenceText
         var sentenceArray = [];
+        var sentenceText = ''
         nodes.forEach(function(d) {
             if (d.id % 2 == 1)  {
                 sentenceArray.push([d.id,d.name]);
             }
         });
+
         sentenceArray.sort(function(a, b){return a[0]-b[0]})
+        for (var i = 0; i < sentenceArray.length; i++) {
+            sentenceText += sentenceArray[i][1] + ' '    
+        }
+        root.meta['sentenceText'] = sentenceText.trim()
 
         var counter = 0;
 
@@ -1779,8 +1857,8 @@ var getTree = function(treeData) {
         for (var i=0; i<sentenceArray.length; i++) {
           sentenceArray[i] = sentenceArray[i][1]
         }
-        sentenceArray = sentenceArray.join(" ")
-        document.getElementById("fullSentence").textContent = sentenceArray;
+        sentenceArray = sentenceArray.join(' ')
+        document.getElementById('fullSentence').textContent = sentenceArray;
         $('#sents').show()
         $('.toolbar input').show()
 
@@ -1789,33 +1867,33 @@ var getTree = function(treeData) {
         fullTree.selectAll('.node')
             .data(nodes)
             .enter()
-            .append("g")
+            .append('g')
 
         // Declare the nodes
-        var node = fullTree.select(".nodes").selectAll(".node")
+        var node = fullTree.select('.nodes').selectAll('.node')
             .data(nodes, function(d) { 
                 if (d.id == 0) return d.id;
                 else return d.id || (d.id = ++i); });
 
         // Declare the paths
-        var link = fullTree.select(".links").selectAll(".pathGroup")
+        var link = fullTree.select('.links').selectAll('.pathGroup')
             .data(links, function(d) {
                 return d.target.id;
         });
 
         // create a group to hold path graphics and path labels
-        var linkEnter = link.enter().append("g").attr("class", "pathGroup");
+        var linkEnter = link.enter().append('g').attr('class', 'pathGroup');
 
         linkEnter.filter(function(d, i)
                   {
                   if (d.target.id % 2 != 0) 
                     return true; else return false;
-                  }).attr("id", function(d) { return "link" + d.target.id; })
-                    .on("click", nodeSingleClick);
+                  }).attr('id', function(d) { return 'link' + d.target.id; })
+                    .on('click', nodeSingleClick);
         
         // add path graphics
-        linkEnter.append("path")
-            .attr("d", function(d) {
+        linkEnter.append('path')
+            .attr('d', function(d) {
                 var o = {
                     x: animSource.x0,
                     y: animSource.y0
@@ -1827,9 +1905,9 @@ var getTree = function(treeData) {
         });
         
         // add labels
-        linkEnter.append("text")
-                .attr("dy", ".35em")
-                .attr("text-anchor", "middle")
+        linkEnter.append('text')
+                .attr('dy', '.35em')
+                .attr('text-anchor', 'middle')
                 .text(function (d) {
                     return d.target.link;
         })
@@ -1843,83 +1921,83 @@ var getTree = function(treeData) {
           {
           if (d.target.id % 2 != 0) 
             return true; else return false;
-          }).select("path")
-                .attr("d", lineData)
-                .style("stroke-width", "3px")
-                .style("stroke", "#545454")
-                .style("fill", "none")
-                .style("cursor", "pointer");
+          }).select('path')
+                .attr('d', lineData)
+                .style('stroke-width', '3px')
+                .style('stroke', '#545454')
+                .style('fill', 'none')
+                .style('cursor', 'pointer');
 
         // format morphology paths
         linkUpdate.filter(function(d, i)
           {
           if (d.target.id % 2 == 0) 
             return true; else return false;
-          }).select("path")
-                .attr("d", lineData)
-                .style("stroke-width", "3px")
-                .style("stroke", "#545454")
-                .style("fill", "none")
-                .style("stroke-dasharray", ("15, 15"));
+          }).select('path')
+                .attr('d', lineData)
+                .style('stroke-width', '3px')
+                .style('stroke', '#545454')
+                .style('fill', 'none')
+                .style('stroke-dasharray', ('15, 15'));
 
         // format text
-        linkUpdate.select("text")
-            .attr("class", "linktext " + localStorage.currentFont)
-            .attr("id", function(d) { return "linkLabel" + d.target.id; })
-            .style("cursor", "pointer")
-            .style("stroke", "#ffffff")
+        linkUpdate.select('text')
+            .attr('class', 'linktext ' + localStorage.currentFont)
+            .attr('id', function(d) { return 'linkLabel' + d.target.id; })
+            .style('cursor', 'pointer')
+            .style('stroke', '#ffffff')
             .text(function(d) {
                 return d.target.link;
             })
 
         // animate text entrance
-        linkUpdate.select("text")
-                .attr("transform", function(d) {
-                    return "translate(" + ((d.target.x + d.source.x) / 2) + "," + ((d.target.y + d.source.y) / 2) + ")";});
+        linkUpdate.select('text')
+                .attr('transform', function(d) {
+                    return 'translate(' + ((d.target.x + d.source.x) / 2) + ',' + ((d.target.y + d.source.y) / 2) + ')';});
 
         // remove unnecessary paths
         var linkExit = link.exit().remove();
 
         // set exiting labels to transparent
-        linkExit.select("text")
-            .style("fill-opacity", 0);
+        linkExit.select('text')
+            .style('fill-opacity', 0);
 
         // Enter the nodes.
-        // Use "d.x +...+ d.y" for horizontal trees
-        // Use "d.y +...+ d.x" for vertical trees
-       var nodeEnter = node.enter().append("g")
+        // Use 'd.x +...+ d.y' for horizontal trees
+        // Use 'd.y +...+ d.x' for vertical trees
+       var nodeEnter = node.enter().append('g')
             .call(dragListener)
-            .attr("class", "node")
-            .attr("id", function(d) { return "node" + d.id; })
+            .attr('class', 'node')
+            .attr('id', function(d) { return 'node' + d.id; })
             // source.{x0,y0} is where the nodes originate from
-            .attr("transform", function(d) {return "translate(" + animSource.x0 + "," + animSource.y0 + ")"; })
+            .attr('transform', function(d) {return 'translate(' + animSource.x0 + ',' + animSource.y0 + ')'; })
 
         nodeEnter.filter(function(d, i)
           {
           if (d.id % 2 == 1) 
             return true; else return false;
-          }).on("dblclick", nodeDoubleClick)
-            .on("click", nodeSingleClick)
-            .on("focus", nodeSingleClick)
-            .on("keydown", nodeKeypress)
+          }).on('dblclick', nodeDoubleClick)
+            .on('click', nodeSingleClick)
+            .on('focus', nodeSingleClick)
+            .on('keydown', nodeKeypress)
 
         // add labels to nodes
         nodeEnter.filter(function(d, i)
           {
           if (d.id == 0 || d.id % 2 == 1)
             return true; else return false;
-          }).append("text")
-            .attr("id", function(d) { return "nodeLabel" + d.id; })
-            .attr("class", localStorage.currentFont)
-            .style("direction", nodeTextDirStyle)
-            .classed("nodelabel", true)
-            .attr("y", function(d) {
+          }).append('text')
+            .attr('id', function(d) { return 'nodeLabel' + d.id; })
+            .attr('class', localStorage.currentFont)
+            .style('direction', nodeTextDirStyle)
+            .classed('nodelabel', true)
+            .attr('y', function(d) {
                 return d.children || d._children ? 0 : parseFloat(localStorage['ysep']); })
-            .attr("x", function(d) {
+            .attr('x', function(d) {
                 return d.children || d._children ? parseFloat(localStorage['xsep'])+parseFloat(localStorage['nodesize']) : -parseFloat(localStorage['nodesize']); })
-            .attr("dy", ".85em")
-            .attr("dx", ".2em")
-            .attr("text-anchor", nodeTextAnchorStyle)
+            .attr('dy', '.85em')
+            .attr('dx', '.2em')
+            .attr('text-anchor', nodeTextAnchorStyle)
             .text(function(d) {
                 return d.name;
             })
@@ -1929,13 +2007,13 @@ var getTree = function(treeData) {
           {
           if (d.id % 2 == 1)
             return true; else return false;
-          }).append("text")
-            .attr("id", function(d) { return "nodePOS" + d.id; })
-            .attr("class", localStorage.currentFont)
-            .classed("nodepos", true)
-            .attr("dx", "1.5em")
-            .attr("dy", "2.35em")
-            .attr("text-anchor", "start")
+          }).append('text')
+            .attr('id', function(d) { return 'nodePOS' + d.id; })
+            .attr('class', localStorage.currentFont)
+            .classed('nodepos', true)
+            .attr('dx', '1.5em')
+            .attr('dy', '2.35em')
+            .attr('text-anchor', 'start')
             .text(function(d) {
                 return d.pos; })
 
@@ -1945,18 +2023,18 @@ var getTree = function(treeData) {
               {
               if (d.id != 0 && d.id % 2 == 0) 
                 return true; else return false;
-              }).append("text")
-                .attr("id", function(d) { return "morphology" + d.id; })
-                .attr("class", localStorage['currentFont'])
-                .style("direction", nodeTextDirStyle)
-                .classed("morphology", true)
-                .attr("dx", 0)
-                .attr("dy", "1em")
-                .attr("text-anchor", "end")
+              }).append('text')
+                .attr('id', function(d) { return 'morphology' + d.id; })
+                .attr('class', localStorage['currentFont'])
+                .style('direction', nodeTextDirStyle)
+                .classed('morphology', true)
+                .attr('dx', 0)
+                .attr('dy', '1em')
+                .attr('text-anchor', 'end')
                 .text(function(d) { 
                     return d.name;
                 })
-                .on("click", morphologyClick); 
+                .on('click', morphologyClick); 
 
             // add Left Merge icon to morphology
             if (orientation == 'r-to-l') {
@@ -1964,31 +2042,31 @@ var getTree = function(treeData) {
                   {
                   if (d.id > 2 && d.id % 2 == 0) 
                     return true; else return false;
-                  }).append("text")
-                    .attr("id", function(d) { return "morphologyLeftMerge" + d.id; })
-                    .attr("class", localStorage['currentFont'])
-                    .classed("morphology", true)
-                    .classed("morphologyMerge", true)
-                    .attr("dx", "1.3em")
-                    .attr("dy", "2.6em")
-                    .attr("text-anchor", "end")
-                    .text("\u25B6")
-                    .on("click", morphologyLeftMerge)
+                  }).append('text')
+                    .attr('id', function(d) { return 'morphologyLeftMerge' + d.id; })
+                    .attr('class', localStorage['currentFont'])
+                    .classed('morphology', true)
+                    .classed('morphologyMerge', true)
+                    .attr('dx', '1.3em')
+                    .attr('dy', '2.6em')
+                    .attr('text-anchor', 'end')
+                    .text('\u25B6')
+                    .on('click', morphologyLeftMerge)
             } else {
                 nodeEnter.filter(function(d, i)
                   {
                   if (d.id > 2 && d.id % 2 == 0) 
                     return true; else return false;
-                  }).append("text")
-                    .attr("id", function(d) { return "morphologyLeftMerge" + d.id; })
-                    .attr("class", localStorage['currentFont'])
-                    .classed("morphology", true)
-                    .classed("morphologyMerge", true)
-                    .attr("dx", "-1.3em")
-                    .attr("dy", "2.6em")
-                    .attr("text-anchor", "start")
-                    .text("\u25C0")
-                    .on("click",morphologyLeftMerge)
+                  }).append('text')
+                    .attr('id', function(d) { return 'morphologyLeftMerge' + d.id; })
+                    .attr('class', localStorage['currentFont'])
+                    .classed('morphology', true)
+                    .classed('morphologyMerge', true)
+                    .attr('dx', '-1.3em')
+                    .attr('dy', '2.6em')
+                    .attr('text-anchor', 'start')
+                    .text('\u25C0')
+                    .on('click',morphologyLeftMerge)
             }
 
             // add Right Merge icon to morphology
@@ -1997,31 +2075,31 @@ var getTree = function(treeData) {
                   {
                   if (d.id != 0 && d.id != nodeCount && d.id % 2 == 0) 
                     return true; else return false;
-                  }).append("text")
-                    .attr("id", function(d) { return "morphologyRightMerge" + d.id; })
-                    .attr("class", localStorage['currentFont'])
-                    .classed("morphology", true)
-                    .classed("morphologyMerge", true)
-                    .attr("dx", "-1.3em")
-                    .attr("dy", "2.6em")
-                    .attr("text-anchor", "start")
-                    .text("\u25C0")
-                    .on("click",morphologyRightMerge)
+                  }).append('text')
+                    .attr('id', function(d) { return 'morphologyRightMerge' + d.id; })
+                    .attr('class', localStorage['currentFont'])
+                    .classed('morphology', true)
+                    .classed('morphologyMerge', true)
+                    .attr('dx', '-1.3em')
+                    .attr('dy', '2.6em')
+                    .attr('text-anchor', 'start')
+                    .text('\u25C0')
+                    .on('click',morphologyRightMerge)
             } else {
                 nodeEnter.filter(function(d, i)
                   {
                   if (d.id != 0 && d.id != nodeCount && d.id % 2 == 0) 
                     return true; else return false;
-                  }).append("text")
-                    .attr("id", function(d) { return "morphologyRightMerge" + d.id; })
-                    .attr("class", localStorage['currentFont'])
-                    .classed("morphology", true)
-                    .classed("morphologyMerge", true)
-                    .attr("dx", "1.3em")
-                    .attr("dy", "2.6em")
-                    .attr("text-anchor", "end")
-                    .text("\u25B6")
-                    .on("click", morphologyRightMerge)
+                  }).append('text')
+                    .attr('id', function(d) { return 'morphologyRightMerge' + d.id; })
+                    .attr('class', localStorage['currentFont'])
+                    .classed('morphology', true)
+                    .classed('morphologyMerge', true)
+                    .attr('dx', '1.3em')
+                    .attr('dy', '2.6em')
+                    .attr('text-anchor', 'end')
+                    .text('\u25B6')
+                    .on('click', morphologyRightMerge)
             }
 
             // add Delete icon to morphology
@@ -2029,43 +2107,43 @@ var getTree = function(treeData) {
               {
               if (d.id != 0 && d.id % 2 == 0) 
                 return true; else return false;
-              }).append("text")
-                .attr("id", function(d) { return "morphologyDelete" + d.id; })
-                .attr("class", localStorage['currentFont'])
-                .classed("morphology", true)
-                .classed("morphologyMerge", true)
-                .attr("dx", "0")
-                .attr("dy", "2.6em")
-                .attr("text-anchor", "middle")
-                .style("fill",'red')
-                .text("\u2716")
-                .on("click",deleteNode)
+              }).append('text')
+                .attr('id', function(d) { return 'morphologyDelete' + d.id; })
+                .attr('class', localStorage['currentFont'])
+                .classed('morphology', true)
+                .classed('morphologyMerge', true)
+                .attr('dx', '0')
+                .attr('dy', '2.6em')
+                .attr('text-anchor', 'middle')
+                .style('fill','red')
+                .text('\u2716')
+                .on('click',deleteNode)
 
             // add new node icon to morphology
             nodeEnter.filter(function(d, i)
               {
               if (d.id != 0 && d.id % 2 == 0) 
                 return true; else return false;
-              }).append("text")
-                .attr("id", function(d) { return "morphologyAdd_left" + d.id; })
-                .attr("class", localStorage['currentFont'])
-                .classed("morphology", true)
-                .classed("morphologyMerge", true)
-                .attr("x", function(d) { 
-                    x_location = (1 * localStorage['customwidth'] * 300 + d.name.length * 10)/2;
+              }).append('text')
+                .attr('id', function(d) { return 'morphologyAddLeft' + d.id; })
+                .attr('class', localStorage['currentFont'])
+                .classed('morphology', true)
+                .classed('morphologyMerge', true)
+                .attr('x', function(d) { 
+                    xLocation = (1 * localStorage['customwidth'] * 300 + d.name.length * 10)/2;
                     if (orientation == 'r-to-l') {
-                        return x_location + "px";
+                        return xLocation + 'px';
                     }
                     else{ 
-                        return "-" + x_location + "px";
+                        return '-' + xLocation + 'px';
                     }
                 })
-                .attr("dy", "2.6em")
-                .attr("text-anchor", "middle")
-                .style("fill","green")
-                .text("\uFF0B")
-                .on("click", function(d) {
-                    addNode(d, "left")
+                .attr('dy', '2.6em')
+                .attr('text-anchor', 'middle')
+                .style('fill','green')
+                .text('\uFF0B')
+                .on('click', function(d) {
+                    addNode(d, 'left')
                 });
 
             // add new node icon to morphology to the end of the tree (after the last node)
@@ -2073,20 +2151,20 @@ var getTree = function(treeData) {
               {
               if (d.id == nodeCount) 
                 return true; else return false;
-              }).append("text")
-                .attr("id", function(d) { return "morphologyAdd_end" + d.id; })
-                .attr("class", localStorage['currentFont'])
-                .classed("morphology", true)
-                .classed("morphologyMerge", true)
-                .attr("dx", function(d) { 
-                    if (orientation == 'r-to-l') return "-1.7em"
-                    else return "1.7em"})
-                .attr("dy", "2.6em")
-                .attr("text-anchor", "middle")
-                .style("fill","green")
-                .text("\uFF0B")
-                .on("click", function(d) {
-                    addNode(d, "end")
+              }).append('text')
+                .attr('id', function(d) { return 'morphologyAddEnd' + d.id; })
+                .attr('class', localStorage['currentFont'])
+                .classed('morphology', true)
+                .classed('morphologyMerge', true)
+                .attr('dx', function(d) { 
+                    if (orientation == 'r-to-l') return '-1.7em'
+                    else return '1.7em'})
+                .attr('dy', '2.6em')
+                .attr('text-anchor', 'middle')
+                .style('fill','green')
+                .text('\uFF0B')
+                .on('click', function(d) {
+                    addNode(d, 'end')
                 });
         } else {
             // add new node icon to morphology for a new tree (that only has a root)
@@ -2094,22 +2172,20 @@ var getTree = function(treeData) {
               {
               if (d.id == nodeCount) 
                 return true; else return false;
-              }).append("text")
-                .attr("id", function(d) { return "morphologyAdd_root" + d.id; })
-                .attr("class", localStorage['currentFont'])
-                .classed("morphology", true)
-                .classed("morphologyMerge", true)
-                .attr("dx", "0em")
-                .attr("dy", "2.6em")
-                .attr("text-anchor", "middle")
-                .style("fill","green")
-                .text("\uFF0B")
-                .on("click", function(d) {
-                    addNode(d, "root")
+              }).append('text')
+                .attr('id', function(d) { return 'morphologyAddRoot' + d.id; })
+                .attr('class', localStorage['currentFont'])
+                .classed('morphology', true)
+                .classed('morphologyMerge', true)
+                .attr('dx', '0em')
+                .attr('dy', '2.6em')
+                .attr('text-anchor', 'middle')
+                .style('fill','green')
+                .text('\uFF0B')
+                .on('click', function(d) {
+                    addNode(d, 'root')
                 });
         }
-
-
 
         // add circles to nodes
         nodeEnter.filter(function(d, i)
@@ -2117,66 +2193,66 @@ var getTree = function(treeData) {
           if (d.id == 0 || d.id % 2 == 1) {
             return true;
             } else return false;
-          }).append("circle")
-            .attr("class", "nodeCircle")
-            .attr("id", function(d) { return "nodeCircle" + d.id; })
-            .attr("r", 0)
-            .style("fill", function(d) {
-                return d._children ? "#000" : "#fff";
+          }).append('circle')
+            .attr('class', 'nodeCircle')
+            .attr('id', function(d) { return 'nodeCircle' + d.id; })
+            .attr('r', 0)
+            .style('fill', function(d) {
+                return d._children ? '#000' : '#fff';
             });
 
-        // add "drop zone" circle to node; set as transparent
+        // add 'drop zone' circle to node; set as transparent
         nodeEnter.filter(function(d, i)
           {
           if (d.id == 0 || d.id % 2 == 1) 
             return true; else return false;
-          }).append("circle")
-            .attr("class", "ghostCircle")
-            .attr("r", 30)
-            .attr("opacity", 0.2)
-            .style("fill", "red")
-            .style("stroke-width", 0)
+          }).append('circle')
+            .attr('class', 'ghostCircle')
+            .attr('r', 30)
+            .attr('opacity', 0.2)
+            .style('fill', 'red')
+            .style('stroke-width', 0)
             .attr('pointer-events', 'mouseover')
-            .on("mouseover", function(node) {
+            .on('mouseover', function(node) {
                 overCircle(node);
             })
-            .on("mouseout", function(node) {
+            .on('mouseout', function(node) {
                 outCircle(node);
             });
 
         // node entrance animation
         var nodeUpdate = node.transition()
             .duration(duration)
-            .attr("transform", function(d) {
-                return "translate(" + d.x + "," + d.y + ")";
+            .attr('transform', function(d) {
+                return 'translate(' + d.x + ',' + d.y + ')';
             });
 
         // fade in labels
-        nodeUpdate.selectAll("text")
-            .style("fill-opacity", 1);
+        nodeUpdate.selectAll('text')
+            .style('fill-opacity', 1);
 
-        // node circles "grow" in (animation)
-        nodeUpdate.select("circle.nodeCircle")
-            .attr("r", parseFloat(localStorage['nodesize']))
-            .style("fill", function(d) {
-            return d._children ? "#000" : "#fff";
+        // node circles 'grow' in (animation)
+        nodeUpdate.select('circle.nodeCircle')
+            .attr('r', parseFloat(localStorage['nodesize']))
+            .style('fill', function(d) {
+            return d._children ? '#000' : '#fff';
             })
-            .style("stroke", "black")
+            .style('stroke', 'black')
 
         // exiting nodes animation
         var nodeExit = node.exit().transition()
             .duration(duration)
-            .attr("transform", function(d) {
-                return "translate(" + animSource.x + "," + animSource.y + ")";
+            .attr('transform', function(d) {
+                return 'translate(' + animSource.x + ',' + animSource.y + ')';
             }).remove();
 
-        // node circles "shrink" out (animation)
-        nodeExit.select("circle")
-            .attr("r", 0);
+        // node circles 'shrink' out (animation)
+        nodeExit.select('circle')
+            .attr('r', 0);
 
         // labels fade out
-        nodeExit.selectAll("text")
-            .style("fill-opacity", 0);
+        nodeExit.selectAll('text')
+            .style('fill-opacity', 0);
 
         // store node positions
         nodes.forEach(function(d) {
