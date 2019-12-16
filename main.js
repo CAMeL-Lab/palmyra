@@ -544,7 +544,7 @@ var setSentenceTreeData = function() {
         for (var i=0; i< (inputTextArray.length); i++) {
             var singleLine = inputTextArray[i].split(' ').filter(function(entry) { return entry.trim() != ''; });
             for (var j=0; j< (singleLine.length); j++) {
-                treeDataArray.push([j+1,singleLine[j],newPOSTag,0,newLinkLabel].join('\t'))
+                treeDataArray.push([j+1,singleLine[j],'_',newPOSTag,'_','_',0,newLinkLabel,'_','_'].join('\t'))
             };
             treeDataArray.push('\n')
         };
