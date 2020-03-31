@@ -318,7 +318,10 @@ var convertJSONToCONLL = function(node) {
                 node.features += '|' + featKey + '=' + node.feats[featKey]
             }
         }
-
+	
+	if (node.features === '') {
+            node.features = '_'
+        }
 
         var fullArray = [];
         if (typeof node.parent !== 'undefined' && node.parent.id ) {
