@@ -63,7 +63,7 @@ var main = function() {
     $('#jsontext').hide();
     $('#download').hide();
     $('#linktext').hide();
-    $('#search').hide();
+    $('#listing').hide();
     findStorage();
     $('.upload').show();
 };
@@ -318,10 +318,11 @@ var convertJSONToCONLL = function(node) {
                 node.features += '|' + featKey + '=' + node.feats[featKey]
             }
         }
-	
-	if (node.features === '') {
+
+        if (node.features === '') {
             node.features = '_'
         }
+
 
         var fullArray = [];
         if (typeof node.parent !== 'undefined' && node.parent.id ) {
@@ -394,6 +395,7 @@ var outputToCONLLFormat = function(inputJSON) {
     return rootNode;
 };
 
+//read the conllu file and generate the json tree objects
 var convertToJSON = function(inputData) {
     var inputArray = [];
     numberOfNodesArray = []
@@ -414,10 +416,14 @@ var convertToJSON = function(inputData) {
                 }
                 continue;
             }
+            //the read meta data of the tree
+            //store the original sentence to be displayed in the listings
             if (lines[i].trim().startsWith('#')) {
                 lineToks = lines[i].trim().split(' ')
+                //index 0 = '#'
                 key = lineToks[1]
-                value = lineToks[3]
+                //index 2 = '='
+                value = lineToks.slice(3,lineToks.length).join(' ')
                 newTree.meta[key] = value
                 continue;
             }
@@ -438,7 +444,7 @@ var convertToJSON = function(inputData) {
             treeNode.feats = {}
 
             if (singleLine[5] == '_') { 
-                
+                treeNode.feats['_'] = '_'
             } else {
                 var featToks = singleLine[5].split('|')
                 for (var j = 0; j < featToks.length; j++) {
@@ -484,9 +490,9 @@ var convertToJSON = function(inputData) {
         var rootNode = new Object();
         rootNode.name = rootNodeName;
         rootNode.id = 0;
-        rootNode.collapsed = false
+        rootNode.collapsed = false;
         rootNode.children = [];
-        rootNode.meta = inputArray[i].meta
+        rootNode.meta = inputArray[i].meta;
 
         for (var j=0; j< (newTree.length); j++) {
             var pid = newTree[j].pid - 1;
@@ -547,7 +553,7 @@ var setSentenceTreeData = function() {
         for (var i=0; i< (inputTextArray.length); i++) {
             var singleLine = inputTextArray[i].split(' ').filter(function(entry) { return entry.trim() != ''; });
             for (var j=0; j< (singleLine.length); j++) {
-                treeDataArray.push([j+1,singleLine[j],'_',newPOSTag,'_','_',0,newLinkLabel,'_','_'].join('\t'))
+                treeDataArray.push([j+1,singleLine[j],newPOSTag,0,newLinkLabel].join('\t'))
             };
             treeDataArray.push('\n')
         };
@@ -894,9 +900,10 @@ var downloadTree = function() {
     $('#download').hide();
 };
 
+// the function that gets called from the listing button
 var search = function() {
 
-    if(window.getComputedStyle(document.getElementById('search')).display === 'none') {
+    if(window.getComputedStyle(document.getElementById('listing')).display === 'none') {
         var list = document.createElement('OL')
         list.setAttribute('id', 'searchList')
         if (orientation === 'r-to-l') {
@@ -908,8 +915,20 @@ var search = function() {
         for (var i=0; i<treesArray.length; i++) {
             var x = document.createElement('LI')
             x.setAttribute('id', i)
+            if (orientation === 'r-to-l') {
+                x.style.direction = 'rtl'
+                x.style.textAlign = 'right'
+            } else {
+                x.style.direction = 'ltr'
+                x.style.textAlign = 'left'
+            }
+
             
-            var t = document.createTextNode(treesArray[i].meta['sentenceText']);
+            if ('text' in treesArray[i].meta) {
+                var t = document.createTextNode(treesArray[i].meta['text']);
+            } else {
+                var t = document.createTextNode(treesArray[i].meta['sentenceText']);
+            }
             x.appendChild(t);
             x.onclick = function() {
                 if (currentTreeIndex !== event.target.id) 
@@ -926,10 +945,10 @@ var search = function() {
         }
 
         document.getElementById('search').appendChild(list)
-        $('#search').show()
+        $('#listing').show()
     } else {
         document.getElementById('search').removeChild(document.getElementById('searchList'))
-        $('#search').hide()
+        $('#listing').hide()
     }
 
 }
@@ -1096,7 +1115,10 @@ var getTree = function(treeData) {
 
         }
 
-        d3.select('.links').selectAll('path').style('stroke', '#545454');
+        // d3.select('.links').selectAll('path').style('stroke', '#545454');
+        // this greys out the links for the nodes that are not selected
+        d3.select('.links').selectAll('path').style('stroke', '#b3b3b3');
+
         d3.select('.links').selectAll('text').style('stroke', '#fff');
         d3.select('.nodes').selectAll('text').style('stroke', '');
         d3.selectAll('.nodeCircle').style('fill', '#fff');
@@ -1927,7 +1949,7 @@ var getTree = function(treeData) {
           }).select('path')
                 .attr('d', lineData)
                 .style('stroke-width', '3px')
-                .style('stroke', '#545454')
+                .style('stroke', 'lightsteelblue')
                 .style('fill', 'none')
                 .style('cursor', 'pointer');
 
@@ -1998,7 +2020,9 @@ var getTree = function(treeData) {
                 return d.children || d._children ? 0 : parseFloat(localStorage['ysep']); })
             .attr('x', function(d) {
                 return d.children || d._children ? parseFloat(localStorage['xsep'])+parseFloat(localStorage['nodesize']) : -parseFloat(localStorage['nodesize']); })
-            .attr('dy', '.85em')
+            // .attr('dy', '.85em')
+            // .attr('dx', '.2em')
+            .attr('dy', '0em')
             .attr('dx', '.2em')
             .attr('text-anchor', nodeTextAnchorStyle)
             .text(function(d) {
@@ -2014,8 +2038,10 @@ var getTree = function(treeData) {
             .attr('id', function(d) { return 'nodePOS' + d.id; })
             .attr('class', localStorage.currentFont)
             .classed('nodepos', true)
-            .attr('dx', '1.5em')
-            .attr('dy', '2.35em')
+            // .attr('dx', '1.5em')
+            // .attr('dy', '2.35em')
+            .attr('dy', '2em')
+            .attr('dx', '-1em')
             .attr('text-anchor', 'start')
             .text(function(d) {
                 return d.pos; })
@@ -2143,7 +2169,7 @@ var getTree = function(treeData) {
                 })
                 .attr('dy', '2.6em')
                 .attr('text-anchor', 'middle')
-                .style('fill','green')
+                .style('fill','light-blue')
                 .text('\uFF0B')
                 .on('click', function(d) {
                     addNode(d, 'left')
@@ -2164,7 +2190,7 @@ var getTree = function(treeData) {
                     else return '1.7em'})
                 .attr('dy', '2.6em')
                 .attr('text-anchor', 'middle')
-                .style('fill','green')
+                .style('fill','light-blue')
                 .text('\uFF0B')
                 .on('click', function(d) {
                     addNode(d, 'end')
@@ -2183,7 +2209,7 @@ var getTree = function(treeData) {
                 .attr('dx', '0em')
                 .attr('dy', '2.6em')
                 .attr('text-anchor', 'middle')
-                .style('fill','green')
+                .style('fill','light-blue')
                 .text('\uFF0B')
                 .on('click', function(d) {
                     addNode(d, 'root')
