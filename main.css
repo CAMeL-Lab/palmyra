@@ -574,3 +574,8 @@ section textarea {
 .ghostCircle, .activeDrag .ghostCircle{
     display: none;
 }
+
+div.scroll {
+  overflow: scroll;
+}
+
