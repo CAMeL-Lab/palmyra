@@ -30,6 +30,7 @@ var rootNodeName = '*';
 
 // default settings that can be configured
 var orientation = 'r-to-l';
+var listingKey = 'text'
 var newPOSTag = 'NOM';
 var newLinkLabel = '---';
 var newNodeName = '*'
@@ -119,6 +120,7 @@ var parseConfig = function(content) {
 
     var configs = JSON.parse(content)
     orientation = configs.orientation
+    listingKey = configs.display_text
 
     var posContainer = document.getElementById('postags')
     var divs = {}
@@ -313,9 +315,13 @@ var convertJSONToCONLL = function(node) {
         
         for (var featKey in node.feats) {
             if (node.features === '') {
-                node.features = featKey + '=' + node.feats[featKey]
+                if (featKey !== '_' && node.feats[featKey] !== '' && node.feats[featKey] !== 'undefined') {
+                    node.features = featKey + '=' + node.feats[featKey]
+                }
             } else {
-                node.features += '|' + featKey + '=' + node.feats[featKey]
+                if (featKey !== '_' && node.feats[featKey] !== '' && node.feats[featKey] !== 'undefined') {
+                    node.features += '|' + featKey + '=' + node.feats[featKey]
+                }
             }
         }
 
@@ -334,6 +340,30 @@ var convertJSONToCONLL = function(node) {
             fullArray = fullArray.concat(tempArray)
         }
         if (node.id !== 0) {
+            if (node.lemma === '') {
+                node.lemma = '_'
+            }
+
+            if (node.pos === '') {
+                node.pos = '_'
+            }
+
+            if (node.xpos === '') {
+                node.xpos = '_'
+            }
+
+            if (node.features === '') {
+                node.features = '_'
+            }
+
+            if (node.deps === '') {
+                node.deps = '_'
+            }
+
+            if (node.misc === '') {
+                node.misc = '_'
+            }
+
             fullArray.push([(node.id+1)/2,node.name,node.lemma,node.pos,node.xpos,node.features,pid,node.link,node.deps,node.misc])
         } else {
             fullArray.sort(function(a, b){return a[0]-b[0]})
@@ -357,6 +387,31 @@ var convertJSONToCONLL = function(node) {
             fullArray = fullArray.concat(tempArray)
         }
         if (node.id !== 0) {
+
+            if (node.lemma === '') {
+                node.lemma = '_'
+            }
+
+            if (node.pos === '') {
+                node.pos = '_'
+            }
+
+            if (node.xpos === '') {
+                node.xpos = '_'
+            }
+
+            if (node.features === '') {
+                node.features = '_'
+            }
+
+            if (node.deps === '') {
+                node.deps = '_'
+            }
+
+            if (node.misc === '') {
+                node.misc = '_'
+            }
+            
             fullArray.push([(node.id+1)/2,node.name,node.lemma,node.pos,node.xpos,node.feats,pid,node.link,node.deps,node.misc])
         } else {
             fullArray.sort(function(a, b){return a[0]-b[0]})
@@ -886,6 +941,10 @@ var downloadTree = function() {
         if (sessionStorage.treeData !== 'undefined') {
             for (var i=0; i<treesArray.length; i++) {
                 // clone treeArray and remove cycles through nested parents.
+                meta_keys = Object.keys(treesArray[i].meta)
+                for (var key_index = 0; key_index<meta_keys.length; key_index++){
+                    output = output + '# ' + meta_keys[key_index] + ' = ' + treesArray[i].meta[meta_keys[key_index]] + '\n';
+                }
                 let clone = JSON.parse(JSON.stringify(JSON.decycle(treesArray[i])));
                 output = output + convertJSONToCONLL(clone) + '\n\n';
             };
@@ -924,8 +983,8 @@ var search = function() {
             }
 
             
-            if ('text' in treesArray[i].meta) {
-                var t = document.createTextNode(treesArray[i].meta['text']);
+            if (listingKey in treesArray[i].meta) {
+                var t = document.createTextNode(treesArray[i].meta[listingKey]);
             } else {
                 var t = document.createTextNode(treesArray[i].meta['sentenceText']);
             }
@@ -1363,9 +1422,9 @@ var getTree = function(treeData) {
         if (typeof node.children !== 'undefined') {
             if (node.id > delId) {
                 node.id = node.id - 2;
-                if (node.pid > delId) {
-                    node.pid = node.pid - 2
-                }
+            }
+            if (node.pid > delId) {
+                node.pid = node.pid - 2
             }
             for (var k=0; k<node.children.length; k++) {
                 node.children[k] = updateTreeOrderDelete(node.children[k], delId)
@@ -1374,8 +1433,8 @@ var getTree = function(treeData) {
         } else {
             if (node.id > delId) {
                 node.id = node.id - 2
-                node.pid = node.pid - 2
             }
+            node.pid = node.pid - 2
             return node;
         }
     };
@@ -1384,10 +1443,10 @@ var getTree = function(treeData) {
     var updateTreeOrderAdd = function(node, addId) {
         if (typeof node.children !== 'undefined') {
             if (node.id >= addId) {
-                node.id = node.id + 2;
-                if (node.pid >= addId) {
-                    node.pid = node.pid + 2
-                }
+                node.id = node.id + 2; 
+            }
+            if (node.pid >= addId) {
+                node.pid = node.pid + 2
             }
             for (var k=0; k<node.children.length; k++) {
                 node.children[k] = updateTreeOrderAdd(node.children[k], addId)
@@ -1396,8 +1455,8 @@ var getTree = function(treeData) {
         } else {
             if (node.id >= addId) {
                 node.id = node.id + 2
-                node.pid = node.pid + 2
             }
+            node.pid = node.pid + 2
             return node;
         }
     };
@@ -2006,7 +2065,18 @@ var getTree = function(treeData) {
             .on('focus', nodeSingleClick)
             .on('keydown', nodeKeypress)
 
+        //Dima is editing here
         // add labels to nodes
+
+        // linkUpdate.select('text')
+        //     .attr('class', 'linktext ' + localStorage.currentFont)
+        //     .attr('id', function(d) { return 'linkLabel' + d.target.id; })
+        //     .style('cursor', 'pointer')
+        //     .style('stroke', '#ffffff')
+        //     .text(function(d) {
+        //         return d.target.link;
+        //     })
+
         nodeEnter.filter(function(d, i)
           {
           if (d.id == 0 || d.id % 2 == 1)
@@ -2029,6 +2099,7 @@ var getTree = function(treeData) {
                 return d.name;
             })
 
+        //Dima is editing here
         // add POS labels to nodes
         nodeEnter.filter(function(d, i)
           {
