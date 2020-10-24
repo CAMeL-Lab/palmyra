@@ -16,7 +16,11 @@ CONTENTS OF THIS FILE
 INTRODUCTION
 ------------
 
-PALMYRA is a configurable platform independent graphical dependency tree visualization and editing software. PALMYRA has been designed with morphologically rich languages in mind, and thus has a number of features to support the complexities of these languages, especially for supporting easy change of morphological tokenization through edits, additions, deletions and splits/merges of words. It can also be used to annotate a multitude of linguistic features. PALMYRA uses an intuitive drag-and-drop metaphor for editing tree structures. Palmyra can be configured to be used with any dependency representation.
+PALMYRA is a configurable platform independent graphical dependency tree visualization and editing software. PALMYRA has been designed with morphologically 
+rich languages in mind, and thus has a number of features to support the complexities of these languages, especially for supporting easy change of 
+morphological tokenization through edits, additions, deletions and splits/merges of words. It can also be used to annotate a multitude of linguistic 
+features. PALMYRA uses an intuitive drag-and-drop metaphor for editing tree structures. Palmyra can be configured to be used with any dependency 
+representation.
 
 This resource was developed at the Computational Approaches to Modeling Language (CAMeL) Lab in New York University Abu Dhabi.
 
@@ -39,7 +43,9 @@ Please cite Javed et al. (2018) and Taji and Habash (2020) if you use PALMYRA in
 
 PUBLICATIONS
 ------------
-[1] Talha Javed, Nizar Habash and Dima Taji. PALMYRA: A Platform Independent Dependency Annotation Tool for Morphologically Rich Languages. 11th edition of the Language Resources and Evaluation Conference (LREC 2018), Miyazaki, Japan. (http://www.lrec-conf.org/proceedings/lrec2018/pdf/333.pdf)
-[2] Dima Taji and Nizar Habash. PALMYRA 2.0: A Configurable Multilingual Platform Independent Tool for Morphology and Syntax Annotation. In Proceedings of Universal Dependencies Workshop (UDW) 2020.
+[1] Talha Javed, Nizar Habash and Dima Taji. PALMYRA: A Platform Independent Dependency Annotation Tool for Morphologically Rich Languages. 11th edition 
+of the Language Resources and Evaluation Conference (LREC 2018), Miyazaki, Japan. (http://www.lrec-conf.org/proceedings/lrec2018/pdf/333.pdf)
+[2] Dima Taji and Nizar Habash. PALMYRA 2.0: A Configurable Multilingual Platform Independent Tool for Morphology and Syntax Annotation. In Proceedings 
+of Universal Dependencies Workshop (UDW) 2020.
 
 
