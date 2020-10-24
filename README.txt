@@ -3,7 +3,8 @@
 |	A GUI for Dependency Annotation         
 +-----------------------------------------------+
 
-Last update: December 12, 2019
+Last update: October 24, 2020
+Version 2.2
 
 CONTENTS OF THIS FILE
 ---------------------
