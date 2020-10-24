@@ -1,0 +1,66 @@
+body {
+    margin: 20px 20px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 20px;   
+    font-family: Arial, sans-serif;
+    font-size: 11pt;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    background: #6B219E;
+    color: rgb(255,255,255);
+    text-align: left;
+    border-radius: 10px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -khtml-border-radius: 10px;
+     padding: 10px;
+}
+h1 {
+    font-size: 18pt;
+    text-align: center;
+}
+h2 {
+    font-size: 16pt;
+}
+h3 {
+    font-size: 12pt;
+}
+h4 {
+    font-size: 12pt;
+}
+h5 {
+    font-size: 12pt;
+}
+p {
+    font-size: 11pt;
+    margin: 20px 20px;
+}
+
+ul {
+    list-style: bullet;
+}
+li {
+
+}
+a:link {
+    color: #8966a0;
+}
+
+.button {
+    background-color: #6B219E;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 10px;
+
+}
+
