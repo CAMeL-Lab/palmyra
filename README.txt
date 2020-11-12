@@ -4,7 +4,7 @@
 +-----------------------------------------------+
 
 Last update: October 24, 2020
-Version 2.2
+Version 2.3
 
 CONTENTS OF THIS FILE
 ---------------------
