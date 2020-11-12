@@ -1417,48 +1417,45 @@ var getTree = function(treeData) {
         update(root)
     };
 
-    // Updates the ids of the nodes to correspond to sentence order
-    var updateTreeOrderDelete = function(node, delId) {
-        if (typeof node.children !== 'undefined') {
-            if (node.id > delId) {
-                node.id = node.id - 2;
-            }
-            if (node.pid > delId) {
-                node.pid = node.pid - 2
-            }
-            for (var k=0; k<node.children.length; k++) {
-                node.children[k] = updateTreeOrderDelete(node.children[k], delId)
-            }
-            return node;
-        } else {
-            if (node.id > delId) {
-                node.id = node.id - 2
-            }
-            node.pid = node.pid - 2
-            return node;
-        }
-    };
+ // Updates the ids of the nodes to correspond to sentence order
+ var updateTreeOrderDelete = function(node, delId) {
+
+         if (node.id > delId) {
+             node.id = node.id - 2;
+         }
+        
+         if (node.id > 0){ // only non-root:
+             node.pid = node.parent.id;  // parent already handled in a previous iteration
+         }
+
+         if (typeof node.children !== 'undefined') {
+             for (var k=0; k<node.children.length; k++) {
+                  node.children[k] = updateTreeOrderDelete(node.children[k], delId)
+              }
+         }
+     return node;    
+ };
 
     // Updates the ids of the nodes to correspond to sentence order
     var updateTreeOrderAdd = function(node, addId) {
+
+        if (node.id >= addId) {
+            node.id = node.id + 2; 
+        }
+
+        if (node.pid > 0) { // only non-root:
+            node.pid = node.parent.id;  // parent already handled in a previous iteration
+        }
+
         if (typeof node.children !== 'undefined') {
-            if (node.id >= addId) {
-                node.id = node.id + 2; 
-            }
-            if (node.pid >= addId) {
-                node.pid = node.pid + 2
-            }
+            
             for (var k=0; k<node.children.length; k++) {
                 node.children[k] = updateTreeOrderAdd(node.children[k], addId)
             }
-            return node;
-        } else {
-            if (node.id >= addId) {
-                node.id = node.id + 2
-            }
-            node.pid = node.pid + 2
-            return node;
         }
+        
+        return node;
+        
     };
 
     // Delete a node
@@ -1470,6 +1467,11 @@ var getTree = function(treeData) {
         if (d.parent.children.length > 1) {
             nodeToDelete = _.where(d.parent.children, {id: d.id});
             d.parent.children = _.without(d.parent.children, nodeToDelete[0]);
+
+	    for (var k=0; k<d.parent.children.length; k++) {
+                d.parent.children[k].parent= d.parent.parent;
+            }
+	    
             d.parent.parent.children = d.parent.parent.children.concat(d.parent.children)
         }
 
@@ -1488,7 +1490,6 @@ var getTree = function(treeData) {
 
     // Add a new node to left of an existing node
     addNode = function(d, position, name = newNodeName) {
-
         var newNodeId;
         var parent = root;
 
@@ -1528,8 +1529,6 @@ var getTree = function(treeData) {
         treeNode.children.push(projectedNode);
         numberOfNodesArray[currentTreeIndex] = numberOfNodesArray[currentTreeIndex] + 1;
 
-        treeNode.meta = {}
-        treeNode.meta['sentenceText'] = ''
 
         treeNode.lemma = ''
         treeNode.xpos = ''
@@ -2065,18 +2064,6 @@ var getTree = function(treeData) {
             .on('focus', nodeSingleClick)
             .on('keydown', nodeKeypress)
 
-        //Dima is editing here
-        // add labels to nodes
-
-        // linkUpdate.select('text')
-        //     .attr('class', 'linktext ' + localStorage.currentFont)
-        //     .attr('id', function(d) { return 'linkLabel' + d.target.id; })
-        //     .style('cursor', 'pointer')
-        //     .style('stroke', '#ffffff')
-        //     .text(function(d) {
-        //         return d.target.link;
-        //     })
-
         nodeEnter.filter(function(d, i)
           {
           if (d.id == 0 || d.id % 2 == 1)
@@ -2099,7 +2086,6 @@ var getTree = function(treeData) {
                 return d.name;
             })
 
-        //Dima is editing here
         // add POS labels to nodes
         nodeEnter.filter(function(d, i)
           {
