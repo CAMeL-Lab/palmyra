@@ -767,41 +767,27 @@ var directionToggle = function() {
 
 // edit the relation labels through keystrokes
 var editLabel = function(labelText) {
-    console.log()
+    console.log();
+    d3.select('text#linkLabel' + selectedNodeLink.id).text(labelText);
     selectedNodeLink.link = labelText;
+	nodeSingleClick(selectedNodeLink);
     update(root);
-    console.log()
-
-    d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'red');
-    d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'red');
-    d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'red');
-
-    d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'red');
-    d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'red');                    
+    
 };
 
 // edit the relation labels through button clicks
 var editLabelByButton = function(inputSource) {
-    if(selectedNodeLink) {
-        labelText = inputSource.currentTarget.value
-        console.log()
+     if(selectedNodeLink) {
+        labelText = inputSource.currentTarget.value;
+        console.log();
+        d3.select('text#linkLabel' + selectedNodeLink.id).text(labelText);
         selectedNodeLink.link = labelText;
-        update(root);
-        console.log()
-
-        d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'red');
-        d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'red');
-        d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'red');
-
-        d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'red');
-        d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'red');            
+	    nodeSingleClick(selectedNodeLink);
+        update(root);              
     }
 };
 
-// close the label menu and update the tree
-var finishPOS = function() {
-    update(root);
-};
+
 
 // edit the POS tags through keystrokes
 var editPOS = function(posText) {
@@ -809,18 +795,18 @@ var editPOS = function(posText) {
     d3.select('text#nodePOS' + selectedNodeLink.id).text(posText)
     selectedNodeLink.pos = posText;
 	nodeSingleClick(selectedNodeLink);
-    finishPOS();   
+    update(root);   
 };
 
 // edit the POS tags through button clicks
 var editPOSByButton = function(inputSource) {
     if(selectedNodeLink) {
-        posText = inputSource.currentTarget.value
-        console.log()
-        d3.select('text#nodePOS' + selectedNodeLink.id).text(posText)
+        posText = inputSource.currentTarget.value;
+        console.log();
+        d3.select('text#nodePOS' + selectedNodeLink.id).text(posText);
         selectedNodeLink.pos = posText;
         nodeSingleClick(selectedNodeLink);
-        finishPOS();   
+        update(root);
     }
 };
 
@@ -1188,12 +1174,19 @@ var getTree = function(treeData) {
         d3.select('.links').selectAll('text').style('stroke', '#fff');
         d3.select('.nodes').selectAll('text').style('stroke', '');
         d3.selectAll('.nodeCircle').style('fill', '#fff');
- 
-        d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'red');
-        d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'red');            
 
-        d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'red');
-        d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'red');
+        d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'red'); // Link line 
+        
+       if ( editingControl === 'rel') {
+              d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'red');       // POS Label
+               d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'green');        // Rel Label    
+       }else{
+             d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'green');       // POS Label
+             d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'red');        // Rel Label    
+
+       }
+
+        d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'black');  //Node name??
         d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'red');
 
         return;
@@ -1212,7 +1205,7 @@ var getTree = function(treeData) {
     function nodeKeypress(d) {
 
         if (d3.event.defaultPrevented) return;
-        if(d3.event.keyCode === 9) {
+        if(d3.event.keyCode === 9) { // click on tab!
             if(editingControl === 'pos') {
                 editingControl = 'rel';
                 lastKeyStroke = ''
@@ -1220,8 +1213,10 @@ var getTree = function(treeData) {
                 editingControl = 'pos'
                 lastKeyStroke = ''
             }
+            nodeSingleClick(selectedNodeLink);
+            
         } else {
-            if(d3.event.keyCode >= 65 && d3.event.keyCode <= 90) {
+            if(d3.event.keyCode >= 65 && d3.event.keyCode <= 90) { //ONLY A-Z are allowed.
                 if(editingControl === 'pos') {
                     for (var posKey in posTags) {
                         if (d3.event.key.toUpperCase() === posKey.toUpperCase()) {
