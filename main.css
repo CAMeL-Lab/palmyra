@@ -485,8 +485,8 @@ section textarea {
     paint-order: stroke;
     stroke: #ffffff;
     stroke-width: 10px;
-    stroke-linecap: butt;
-    stroke-linejoin: miter;
+   stroke-linecap: butt;
+    stroke-linejoin: round;
     font-weight: 800;
 /*    fill: #ff0000;*/
     /*text-shadow: 0 1px 0 #dcdcdc, 1px 0 0 #dcdcdc, 0 -1px 0 #dcdcdc, -1px 0 0 #dcdcdc;*/
@@ -542,9 +542,13 @@ section textarea {
 }
 
 .nodepos {
-    cursor: pointer;
-    fill-opacity: 1;
-    font-size: 1em;
+    font-size: 16px;
+    paint-order: stroke;
+    stroke: #ffffff;
+    stroke-width: 10px;
+   stroke-linecap: butt;
+    stroke-linejoin: round;
+    font-weight: 800;
 }
 
 .morphology {
