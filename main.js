@@ -836,6 +836,13 @@ var saveMorphology = function() {
     var morphologyArray = document.getElementById('morphologyName').value.split(' ');
     var morphologyText = morphologyArray.shift()
 
+    
+    while ((morphologyText.length < 1)&&(morphologyArray.length > 0)) { 
+        morphologyText = morphologyArray.shift() 
+        }
+    if (morphologyText.length < 1) {morphologyText=newNodeName}
+
+    
     d3.select('text#nodeLabel' + selectedMorphology.parent.id).text(morphologyText);
     d3.select('text#morphology' + selectedMorphology.id).text(morphologyText);
     selectedMorphology.name = morphologyText;
