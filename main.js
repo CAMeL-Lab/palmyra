@@ -1400,23 +1400,27 @@ var getTree = function(treeData) {
     };
 
     // merge node into right neighbor
+    //d is the projected node
     function morphologyRightMerge(d) {
-        var mergedName = d.name + fullTree.select('#node' + parseInt(d.id+1)).data()[0].name
-        fullTree.select('#node' + parseInt(d.id+1)).data()[0].name = mergedName
-        fullTree.select('#node' + parseInt(d.id+2)).data()[0].name = mergedName
-        deleteNode(d)
-        saveMorphology(d)
-        update(root)
+        var mergedName = d.name + fullTree.select('#node' + parseInt(d.id+1)).data()[0].name;
+        //change the name of the next node in the tree
+        fullTree.select('#node' + parseInt(d.id+1)).data()[0].name = mergedName;
+        //change the name of the projected node of the next node in the tree
+        fullTree.select('#node' + parseInt(d.id+2)).data()[0].name = mergedName;
+        deleteNode(d);
+        update(root);
     };
 
     // merge node into left neighbor
+    //d is the projected node
     function morphologyLeftMerge(d) {
-        var mergedName = fullTree.select('#node' + parseInt(d.id-3)).data()[0].name + d.name
-        fullTree.select('#node' + parseInt(d.id-3)).data()[0].name = mergedName
-        fullTree.select('#node' + parseInt(d.id-2)).data()[0].name = mergedName
-        deleteNode(d)
-        saveMorphology(d)
-        update(root)
+        var mergedName = fullTree.select('#node' + parseInt(d.id-3)).data()[0].name + d.name;
+        //change the name of the previous node in the tree
+        fullTree.select('#node' + parseInt(d.id-3)).data()[0].name = mergedName;
+        //change the name of the projected node of the previous node in the tree
+        fullTree.select('#node' + parseInt(d.id-2)).data()[0].name = mergedName;
+        deleteNode(d);
+        update(root);
     };
 
  // Updates the ids of the nodes to correspond to sentence order
@@ -1487,7 +1491,6 @@ var getTree = function(treeData) {
         getTree(root)
         update(root)
         $('.morphologyMerge').toggle()
-        saveMorphology(d)
     };
 
     // Add a new node to left of an existing node
