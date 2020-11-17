@@ -1255,12 +1255,12 @@ var getTree = function(treeData) {
             } else {
                 switch (d3.event.key) {
                     case 'ArrowDown':
-                        if (selectedNodeLink.children.length > 1) {
+                        if (selectedNodeLink.children.length > 1) { //This is a tree node with one or more tree node children
                             var childNode = selectedNodeLink.children[0]
-                            if (childNode.id == selectedNodeLink.id + 1) {
+                            if (childNode.id == selectedNodeLink.id + 1) { // the first child is a projectedNode; so jump to next child.
                                 nodeSingleClick(selectedNodeLink.children[1])
                             } else {
-                                nodeSingleClick(selectedNodeLink.children[0])
+                                nodeSingleClick(selectedNodeLink.children[0]) //the first child is not a projected node; the treenode child precedes the parent.
                             }
                         }
                         break;
@@ -1270,7 +1270,7 @@ var getTree = function(treeData) {
                         }
                         break;
                     case 'ArrowRight':
-                        var neighborCheck = 2
+                        var neighborCheck = 1
                         if (selectedNodeLink.pid !== 0) neighborCheck = 1;
                         if (orientation == 'r-to-l') {
                             if (selectedNodeLink.parent.children.length > neighborCheck) {
@@ -1297,7 +1297,7 @@ var getTree = function(treeData) {
                         }
                         break;
                     case 'ArrowLeft':
-                        var neighborCheck = 2
+                        var neighborCheck = 1
                         if (selectedNodeLink.pid !== 0) neighborCheck = 1;
                         if (orientation == 'l-to-r') {
                             if (selectedNodeLink.parent.children.length > neighborCheck) {
@@ -2350,6 +2350,17 @@ var getTree = function(treeData) {
            d.x0 = d.x,
            d.y0 = d.y;
         });
+
+        // go over the tree and sort each node's children array in ascending order
+        var tempTree = tree.nodes(root);
+        tempTree.sort(function(a,b) { return parseFloat(a.id) - parseFloat(b.id) } );
+
+        for (var i=0; i<tempTree.length; i++) {
+            if(!tempTree[i].duplicate && tempTree[i].children.length > 1) {
+                tempTree[i].children.sort(function(a,b) { return parseFloat(a.id) - parseFloat(b.id) } );
+            }
+        }
+
 
     };
 
