@@ -1270,8 +1270,8 @@ var getTree = function(treeData) {
                         }
                         break;
                     case 'ArrowRight':
-                        var neighborCheck = 1
-                        if (selectedNodeLink.pid !== 0) neighborCheck = 1;
+                        var neighborCheck = 1;
+                        if (selectedNodeLink.pid !== 0) neighborCheck = 2;
                         if (orientation == 'r-to-l') {
                             if (selectedNodeLink.parent.children.length > neighborCheck) {
                                 var neighborArray = selectedNodeLink.parent.children;
@@ -1280,7 +1280,7 @@ var getTree = function(treeData) {
                                     if (neighborArray[k].id == selectedNodeLink.id) {
                                         if (neighborID !== -1) nodeSingleClick(neighborArray[neighborID]);
                                         break;
-                                    } else if (neighborArray[k].id !== selectedNodeLink.pid + 1) neighborID = k;
+                                    } else if (!neighborArray[k].duplicate) {neighborID = k;}
                                 }
                             }
                         } else {
@@ -1291,14 +1291,14 @@ var getTree = function(treeData) {
                                     if (neighborArray[k].id == selectedNodeLink.id) {
                                         if (neighborID !== -1) nodeSingleClick(neighborArray[neighborID]);
                                         break;
-                                    } else if (neighborArray[k].id !== selectedNodeLink.pid + 1) neighborID = k;
+                                    } else if (!neighborArray[k].duplicate) {neighborID = k;}
                                 }
                             }
                         }
                         break;
                     case 'ArrowLeft':
                         var neighborCheck = 1
-                        if (selectedNodeLink.pid !== 0) neighborCheck = 1;
+                        if (selectedNodeLink.pid !== 0) neighborCheck = 2;
                         if (orientation == 'l-to-r') {
                             if (selectedNodeLink.parent.children.length > neighborCheck) {
                                 var neighborArray = selectedNodeLink.parent.children;
@@ -1307,7 +1307,7 @@ var getTree = function(treeData) {
                                     if (neighborArray[k].id == selectedNodeLink.id) {
                                         if (neighborID !== -1) nodeSingleClick(neighborArray[neighborID]);
                                         break;
-                                    } else if (neighborArray[k].id !== selectedNodeLink.pid + 1) neighborID = k;
+                                    } else if (!neighborArray[k].duplicate) {neighborID = k;}
                                 }
                             }
                         } else {
@@ -1318,7 +1318,7 @@ var getTree = function(treeData) {
                                     if (neighborArray[k].id == selectedNodeLink.id) {
                                         if (neighborID !== -1) nodeSingleClick(neighborArray[neighborID]);
                                         break;
-                                    } else if (neighborArray[k].id !== selectedNodeLink.pid + 1) neighborID = k;
+                                    } else if (!neighborArray[k].duplicate) {neighborID = k;}
                                 }
                             }
                         }
