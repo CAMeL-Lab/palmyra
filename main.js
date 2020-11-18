@@ -1104,23 +1104,21 @@ var getTree = function(treeData) {
     root = treeData;
     root.x0 = viewerWidth / 2;
     root.y0 = parseFloat(localStorage['nodesize'])+40;
-    // helper functions to collapse and expand nodes
     
-    function collapse(d) {
-        if (d.children) {
-            d._children = d.children;
-            d._children.forEach(collapse);
-            d.children = null;
+    // helper functions to expand nodes
+    function expand(d) {
+        if(d.collapsed == true) {
+            d.children.forEach(function (childNode) {
+                childNode.name = childNode.name.slice(2, -2)
+            });
+
+            d.children = d._children;
+            d._children = null;
+            d.name = d.name.slice(2,-2)
+            d.collapsed = false
         }
     }
 
-    function expand(d) {
-        if (d._children) {
-            d.children = d._children;
-            d.children.forEach(expand);
-            d._children = null;
-        }
-    }
     //instead of relying on the state of children and _children, add a variable to indicate if a node is collapsed
     //keep the duplicate node that will appear at the bottom in the tree
     function toggleChildren(d) {
