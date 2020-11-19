@@ -845,7 +845,7 @@ var saveMorphology = function() {
     }
 
     while (morphologyArray.length > 0) {
-        morphologyText = morphologyArray.pop(); 
+        morphologyText = morphologyArray.shift()
         if (morphologyText.length > 0) addNode(selectedMorphology,'right', morphologyText)
     }
 
@@ -1006,7 +1006,7 @@ var search = function() {
         document.getElementById('search').removeChild(document.getElementById('searchList'))
         $('#listing').hide()
     }
-
+    update(root);
 }
 
 // SETTINGS
@@ -1016,6 +1016,15 @@ var search = function() {
 var tagsToggle = function() {
     $('#labels').toggle();
     $('#postags').toggle();
+    
+    if (editingControl=='tags'){
+        editingControl='pos';
+    }else{
+
+        editingControl='tags'
+    }
+
+    update(root);
 };
 
 // END SETTINGS
@@ -1180,21 +1189,25 @@ var getTree = function(treeData) {
 
         d3.select('.links').selectAll('text').style('stroke', '#fff');
         d3.select('.nodes').selectAll('text').style('stroke', '');
-        d3.selectAll('.nodeCircle').style('fill', '#fff');
+        d3.selectAll('.nodeCircle').style('fill', 'white');
 
-        d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'red'); // Link line 
+        d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'cornflowerblue'); // Link line 
         
        if ( editingControl === 'rel') {
-              d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'red');       // POS Label
-               d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'green');        // Rel Label    
-       }else{
-             d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'green');       // POS Label
-             d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'red');        // Rel Label    
+              d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightcoral');       // POS Label
+               d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightgreen');        // Rel Label    
+       }else if (editingControl === 'pos'){
+             d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightgreen');       // POS Label
+             d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightcoral');        // Rel Label    
 
+       }else{ // tags 
+             d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightgreen');       // POS Label
+             d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightgreen');        // Rel Label    
        }
 
         d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'black');  //Node name??
-        d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'red');
+        
+        d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'cornflowerblue');
 
         return;
     };
