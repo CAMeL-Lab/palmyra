@@ -28,26 +28,26 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         <div class="container">
             <a href="index.html"><img src="fonts/logo.png" alt="palmyra" id='logo'/></a>
             <div class="toolbar btn-initial" align="left">
-                <input type="button" value="clear" onClick="clearTree()" />
+                <input type="button" tabindex="-1" value="clear" onClick="clearTree()" />
             </div>
             <div style="width:50px">
                 <p id="currentTreeNumber" onClick="$('#gototree').toggle()"></p>
             </div>
             <div class="toolbar btn-nav" align="center">
-                <input type="button" value="&#x21E4" onClick="firstTree()"/>
-                <input type="button" value="&#x2190" onClick="prevTree()"/>
-                <input type="button" value="&#x2192" onClick="nextTree()"/>
-                <input type="button" value="&#x21E5" onClick="lastTree()"/>
+                <input type="button" tabindex="-1" value="&#x21E4" onClick="firstTree()"/>
+                <input type="button" tabindex="-1" value="&#x2190" onClick="prevTree()"/>
+                <input type="button" tabindex="-1" value="&#x2192" onClick="nextTree()"/>
+                <input type="button" tabindex="-1" value="&#x21E5" onClick="lastTree()"/>
             </div>
             
             <div class="toolbar btn-options" align="right">
-                <input type="button" value="+ Tree" onClick="addNewTree()"/>
-                <input type="button" value="- Tree" onClick="deleteCurrentTree()"/>
-                <input type="button" id="editbtn" value="edit" onClick="$('.morphologyMerge').toggle()"/>
-                <input type="button" value="download" onClick="$('#download').toggle()"/>
-                <input type="button" value="direction" onClick="directionToggle()"/>
-                <input type="button" value="tags" onClick="tagsToggle()" />
-                <input type="button" value="listing" onClick="search()" />
+                <input type="button" tabindex="-1" value="+ Tree" onClick="addNewTree()"/>
+                <input type="button" tabindex="-1" value="- Tree" onClick="deleteCurrentTree()"/>
+                <input type="button" tabindex="-1" id="editbtn" value="edit" onClick="$('.morphologyMerge').toggle()"/>
+                <input type="button" tabindex="-1" value="download" onClick="$('#download').toggle()"/>
+                <input type="button" tabindex="-1" value="direction" onClick="directionToggle()"/>
+                <input type="button" tabindex="-1" value="tags" onClick="tagsToggle()" />
+                <input type="button" tabindex="-1" value="listing" onClick="search()" />
             </div>
         </div>
 
@@ -99,7 +99,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         <section id="gototree">
             <form id="gototree">
                 <p>Please select tree number:</p>
-                <input type="number" id="treeNumberInput" min="1" max="1">
+                <input type="number" id="treeNumberInput" min="1" max="1" onkeypress="return goToKeyPress(event);">
             </form><br>
             <input type="button" id="goTreebtn" value="Go" onClick="goToTree()"/>
             <button onClick="$('#gototree').hide()">Close</button>
@@ -160,5 +160,20 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
     <script src="scripts/underscore-min.js"></script>
     <script src="scripts/cycle.js"></script>
     <script src="main.js"></script>
+
+    <script>
+        function goToKeyPress(e)
+        {
+            // look for window.event in case event isn't passed in
+            e = e || window.event;
+            if (e.keyCode == 13)
+            {
+                document.getElementById('goTreebtn').click();
+                return false;
+            }
+            return true;
+        }
+    </script>
+
 </body>
 </html>
