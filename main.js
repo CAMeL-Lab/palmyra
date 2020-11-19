@@ -738,8 +738,11 @@ var prevTree = function() {
 
 // go to the input tree number
 var goToTree = function() {
+
     if (currentTreeIndex !== (document.getElementById('treeNumberInput').value - 1)) 
-        { 
+    { 
+    	//check that the entered value is not less than 1 or more than the number of trees
+        if (document.getElementById('treeNumberInput').value > 0 && document.getElementById('treeNumberInput').value <= treesArray.length) {
             sessionStorage.removeItem('treeData');
             saveTree();
             currentTreeIndex = document.getElementById('treeNumberInput').value - 1;
@@ -747,6 +750,7 @@ var goToTree = function() {
             getTree(treesArray[currentTreeIndex])
             update(root);
         }
+    }
 };
 
 // toggle between English and Arabic
@@ -1096,7 +1100,12 @@ var getTree = function(treeData) {
     // create a group for holding the links -- this group will be drawn first
     var lgroup = fullTree.append('g').attr('class', 'links');
     // create a group for holding the nods -- this group will be drawn second
-    var ngroup = fullTree.append('g').attr('class', 'nodes');
+    var ngroup = fullTree.append('g').attr('class', 'nodes')
+
+
+
+
+    ;
     // create a group for holding the temporary link(s) -- this group will be drawn last
     fullTree.append('g').attr('class', 'templinks');
 
