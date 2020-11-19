@@ -1165,6 +1165,19 @@ var getTree = function(treeData) {
         return d;
     }
 
+
+
+    function nodeNoFocus(d) {
+        //update(root);
+        d3.select('.links').selectAll('path').style('stroke', 'lightsteelblue');
+        //d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'lightsteelblue'); // Link line 
+        d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'white');       // POS Label
+        d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'white');        // Rel Label    
+        d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', '');  //Node name??
+        d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'white');
+        return;
+    };
+
     // focus link on click
     function nodeSingleClick(d) {
     	
@@ -1186,10 +1199,10 @@ var getTree = function(treeData) {
         // d3.select('.links').selectAll('path').style('stroke', '#545454');
         // this greys out the links for the nodes that are not selected
         d3.select('.links').selectAll('path').style('stroke', '#b3b3b3');
-
-        d3.select('.links').selectAll('text').style('stroke', '#fff');
+        d3.select('.links').selectAll('text').style('stroke', 'white');
         d3.select('.nodes').selectAll('text').style('stroke', '');
         d3.selectAll('.nodeCircle').style('fill', 'white');
+
 
         d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'cornflowerblue'); // Link line 
         
@@ -2044,7 +2057,7 @@ var getTree = function(treeData) {
           }).select('path')
                 .attr('d', lineData)
                 .style('stroke-width', '3px')
-                .style('stroke', '#545454')
+                .style('stroke', 'lightsteelblue')
                 .style('fill', 'none')
                 .style('stroke-dasharray', ('15, 15'));
 
@@ -2087,6 +2100,7 @@ var getTree = function(treeData) {
           }).on('dblclick', nodeDoubleClick)
             .on('click', nodeSingleClick)
             .on('focus', nodeSingleClick)
+            .on('blur', nodeNoFocus)
             .on('keydown', nodeKeypress)
 
         nodeEnter.filter(function(d, i)
@@ -2387,3 +2401,4 @@ var getTree = function(treeData) {
     // lay out the initial tree
     update(root);
 };
+
