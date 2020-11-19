@@ -1169,8 +1169,8 @@ var getTree = function(treeData) {
 
     function nodeNoFocus(d) {
         //update(root);
-      //  d3.select('.links').selectAll('path').style('stroke', 'lightsteelblue');
-        d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'lightsteelblue'); // Link line 
+        d3.select('.links').selectAll('path').style('stroke', 'lightsteelblue');
+       // d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'lightsteelblue'); // Link line 
         d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'white');       // POS Label
         d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'white');        // Rel Label    
         d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', '');  //Node name??
