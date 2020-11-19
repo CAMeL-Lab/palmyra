@@ -1031,6 +1031,8 @@ var tagsToggle = function() {
 
 // ************** Generate the tree diagram  *****************
 var getTree = function(treeData) {
+ if (numberOfNodesArray.length==0){return;}
+
     // set height and width equal to HTML doc properties
     numberOfNodes = numberOfNodesArray[currentTreeIndex]
     var requiredWidth = parseFloat(localStorage['customwidth']) * 500 * numberOfNodes * 1.37;
@@ -1169,6 +1171,7 @@ var getTree = function(treeData) {
 
     function nodeNoFocus(d) {
         //update(root);
+        if (editingControl!='tags'){
         d3.select('.links').selectAll('path').style('stroke', 'lightsteelblue');
        // d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'lightsteelblue'); // Link line 
         d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'white');       // POS Label
@@ -1176,6 +1179,7 @@ var getTree = function(treeData) {
         d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', '');  //Node name??
         d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'white');
         return;
+        }
     };
 
     // focus link on click
