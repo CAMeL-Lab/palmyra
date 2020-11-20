@@ -786,8 +786,19 @@ var editLabelByButton = function(inputSource) {
         console.log();
         d3.select('text#linkLabel' + selectedNodeLink.id).text(labelText);
         selectedNodeLink.link = labelText;
-	    nodeSingleClick(selectedNodeLink);
-        update(root);              
+
+        d3.select('.links').selectAll('path').style('stroke', '#b3b3b3');
+        d3.select('.links').selectAll('text').style('stroke', 'white');
+        d3.select('.nodes').selectAll('text').style('stroke', '');
+
+        d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'cornflowerblue'); // Link line 
+        d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightgreen');       // POS Label
+        d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightgreen');        // Rel Label    
+        d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'black');  //Node name??
+        d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'orange');
+
+   	    nodeSingleClick(selectedNodeLink);
+        update(root);
     }
 };
 
@@ -809,8 +820,19 @@ var editPOSByButton = function(inputSource) {
         console.log();
         d3.select('text#nodePOS' + selectedNodeLink.id).text(posText);
         selectedNodeLink.pos = posText;
-        nodeSingleClick(selectedNodeLink);
-        update(root);
+
+        d3.select('.links').selectAll('path').style('stroke', '#b3b3b3');
+        d3.select('.links').selectAll('text').style('stroke', 'white');
+        d3.select('.nodes').selectAll('text').style('stroke', '');
+        
+        d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'cornflowerblue'); // Link line 
+        d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightgreen');       // POS Label
+        d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightgreen');        // Rel Label    
+        d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'black');  //Node name??
+        d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'orange');
+
+   	    nodeSingleClick(selectedNodeLink);
+        update(root);       
     }
 };
 
@@ -1171,20 +1193,26 @@ var getTree = function(treeData) {
 
     function nodeNoFocus(d) {
         //update(root);
-        if (editingControl!='tags'){
+       // if (editingControl!='tags'){
         d3.select('.links').selectAll('path').style('stroke', 'lightsteelblue');
        // d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'lightsteelblue'); // Link line 
         d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'white');       // POS Label
         d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'white');        // Rel Label    
         d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', '');  //Node name??
-        d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'white');
-        return;
+        if (selectedNodeLink.collapsed){
+            d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'black');
+        }else{
+            d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'white');
         }
+       
+        return;
+      
+       // }
     };
 
     // focus link on click
     function nodeSingleClick(d) {
-    	
+
         if (d3.event.defaultPrevented) return
 
         if (d.hasOwnProperty('source')) {
@@ -1205,9 +1233,16 @@ var getTree = function(treeData) {
         d3.select('.links').selectAll('path').style('stroke', '#b3b3b3');
         d3.select('.links').selectAll('text').style('stroke', 'white');
         d3.select('.nodes').selectAll('text').style('stroke', '');
-        d3.selectAll('.nodeCircle').style('fill', 'white');
+        
+        //d3.selectAll('.nodeCircle').style('fill', 'white');
 
+        if (selectedNodeLink.collapsed){
+            d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'black');
+        }else{
+            d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'white');
+        }
 
+        
         d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'cornflowerblue'); // Link line 
         
        if ( editingControl === 'rel') {
@@ -1292,17 +1327,21 @@ var getTree = function(treeData) {
             } else {
                 switch (d3.event.key) {
                     case 'ArrowDown':
+                       
                         if (selectedNodeLink.children.length > 1) { //This is a tree node with one or more tree node children
+                            nodeNoFocus(d);
                             var childNode = selectedNodeLink.children[0]
                             if (childNode.id == selectedNodeLink.id + 1) { // the first child is a projectedNode; so jump to next child.
                                 nodeSingleClick(selectedNodeLink.children[1])
                             } else {
                                 nodeSingleClick(selectedNodeLink.children[0]) //the first child is not a projected node; the treenode child precedes the parent.
                             }
+
                         }
                         break;
                     case 'ArrowUp':
                         if (selectedNodeLink.pid !== 0) {
+                            nodeNoFocus(d);
                             nodeSingleClick(selectedNodeLink.parent)
                         }
                         break;
@@ -1311,22 +1350,24 @@ var getTree = function(treeData) {
                         if (selectedNodeLink.pid !== 0) neighborCheck = 2;
                         if (orientation == 'r-to-l') {
                             if (selectedNodeLink.parent.children.length > neighborCheck) {
+                                
                                 var neighborArray = selectedNodeLink.parent.children;
                                 var neighborID = -1;
                                 for (var k=0; k<neighborArray.length; k++) {
                                     if (neighborArray[k].id == selectedNodeLink.id) {
-                                        if (neighborID !== -1) nodeSingleClick(neighborArray[neighborID]);
+                                        if (neighborID !== -1) {nodeNoFocus(d); nodeSingleClick(neighborArray[neighborID]);}
                                         break;
                                     } else if (!neighborArray[k].duplicate) {neighborID = k;}
                                 }
                             }
                         } else {
                             if (selectedNodeLink.parent.children.length > neighborCheck) {
+                                
                                 var neighborArray = selectedNodeLink.parent.children;
                                 var neighborID = -1;
                                 for (var k=neighborArray.length-1; k>-1; k--) {
                                     if (neighborArray[k].id == selectedNodeLink.id) {
-                                        if (neighborID !== -1) nodeSingleClick(neighborArray[neighborID]);
+                                        if (neighborID !== -1) {nodeNoFocus(d); nodeSingleClick(neighborArray[neighborID]);}
                                         break;
                                     } else if (!neighborArray[k].duplicate) {neighborID = k;}
                                 }
@@ -1337,23 +1378,25 @@ var getTree = function(treeData) {
                         var neighborCheck = 1
                         if (selectedNodeLink.pid !== 0) neighborCheck = 2;
                         if (orientation == 'l-to-r') {
+                            
                             if (selectedNodeLink.parent.children.length > neighborCheck) {
                                 var neighborArray = selectedNodeLink.parent.children;
                                 var neighborID = -1;
                                 for (var k=0; k<neighborArray.length; k++) {
                                     if (neighborArray[k].id == selectedNodeLink.id) {
-                                        if (neighborID !== -1) nodeSingleClick(neighborArray[neighborID]);
+                                        if (neighborID !== -1) {nodeNoFocus(d); nodeSingleClick(neighborArray[neighborID]);}
                                         break;
                                     } else if (!neighborArray[k].duplicate) {neighborID = k;}
                                 }
                             }
                         } else {
                             if (selectedNodeLink.parent.children.length > neighborCheck) {
+                                 
                                 var neighborArray = selectedNodeLink.parent.children;
                                 var neighborID = -1;
                                 for (var k=neighborArray.length-1; k>-1; k--) {
                                     if (neighborArray[k].id == selectedNodeLink.id) {
-                                        if (neighborID !== -1) nodeSingleClick(neighborArray[neighborID]);
+                                        if (neighborID !== -1) {nodeNoFocus(d); nodeSingleClick(neighborArray[neighborID]);}
                                         break;
                                     } else if (!neighborArray[k].duplicate) {neighborID = k;}
                                 }
