@@ -34,6 +34,7 @@ var listingKey = 'text'
 var newPOSTag = 'NOM';
 var newLinkLabel = '---';
 var newNodeName = '*'
+var editLemma = false
 
 // keeping tack of the pos tags, relation labels, and features, their values, and their defaults
 var posTags = {}
@@ -61,7 +62,7 @@ for (var k=0; k<settings.length; k++) {
 // the main display function
 var main = function() {
     // in case extra toolbar windows are showing, hide them
-    $('#jsontext').hide();
+    // $('#jsontext').hide();
     $('#download').hide();
     $('#linktext').hide();
     $('#listing').hide();
@@ -121,6 +122,10 @@ var parseConfig = function(content) {
     var configs = JSON.parse(content)
     orientation = configs.orientation
     listingKey = configs.display_text
+    if (configs.lemma === 'true')
+        editLemma = true
+    else
+        editLemma = false
 
     var posContainer = document.getElementById('postags')
     var divs = {}
@@ -131,8 +136,10 @@ var parseConfig = function(content) {
             var btn = document.createElement('BUTTON')
             var text = document.createTextNode(configs.pos.values[i].label.toUpperCase())
             btn.appendChild(text);
+            btn.tabindex = -1
             btn.value = configs.pos.values[i].label.toUpperCase()
             btn.onclick = editPOSByButton
+
 
             group = configs.pos.values[i].group;
             if (group in divs) {
@@ -147,6 +154,7 @@ var parseConfig = function(content) {
             var btn = document.createElement('BUTTON')
             var text = document.createTextNode(configs.pos.values[i].label.toUpperCase())
             btn.appendChild(text);
+            btn.tabindex = -1
             btn.value = configs.pos.values[i].label.toUpperCase()
             btn.onclick = editPOSByButton
 
@@ -294,6 +302,24 @@ var parseConfig = function(content) {
 
             defaultFeatValues[posTag] = defaultFeatValuePairs
         }
+    }
+
+    if (editLemma === true){
+        var lemmaField = document.getElementById('lemmaField');
+
+        var titleParagraph = document.createElement('P')
+        titleParagraph.setAttribute('class', 'labelsp')
+        titleParagraph.innerHTML = 'Lemma:'
+
+        var field = document.createElement('INPUT');
+        field.setAttribute('type','text')
+        field.setAttribute('id','lemma')
+
+        var lexDiv = document.createElement('div')
+        lexDiv.appendChild(field)
+
+        lemmaField.append(titleParagraph)
+        lemmaField.appendChild(lexDiv)
     }
 
     newPOSTag = configs.newNodeDefaults.pos.toUpperCase();
@@ -600,6 +626,7 @@ var setJSONtreeData = function() {
 };
 
 var setSentenceTreeData = function() {
+    readConfigFile()
     var original = $('#treedata2').val();
 
     if (original !== '') {
@@ -860,7 +887,9 @@ var saveMorphology = function() {
     selectedMorphology.name = morphologyText;
     selectedMorphology.parent.name = morphologyText;
 
-    selectedMorphology.parent.lemma = document.getElementById('lemma').value
+    if (editLemma === true) {
+        selectedMorphology.parent.lemma = document.getElementById('lemma').value
+    }
 
     for (var i = 0; i < lexicalFeatsList.length; i++) {
             selectedMorphology.parent.feats[lexicalFeatsList] = document.getElementById(lexicalFeatsList[i]).value
@@ -1036,6 +1065,7 @@ var search = function() {
 
 // return all settings to defaults
 var tagsToggle = function() {
+
     $('#labels').toggle();
     $('#postags').toggle();
     
@@ -1048,6 +1078,16 @@ var tagsToggle = function() {
 
     update(root);
 };
+
+var downloadToggle = function() {
+    $('#download').toggle()
+    update(root)
+} 
+
+var editToggle = function() {
+    $('.morphologyMerge').toggle()
+    //we don't call update root here because redrawing the tree will cancel toggling the morphologyMerge.
+}
 
 // END SETTINGS
 
@@ -1277,7 +1317,7 @@ var getTree = function(treeData) {
     function nodeKeypress(d) {
 
         if (d3.event.defaultPrevented) return;
-        if(d3.event.keyCode === 9) { // click on tab!
+        if(d3.event.keyCode === 9 && editingControl !== 'tags') { // click on tab!
             if(editingControl === 'pos') {
                 editingControl = 'rel';
                 lastKeyStroke = ''
@@ -1325,107 +1365,109 @@ var getTree = function(treeData) {
                     }
                 }
             } else {
-                switch (d3.event.key) {
-                    case 'ArrowDown':
-                       
-                        if (selectedNodeLink.children.length > 1) { //This is a tree node with one or more tree node children
-                            nodeNoFocus(d);
-                            var childNode = selectedNodeLink.children[0]
-                            if (childNode.id == selectedNodeLink.id + 1) { // the first child is a projectedNode; so jump to next child.
-                                nodeSingleClick(selectedNodeLink.children[1])
+                if (editingControl !== 'tags') {
+                    switch (d3.event.key) {
+                        case 'ArrowDown':
+                           
+                            if (selectedNodeLink.children.length > 1) { //This is a tree node with one or more tree node children
+                                nodeNoFocus(d);
+                                var childNode = selectedNodeLink.children[0]
+                                if (childNode.id == selectedNodeLink.id + 1) { // the first child is a projectedNode; so jump to next child.
+                                    nodeSingleClick(selectedNodeLink.children[1])
+                                } else {
+                                    nodeSingleClick(selectedNodeLink.children[0]) //the first child is not a projected node; the treenode child precedes the parent.
+                                }
+
+                            }
+                            break;
+                        case 'ArrowUp':
+                            if (selectedNodeLink.pid !== 0) {
+                                nodeNoFocus(d);
+                                nodeSingleClick(selectedNodeLink.parent)
+                            }
+                            break;
+                        case 'ArrowRight':
+                            var neighborCheck = 1;
+                            if (selectedNodeLink.pid !== 0) neighborCheck = 2;
+                            if (orientation == 'r-to-l') {
+                                if (selectedNodeLink.parent.children.length > neighborCheck) {
+                                    
+                                    var neighborArray = selectedNodeLink.parent.children;
+                                    var neighborID = -1;
+                                    for (var k=0; k<neighborArray.length; k++) {
+                                        if (neighborArray[k].id == selectedNodeLink.id) {
+                                            if (neighborID !== -1) {nodeNoFocus(d); nodeSingleClick(neighborArray[neighborID]);}
+                                            break;
+                                        } else if (!neighborArray[k].duplicate) {neighborID = k;}
+                                    }
+                                }
                             } else {
-                                nodeSingleClick(selectedNodeLink.children[0]) //the first child is not a projected node; the treenode child precedes the parent.
+                                if (selectedNodeLink.parent.children.length > neighborCheck) {
+                                    
+                                    var neighborArray = selectedNodeLink.parent.children;
+                                    var neighborID = -1;
+                                    for (var k=neighborArray.length-1; k>-1; k--) {
+                                        if (neighborArray[k].id == selectedNodeLink.id) {
+                                            if (neighborID !== -1) {nodeNoFocus(d); nodeSingleClick(neighborArray[neighborID]);}
+                                            break;
+                                        } else if (!neighborArray[k].duplicate) {neighborID = k;}
+                                    }
+                                }
                             }
-
-                        }
-                        break;
-                    case 'ArrowUp':
-                        if (selectedNodeLink.pid !== 0) {
-                            nodeNoFocus(d);
-                            nodeSingleClick(selectedNodeLink.parent)
-                        }
-                        break;
-                    case 'ArrowRight':
-                        var neighborCheck = 1;
-                        if (selectedNodeLink.pid !== 0) neighborCheck = 2;
-                        if (orientation == 'r-to-l') {
-                            if (selectedNodeLink.parent.children.length > neighborCheck) {
+                            break;
+                        case 'ArrowLeft':
+                            var neighborCheck = 1
+                            if (selectedNodeLink.pid !== 0) neighborCheck = 2;
+                            if (orientation == 'l-to-r') {
                                 
-                                var neighborArray = selectedNodeLink.parent.children;
-                                var neighborID = -1;
-                                for (var k=0; k<neighborArray.length; k++) {
-                                    if (neighborArray[k].id == selectedNodeLink.id) {
-                                        if (neighborID !== -1) {nodeNoFocus(d); nodeSingleClick(neighborArray[neighborID]);}
-                                        break;
-                                    } else if (!neighborArray[k].duplicate) {neighborID = k;}
+                                if (selectedNodeLink.parent.children.length > neighborCheck) {
+                                    var neighborArray = selectedNodeLink.parent.children;
+                                    var neighborID = -1;
+                                    for (var k=0; k<neighborArray.length; k++) {
+                                        if (neighborArray[k].id == selectedNodeLink.id) {
+                                            if (neighborID !== -1) {nodeNoFocus(d); nodeSingleClick(neighborArray[neighborID]);}
+                                            break;
+                                        } else if (!neighborArray[k].duplicate) {neighborID = k;}
+                                    }
+                                }
+                            } else {
+                                if (selectedNodeLink.parent.children.length > neighborCheck) {
+                                     
+                                    var neighborArray = selectedNodeLink.parent.children;
+                                    var neighborID = -1;
+                                    for (var k=neighborArray.length-1; k>-1; k--) {
+                                        if (neighborArray[k].id == selectedNodeLink.id) {
+                                            if (neighborID !== -1) {nodeNoFocus(d); nodeSingleClick(neighborArray[neighborID]);}
+                                            break;
+                                        } else if (!neighborArray[k].duplicate) {neighborID = k;}
+                                    }
                                 }
                             }
-                        } else {
-                            if (selectedNodeLink.parent.children.length > neighborCheck) {
-                                
-                                var neighborArray = selectedNodeLink.parent.children;
-                                var neighborID = -1;
-                                for (var k=neighborArray.length-1; k>-1; k--) {
-                                    if (neighborArray[k].id == selectedNodeLink.id) {
-                                        if (neighborID !== -1) {nodeNoFocus(d); nodeSingleClick(neighborArray[neighborID]);}
-                                        break;
-                                    } else if (!neighborArray[k].duplicate) {neighborID = k;}
-                                }
-                            }
-                        }
-                        break;
-                    case 'ArrowLeft':
-                        var neighborCheck = 1
-                        if (selectedNodeLink.pid !== 0) neighborCheck = 2;
-                        if (orientation == 'l-to-r') {
-                            
-                            if (selectedNodeLink.parent.children.length > neighborCheck) {
-                                var neighborArray = selectedNodeLink.parent.children;
-                                var neighborID = -1;
-                                for (var k=0; k<neighborArray.length; k++) {
-                                    if (neighborArray[k].id == selectedNodeLink.id) {
-                                        if (neighborID !== -1) {nodeNoFocus(d); nodeSingleClick(neighborArray[neighborID]);}
-                                        break;
-                                    } else if (!neighborArray[k].duplicate) {neighborID = k;}
-                                }
-                            }
-                        } else {
-                            if (selectedNodeLink.parent.children.length > neighborCheck) {
-                                 
-                                var neighborArray = selectedNodeLink.parent.children;
-                                var neighborID = -1;
-                                for (var k=neighborArray.length-1; k>-1; k--) {
-                                    if (neighborArray[k].id == selectedNodeLink.id) {
-                                        if (neighborID !== -1) {nodeNoFocus(d); nodeSingleClick(neighborArray[neighborID]);}
-                                        break;
-                                    } else if (!neighborArray[k].duplicate) {neighborID = k;}
-                                }
-                            }
-                        }
-                        break;
+                            break;
 
-                    case 'Home':
-                        firstTree()
-                        break;
-                    case 'End':
-                        lastTree()
-                        break;
-                    case 'PageUp':
-                        nextTree();
-                        break;
-                    case 'PageDown':
-                        prevTree();
-                        break;
-                    case 'Escape':
-                        console.log('Escape')
-                        $('#labels').hide();
-                        $('#postags').hide();
-                        d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', '#545454');
-                        d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', '#ffffff');
-                        update(root);
-                        break;
-                    default:
-                        return; // Quit when this doesn't handle the key event.
+                        case 'Home':
+                            firstTree()
+                            break;
+                        case 'End':
+                            lastTree()
+                            break;
+                        case 'PageUp':
+                            nextTree();
+                            break;
+                        case 'PageDown':
+                            prevTree();
+                            break;
+                        case 'Escape':
+                            console.log('Escape')
+                            $('#labels').hide();
+                            $('#postags').hide();
+                            d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', '#545454');
+                            d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', '#ffffff');
+                            update(root);
+                            break;
+                        default:
+                            return; // Quit when this doesn't handle the key event.
+                    }
                 }
             }
         }
@@ -1441,7 +1483,9 @@ var getTree = function(treeData) {
         d3.select('text#morphology' + selectedMorphology.id).style('stroke', 'blue');
         document.getElementById('morphologyName').value = d.name;
 
-        document.getElementById('lemma').value = d.parent.lemma
+        if (editLemma === true) {
+            document.getElementById('lemma').value = d.parent.lemma
+        }
 
         for (var i = 0; i < lexicalFeatsList.length; i++) {
             document.getElementById(lexicalFeatsList[i]).value = d.parent.feats[lexicalFeatsList[i]]   
