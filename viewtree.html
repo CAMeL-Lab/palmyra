@@ -43,8 +43,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
             <div class="toolbar btn-options" align="right">
                 <input type="button" tabindex="-1" value="+ Tree" onClick="addNewTree()"/>
                 <input type="button" tabindex="-1" value="- Tree" onClick="deleteCurrentTree()"/>
-                <input type="button" tabindex="-1" id="editbtn" value="edit" onClick="$('.morphologyMerge').toggle()"/>
-                <input type="button" tabindex="-1" value="download" onClick="$('#download').toggle()"/>
+                <input type="button" tabindex="-1" id="editbtn" value="edit" onClick="editToggle()"/>
+                <input type="button" tabindex="-1" value="download" onClick="downloadToggle()"/>
                 <input type="button" tabindex="-1" value="direction" onClick="directionToggle()"/>
                 <input type="button" tabindex="-1" value="tags" onClick="tagsToggle()" />
                 <input type="button" tabindex="-1" value="listing" onClick="search()" />
@@ -52,35 +52,29 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         </div>
 
         <div class="container" style="width:100%">
-        <section id="upload" class="upload">
-            <p>Select CoNLL-U file:</p>
-            <input type="file" id="inputFile" name="treefiles[]"/>
-            <input type="button" id="treebtn" value="Upload file" onClick="setJSONtreeData()" />
+        <section id="upload3" class="upload" >
+            <p>Optional Config File:</p>
+            <input style="float:left"   type="file" value="catib.config" name="configFile" id="configFile"/>
         </section>
         </div>
+
+        <div class="container" style="width:100%">
+        <section id="upload" class="upload">
+            <p>Select CoNLL-U File:</p>
+            <input style="float:left"  type="file" id="inputFile" name="treefiles[]"/><br>
+            <input style="float:right" type="button" id="treebtn" value="Upload" onClick="setJSONtreeData()" />
+        </section>
+        </div>
+         
         <div class="container" style="width:100%">
         <section id="upload2" class="upload">
             <form id="upload2">
-                <p>Or: Enter text -- Each line will be a seperate tree:</p><br>
-                <textarea id="treedata2" rows="5"></textarea>
+                <p>Or Enter Text:</i></p><br>
+                <textarea id="treedata2" rows="5" placeholder="Each line of text will become a seperate tree."></textarea>
             </form>
-            <input style="float:none" type="button" id="treebtn2" value="Upload" onClick="setSentenceTreeData()" />
+            <input style="float:right" type="button" id="treebtn2" value="Upload" onClick="setSentenceTreeData()" />
         </section>
         </div>
-        <div class="container" style="width:100%">
-        <section id="upload3" class="upload">
-            <p>Configuration File:</p>
-            <input type="file" value="catib.config" name="configFile" id="configFile"/>
-        </section>
-        </div>
-      
-        <section id="jsontext">
-            <div id="jsontext">
-                <p>Your tree in JSON format:</p>
-                <textarea id="jsonfield" rows="5"></textarea>
-            </div>
-            <input type="button" id="closebtn" value="Close" onClick="$('#jsontext').hide()" />
-        </section>
         
         <section id="download">
             <form id="download">
@@ -126,10 +120,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                 <input type="text" id="morphologyName"><br>
             </div>
 
-            <p class='labelsp'>Lemma:</p>
+            <div id='lemmaField'>
+            </div>
+
+            <!-- <p class='labelsp'>Lemma:</p>
             <div>
                 <input type="text" id="lemma"><br>
-            </div>
+            </div> -->
 
             <div id='lexicalFeats'>
             </div>
