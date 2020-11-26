@@ -1010,6 +1010,10 @@ var downloadTree = function() {
 // the function that gets called from the listing button
 var search = function() {
 
+    // if (document.getElementById('search').hasChildNodes()) {
+    //     document.getElementById('search').removeChild(document.getElementById('searchList'))
+    // }
+
     if(window.getComputedStyle(document.getElementById('listing')).display === 'none') {
         var list = document.createElement('OL')
         list.setAttribute('id', 'searchList')
@@ -1052,6 +1056,12 @@ var search = function() {
         }
 
         document.getElementById('search').appendChild(list)
+
+        $('#download').hide();
+        $('#labels').hide();
+        $('#postags').hide();
+        $('#morphology').hide()
+    
         $('#listing').show()
     } else {
         document.getElementById('search').removeChild(document.getElementById('searchList'))
@@ -1065,6 +1075,13 @@ var search = function() {
 
 // return all settings to defaults
 var tagsToggle = function() {
+
+    $('#download').hide();
+    $('#morphology').hide()
+    if(window.getComputedStyle(document.getElementById('listing')).display !== 'none') {
+        document.getElementById('search').removeChild(document.getElementById('searchList'))
+        $('#listing').hide()
+    }
 
     $('#labels').toggle();
     $('#postags').toggle();
@@ -1080,6 +1097,14 @@ var tagsToggle = function() {
 };
 
 var downloadToggle = function() {
+    $('#labels').hide();
+    $('#postags').hide();
+    $('#morphology').hide()
+    if(window.getComputedStyle(document.getElementById('listing')).display !== 'none') {
+        document.getElementById('search').removeChild(document.getElementById('searchList'))
+        $('#listing').hide()
+    }
+
     $('#download').toggle()
     update(root)
 } 
@@ -1518,6 +1543,14 @@ var getTree = function(treeData) {
             } else {
                 document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].value = document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0][0].value
             }
+        }
+
+        $('#download').hide();
+        $('#labels').hide();
+        $('#postags').hide();
+        if(window.getComputedStyle(document.getElementById('listing')).display !== 'none') {
+            document.getElementById('search').removeChild(document.getElementById('searchList'))
+            $('#listing').hide()
         }
 
         $('#morphology').show();
