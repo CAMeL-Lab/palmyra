@@ -1061,6 +1061,7 @@ var search = function() {
         $('#labels').hide();
         $('#postags').hide();
         $('#morphology').hide()
+        $('#gototree').hide()
     
         $('#listing').show()
     } else {
@@ -1082,6 +1083,7 @@ var tagsToggle = function() {
         document.getElementById('search').removeChild(document.getElementById('searchList'))
         $('#listing').hide()
     }
+    $('#gototree').hide()
 
     $('#labels').toggle();
     $('#postags').toggle();
@@ -1104,6 +1106,7 @@ var downloadToggle = function() {
         document.getElementById('search').removeChild(document.getElementById('searchList'))
         $('#listing').hide()
     }
+    $('#gototree').hide()
 
     $('#download').toggle()
     update(root)
@@ -1112,6 +1115,19 @@ var downloadToggle = function() {
 var editToggle = function() {
     $('.morphologyMerge').toggle()
     //we don't call update root here because redrawing the tree will cancel toggling the morphologyMerge.
+}
+
+var goToTreeToggle = function() {
+    $('#labels').hide();
+    $('#postags').hide();
+    $('#morphology').hide()
+    if(window.getComputedStyle(document.getElementById('listing')).display !== 'none') {
+        document.getElementById('search').removeChild(document.getElementById('searchList'))
+        $('#listing').hide()
+    }
+    $('#download').hide()
+
+    $('#gototree').toggle()
 }
 
 // END SETTINGS
@@ -1552,6 +1568,7 @@ var getTree = function(treeData) {
             document.getElementById('search').removeChild(document.getElementById('searchList'))
             $('#listing').hide()
         }
+        $('#gototree').hide()
 
         $('#morphology').show();
     };
