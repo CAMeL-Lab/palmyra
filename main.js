@@ -1725,7 +1725,7 @@ var getTree = function(treeData) {
         //change the name of the projected node of the next node in the tree
         fullTree.select('#node' + parseInt(d.id+2)).data()[0].name = mergedName;
         deleteNode(d);
-        update(root);
+        // update(root);
     };
 
     // merge node into left neighbor
@@ -1737,7 +1737,7 @@ var getTree = function(treeData) {
         //change the name of the projected node of the previous node in the tree
         fullTree.select('#node' + parseInt(d.id-2)).data()[0].name = mergedName;
         deleteNode(d);
-        update(root);
+        // update(root);
     };
 
  // Updates the ids of the nodes to correspond to sentence order
