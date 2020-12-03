@@ -78,25 +78,20 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         
         <section id="download">
             <form id="download">
-                <p>Please select format and a filename:</p>
-                <div>
-                  <input type="radio" name="downloadChoice" id="downloadChoiceTree" checked><label>CoNLL-U&emsp;&emsp;</label>
-                  
-                  <input type="radio" name="downloadChoice" id="downloadChoiceImage"><label>PNG</label>
-                </div>
+                <p>Please select a filename:</p>
                 <input type="text" id="filename" value="treeOutputFile"/>
             </form>
             <input type="button" id="dwnbtn" value="Download" onClick="downloadTree()"/>
-            <button onClick="$('#download').hide()">Close</button>
+            <button onClick="hideAllWindows()">Close</button>
         </section>
 
         <section id="gototree">
             <form id="gototree">
                 <p>Please select tree number:</p>
-                <input type="number" id="treeNumberInput" min="1" max="1" onkeypress="return goToKeyPress(event);">
+                <input type="number" id="treeNumberInput" min="1" max="1" style="width: 3em" onkeypress="return goToKeyPress(event);">
             </form><br>
             <input type="button" id="goTreebtn" value="Go" onClick="goToTree()"/>
-            <button onClick="$('#gototree').hide()">Close</button>
+            <button onClick="hideAllWindows()">Close</button>
         </section>
         
         <section id='labels'>
@@ -112,7 +107,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
          <div id="listing" class="scroll" style="width:50%;height:400px;" >
             <section id="search" style="display:block; width: 90%;"/>
         </div>
-
+        
 
         <section id='morphology'>
             <p class='labelsp'>Token:</p>
@@ -122,11 +117,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 
             <div id='lemmaField'>
             </div>
-
-            <!-- <p class='labelsp'>Lemma:</p>
-            <div>
-                <input type="text" id="lemma"><br>
-            </div> -->
 
             <div id='lexicalFeats'>
             </div>
