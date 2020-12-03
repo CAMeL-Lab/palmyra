@@ -24,31 +24,34 @@ var numberOfNodesArray = [];
 var viewerHeight = 0;
 
 var addNode;
-var selectedNodeLink, selectedMorphology
+var selectedNodeLink, selectedMorphology;
 var nodeDeleted = false;
 var rootNodeName = '*';
+var enableNodeSelection = true;
 
 // default settings that can be configured
 var orientation = 'r-to-l';
 var listingKey = 'text'
 var newPOSTag = 'NOM';
 var newLinkLabel = '---';
-var newNodeName = '*'
-var editLemma = false
+var newNodeName = '*';
+var editLemma = false;
 
 // keeping tack of the pos tags, relation labels, and features, their values, and their defaults
-var posTags = {}
-var relLabels = {}
-var featureValues = {}
-var defaultFeatValues = {}
+var posTags = {};
+var relLabels = {};
+var featureValues = {};
+var defaultFeatValues = {};
 // lexical features that will be displayed as text fields
-var lexicalFeatsList = []
+var lexicalFeatsList = [];
 
 // variables to keep track of the keystrokes related to the editing of POS tags and relation labels
-var pointer = 0
-var lastKeyStroke = ''
-var editingControl = 'pos'
-var lastClickedNodeId = 0
+var pointer = 0;
+var lastKeyStroke = '';
+var editingControl = 'pos';
+var lastClickedNodeId = 0;
+
+var focusWindow = '';
 
 var settings = [['customwidth', 0.25], ['customdepth', 100], ['nodesize', 10], ['xsep', 5], ['ysep', 10], ['currentFont', 'standard']];
 
@@ -62,7 +65,6 @@ for (var k=0; k<settings.length; k++) {
 // the main display function
 var main = function() {
     // in case extra toolbar windows are showing, hide them
-    // $('#jsontext').hide();
     $('#download').hide();
     $('#linktext').hide();
     $('#listing').hide();
@@ -87,8 +89,8 @@ $(document).ready(main);
 $( window ).resize(function() {
     sessionStorage.removeItem('treeData');
     saveTree();
-    d3.select('body').select('svg').remove()
-    getTree(treesArray[currentTreeIndex])
+    d3.select('body').select('svg').remove();
+    getTree(treesArray[currentTreeIndex]);
     update(root);
 });
 
@@ -100,7 +102,7 @@ var readConfigFile = function() {
 
     if ('files' in x) {
         if (x.files.length == 0) {
-            var morphoLabel = document.getElementById('labelspMorphoFeats')
+            var morphoLabel = document.getElementById('labelspMorphoFeats');
             morphoLabel.style.visibility = 'hidden';
             txt = 'Select config file.';
         } else {
@@ -119,115 +121,115 @@ var readConfigFile = function() {
 
 var parseConfig = function(content) {
 
-    var configs = JSON.parse(content)
-    orientation = configs.orientation
-    listingKey = configs.display_text
+    var configs = JSON.parse(content);
+    orientation = configs.orientation;
+    listingKey = configs.display_text;
     if (configs.lemma === 'true')
-        editLemma = true
+        editLemma = true;
     else
-        editLemma = false
+        editLemma = false;
 
-    var posContainer = document.getElementById('postags')
-    var divs = {}
+    var posContainer = document.getElementById('postags');
+    var divs = {};
     
     for (var i = 0; i < configs.pos.values.length; i++) {
         if(configs.pos.values[i].key in posTags) {
-            posTags[configs.pos.values[i].key].push(configs.pos.values[i].label)
-            var btn = document.createElement('BUTTON')
-            var text = document.createTextNode(configs.pos.values[i].label.toUpperCase())
+            posTags[configs.pos.values[i].key].push(configs.pos.values[i].label);
+            var btn = document.createElement('BUTTON');
+            var text = document.createTextNode(configs.pos.values[i].label.toUpperCase());
             btn.appendChild(text);
-            btn.tabindex = -1
-            btn.value = configs.pos.values[i].label.toUpperCase()
-            btn.onclick = editPOSByButton
+            btn.tabindex = -1;
+            btn.value = configs.pos.values[i].label.toUpperCase();
+            btn.onclick = editPOSByButton;
 
 
             group = configs.pos.values[i].group;
             if (group in divs) {
-                divs[group].appendChild(btn)
+                divs[group].appendChild(btn);
             } else {
                 divs[group] = document.createElement('div'); 
-                divs[group].appendChild(btn)
+                divs[group].appendChild(btn);
             }
         } else {
-            posTags[configs.pos.values[i].key] = []
-            posTags[configs.pos.values[i].key].push(configs.pos.values[i].label)
-            var btn = document.createElement('BUTTON')
-            var text = document.createTextNode(configs.pos.values[i].label.toUpperCase())
+            posTags[configs.pos.values[i].key] = [];
+            posTags[configs.pos.values[i].key].push(configs.pos.values[i].label);
+            var btn = document.createElement('BUTTON');
+            var text = document.createTextNode(configs.pos.values[i].label.toUpperCase());
             btn.appendChild(text);
-            btn.tabindex = -1
-            btn.value = configs.pos.values[i].label.toUpperCase()
-            btn.onclick = editPOSByButton
+            btn.tabindex = -1;
+            btn.value = configs.pos.values[i].label.toUpperCase();
+            btn.onclick = editPOSByButton;
 
             group = configs.pos.values[i].group;
             if (group in divs) {
-                divs[group].appendChild(btn)
+                divs[group].appendChild(btn);
             } else {
                 divs[group] = document.createElement('div'); 
-                divs[group].appendChild(btn)
+                divs[group].appendChild(btn);
             }
         }
     }
 
     for (var div in divs) {
-        var hzRule = document.createElement('hr')
-        posContainer.appendChild(hzRule)
-        posContainer.appendChild(divs[div])
+        var hzRule = document.createElement('hr');
+        posContainer.appendChild(hzRule);
+        posContainer.appendChild(divs[div]);
     }
     
 
-    var labelContainer = document.getElementById('labels')
-    var divs = {}
+    var labelContainer = document.getElementById('labels');
+    var divs = {};
 
     for (var i = 0; i < configs.relation.values.length; i++) {
         if(configs.relation.values[i].key in relLabels) {
-            relLabels[configs.relation.values[i].key].push(configs.relation.values[i].label)
-            var btn = document.createElement('BUTTON')
-            var text = document.createTextNode(configs.relation.values[i].label.toUpperCase())
+            relLabels[configs.relation.values[i].key].push(configs.relation.values[i].label);
+            var btn = document.createElement('BUTTON');
+            var text = document.createTextNode(configs.relation.values[i].label.toUpperCase());
             btn.appendChild(text);
-            btn.setAttribute('id', configs.relation.values[i].label.toUpperCase())
-            btn.value = configs.relation.values[i].label.toUpperCase()
-            btn.onclick = editLabelByButton
+            btn.setAttribute('id', configs.relation.values[i].label.toUpperCase());
+            btn.value = configs.relation.values[i].label.toUpperCase();
+            btn.onclick = editLabelByButton;
 
             group = configs.relation.values[i].group;
             if (group in divs) {
-                divs[group].appendChild(btn)
+                divs[group].appendChild(btn);
             } else {
                 divs[group] = document.createElement('div'); 
-                divs[group].appendChild(btn)
+                divs[group].appendChild(btn);
             }
 
         } else {
-            relLabels[configs.relation.values[i].key] = []
-            relLabels[configs.relation.values[i].key].push(configs.relation.values[i].label)
-            var btn = document.createElement('BUTTON')
-            var text = document.createTextNode(configs.relation.values[i].label.toUpperCase())
+            relLabels[configs.relation.values[i].key] = [];
+            relLabels[configs.relation.values[i].key].push(configs.relation.values[i].label);
+            var btn = document.createElement('BUTTON');
+            var text = document.createTextNode(configs.relation.values[i].label.toUpperCase());
             btn.appendChild(text);
-            btn.setAttribute('id', configs.relation.values[i].label.toUpperCase())
-            btn.value = configs.relation.values[i].label.toUpperCase()
-            btn.onclick = editLabelByButton
+            btn.setAttribute('id', configs.relation.values[i].label.toUpperCase());
+            btn.value = configs.relation.values[i].label.toUpperCase();
+            btn.onclick = editLabelByButton;
 
             group = configs.relation.values[i].group;
             if (group in divs) {
-                divs[group].appendChild(btn)
+                divs[group].appendChild(btn);
             } else {
                 divs[group] = document.createElement('div'); 
-                divs[group].appendChild(btn)
+                divs[group].appendChild(btn);
             }
         }
     }
 
     for (var div in divs) {
-        var hzRule = document.createElement('hr')
-        labelContainer.appendChild(hzRule)
-        labelContainer.appendChild(divs[div])
+        var hzRule = document.createElement('hr');
+        labelContainer.appendChild(hzRule);
+        labelContainer.appendChild(divs[div]);
     }
 
     if(configs.hasOwnProperty('features') == false) {
-        var morphoLabel = document.getElementById('labelspMorphoFeats')
+        var morphoLabel = document.getElementById('labelspMorphoFeats');
         morphoLabel.style.visibility = 'hidden';
     } else {
 
-        var morphoLabel = document.getElementById('labelspMorphoFeats')
+        var morphoLabel = document.getElementById('labelspMorphoFeats');
         morphoLabel.style.visibility = 'visible';
 
         var item = document.getElementById('morphoFeats');
@@ -235,24 +237,24 @@ var parseConfig = function(content) {
 
         for (var i = 0; i < configs.features.length; i++) {
 
-            var div = document.createElement('div')
-            div.setAttribute('id', configs.features[i].name)
-            div.setAttribute('class', 'morphoFeat')
+            var div = document.createElement('div');
+            div.setAttribute('id', configs.features[i].name);
+            div.setAttribute('class', 'morphoFeat');
 
-            var fieldName = document.createElement('div')
-            fieldName.style.width = '100px'
-            fieldName.style.right = '0px'
-            fieldName.style.display = 'inline-block'
+            var fieldName = document.createElement('div');
+            fieldName.style.width = '100px';
+            fieldName.style.right = '0px';
+            fieldName.style.display = 'inline-block';
 
             var displayName = document.createTextNode(configs.features[i].display);
-            fieldName.appendChild(displayName)
+            fieldName.appendChild(displayName);
 
-            var menu = document.createElement('select')
-            menu.setAttribute('id', configs.features[i].name + 'Array')
-            menu.setAttribute('class', 'inputArray')
-            menu.style.width = '100px'
-            menu.style.left = '0px'
-            menu.style.display = 'inline-block'
+            var menu = document.createElement('select');
+            menu.setAttribute('id', configs.features[i].name + 'Array');
+            menu.setAttribute('class', 'inputArray');
+            menu.style.width = '100px';
+            menu.style.left = '0px';
+            menu.style.display = 'inline-block';
 
             if (configs.features[i].type === 'list') {
                 featureValues[configs.features[i].name] = configs.features[i].values;
@@ -260,33 +262,33 @@ var parseConfig = function(content) {
                 for (var j = 0; j < configs.features[i].values.length; j++) {
                     var opt = document.createElement('option');
                     var name = document.createTextNode(configs.features[i].values[j].display);
-                    opt.setAttribute('value', configs.features[i].values[j].display)
-                    opt.setAttribute('id', configs.features[i].values[j].value)
-                    opt.appendChild(name)
+                    opt.setAttribute('value', configs.features[i].values[j].display);
+                    opt.setAttribute('id', configs.features[i].values[j].value);
+                    opt.appendChild(name);
                     menu.appendChild(opt);
                 }
 
-                div.appendChild(fieldName)
-                div.appendChild(menu)
+                div.appendChild(fieldName);
+                div.appendChild(menu);
 
-                item.appendChild(div)
+                item.appendChild(div);
             } else {
-                lexicalFeatsList.push(configs.features[i].name)
+                lexicalFeatsList.push(configs.features[i].name);
 
-                var titleParagraph = document.createElement('P')
-                titleParagraph.setAttribute('class', 'labelsp')
-                titleParagraph.innerHTML = configs.features[i].display + ':'
+                var titleParagraph = document.createElement('P');
+                titleParagraph.setAttribute('class', 'labelsp');
+                titleParagraph.innerHTML = configs.features[i].display + ':';
 
                 var field = document.createElement('INPUT');
-                field.setAttribute('type','text')
-                field.setAttribute('id',configs.features[i].name)
+                field.setAttribute('type','text');
+                field.setAttribute('id',configs.features[i].name);
 
-                var lexDiv = document.createElement('div')
-                lexDiv.appendChild(field)
+                var lexDiv = document.createElement('div');
+                lexDiv.appendChild(field);
 
-                lexicalFeats.append(titleParagraph)
-                lexicalFeats.appendChild(lexDiv)
-                console.log()
+                lexicalFeats.append(titleParagraph);
+                lexicalFeats.appendChild(lexDiv);
+                console.log();
             }
         }
 
@@ -296,30 +298,30 @@ var parseConfig = function(content) {
             var defaultFeatValuePairs = {};
             for (var j = 0; j < configs.defaultFeatures[i].features.length; j++) {
                 var featName = configs.defaultFeatures[i].features[j].name;
-                var featValue = configs.defaultFeatures[i].features[j].value
-                defaultFeatValuePairs[featName] = featValue
+                var featValue = configs.defaultFeatures[i].features[j].value;
+                defaultFeatValuePairs[featName] = featValue;
             }
 
-            defaultFeatValues[posTag] = defaultFeatValuePairs
+            defaultFeatValues[posTag] = defaultFeatValuePairs;
         }
     }
 
     if (editLemma === true){
         var lemmaField = document.getElementById('lemmaField');
 
-        var titleParagraph = document.createElement('P')
-        titleParagraph.setAttribute('class', 'labelsp')
-        titleParagraph.innerHTML = 'Lemma:'
+        var titleParagraph = document.createElement('P');
+        titleParagraph.setAttribute('class', 'labelsp');
+        titleParagraph.innerHTML = 'Lemma:';
 
         var field = document.createElement('INPUT');
-        field.setAttribute('type','text')
-        field.setAttribute('id','lemma')
+        field.setAttribute('type','text');
+        field.setAttribute('id','lemma');
 
-        var lexDiv = document.createElement('div')
-        lexDiv.appendChild(field)
+        var lexDiv = document.createElement('div');
+        lexDiv.appendChild(field);
 
-        lemmaField.append(titleParagraph)
-        lemmaField.appendChild(lexDiv)
+        lemmaField.append(titleParagraph);
+        lemmaField.appendChild(lexDiv);
     }
 
     newPOSTag = configs.newNodeDefaults.pos.toUpperCase();
@@ -337,116 +339,120 @@ var convertJSONToCONLL = function(node) {
 
     if (node.collapsed === false) {
 
-        node.features = ''
+        node.features = '';
         
         for (var featKey in node.feats) {
             if (node.features === '') {
                 if (featKey !== '_' && node.feats[featKey] !== '' && node.feats[featKey] !== 'undefined') {
-                    node.features = featKey + '=' + node.feats[featKey]
+                    node.features = featKey + '=' + node.feats[featKey];
                 }
             } else {
                 if (featKey !== '_' && node.feats[featKey] !== '' && node.feats[featKey] !== 'undefined') {
-                    node.features += '|' + featKey + '=' + node.feats[featKey]
+                    node.features += '|' + featKey + '=' + node.feats[featKey];
                 }
             }
         }
 
         if (node.features === '') {
-            node.features = '_'
+            node.features = '_';
         }
 
 
         var fullArray = [];
         if (typeof node.parent !== 'undefined' && node.parent.id ) {
-            var pid = (node.parent.id+1)/2
-        } else pid = (node.pid+1)/2;
-        if (pid == 0.5) pid = 0;
+            var pid = (node.parent.id+1)/2;
+        } else 
+            pid = (node.pid+1)/2;
+        if (pid == 0.5) 
+                pid = 0;
         for (var k=0; k<node.children.length; k++) {
-            var tempArray = convertJSONToCONLL(node.children[k])
-            fullArray = fullArray.concat(tempArray)
+            var tempArray = convertJSONToCONLL(node.children[k]);
+            fullArray = fullArray.concat(tempArray);
         }
         if (node.id !== 0) {
             if (node.lemma === '') {
-                node.lemma = '_'
+                node.lemma = '_';
             }
 
             if (node.pos === '') {
-                node.pos = '_'
+                node.pos = '_';
             }
 
             if (node.xpos === '') {
-                node.xpos = '_'
+                node.xpos = '_';
             }
 
             if (node.features === '') {
-                node.features = '_'
+                node.features = '_';
             }
 
             if (node.deps === '') {
-                node.deps = '_'
+                node.deps = '_';
             }
 
             if (node.misc === '') {
-                node.misc = '_'
+                node.misc = '_';
             }
 
-            fullArray.push([(node.id+1)/2,node.name,node.lemma,node.pos,node.xpos,node.features,pid,node.link,node.deps,node.misc])
+            fullArray.push([(node.id+1)/2,node.name,node.lemma,node.pos,node.xpos,node.features,pid,node.link,node.deps,node.misc]);
         } else {
-            fullArray.sort(function(a, b){return a[0]-b[0]})
+            fullArray.sort(function(a, b){return a[0]-b[0]});
             for (var i=0; i<fullArray.length; i++) {
-              fullArray[i] = fullArray[i].join('\t')
+              fullArray[i] = fullArray[i].join('\t');
             }
-            fullArray = fullArray.join('\n')
+            fullArray = fullArray.join('\n');
         }
-        return fullArray
+        return fullArray;
     }
     // include hidden nodes
     else {
         var fullArray = [];
         if (typeof node.parent !== 'undefined' && node.parent.id ) {
-            var pid = (node.parent.id+1)/2
-        } else pid = (node.pid+1)/2;
-        if (pid == 0.5) pid = 0;
-        node.name = node.name.slice(2,-2)
+            var pid = (node.parent.id+1)/2;
+        } else 
+            pid = (node.pid+1)/2;
+        if (pid == 0.5) 
+            pid = 0;
+        node.name = node.name.slice(2,-2);
         for (var k=0; k<node._children.length; k++) {
-            var tempArray = convertJSONToCONLL(node._children[k])
-            fullArray = fullArray.concat(tempArray)
+            var tempArray = convertJSONToCONLL(node._children[k]);
+            fullArray = fullArray.concat(tempArray);
         }
         if (node.id !== 0) {
 
             if (node.lemma === '') {
-                node.lemma = '_'
+                node.lemma = '_';
             }
 
             if (node.pos === '') {
-                node.pos = '_'
+                node.pos = '_';
             }
 
             if (node.xpos === '') {
-                node.xpos = '_'
+                node.xpos = '_';
             }
 
             if (node.features === '') {
-                node.features = '_'
+                node.features = '_';
             }
 
             if (node.deps === '') {
-                node.deps = '_'
+                node.deps = '_';
             }
 
             if (node.misc === '') {
-                node.misc = '_'
+                node.misc = '_';
             }
             
-            fullArray.push([(node.id+1)/2,node.name,node.lemma,node.pos,node.xpos,node.feats,pid,node.link,node.deps,node.misc])
+            fullArray.push([(node.id+1)/2,node.name,node.lemma,node.pos,node.xpos,node.feats,pid,node.link,node.deps,node.misc]);
         } else {
-            fullArray.sort(function(a, b){return a[0]-b[0]})
+            fullArray.sort(function(a, b){return a[0]-b[0]});
             for (var i=0; i<fullArray.length; i++) {
-              fullArray[i] = fullArray[i].join('\t')
+              fullArray[i] = fullArray[i].join('\t');
             }
-            fullArray = fullArray.join('\n')
+            fullArray = fullArray.join('\n');
         }
-        return fullArray
+        return fullArray;
     }
 };
 
@@ -458,13 +464,13 @@ var outputToCONLLFormat = function(inputJSON) {
     rootNode.name = 'root';
     rootNode.id = 0;
     rootNode.children = [];
-    rootNode.collapsed = false
+    rootNode.collapsed = false;
 
     for (var i=0; i< (inputArray.length); i++) {
         var pid = inputArray[i].pid - 1;
         if (pid == -2) {
             inputArray[i].pid = 0;
-            rootNode.children.push(inputArray[i])
+            rootNode.children.push(inputArray[i]);
         }
         else {
             if (typeof inputArray[pid].children == 'undefined') {
@@ -479,33 +485,33 @@ var outputToCONLLFormat = function(inputJSON) {
 //read the conllu file and generate the json tree objects
 var convertToJSON = function(inputData) {
     var inputArray = [];
-    numberOfNodesArray = []
+    numberOfNodesArray = [];
     var newTree = [];
     newTree.meta = {};
-    var sentenceText = ''
+    var sentenceText = '';
     if (inputData !== '') {
         var lines = inputData.split('\n');
         for (var i=0; i< (lines.length); i++) {
             if (lines[i].trim().length == 0 ) {
                 if (newTree.length>0) {
-                    newTree.meta['sentenceText'] = sentenceText .trim()
+                    newTree.meta['sentenceText'] = sentenceText .trim();
                     inputArray.push(newTree);
-                    numberOfNodesArray.push(newTree.length/2)
-                    newTree = []
-                    newTree.meta = {}
-                    sentenceText = ''
+                    numberOfNodesArray.push(newTree.length/2);
+                    newTree = [];
+                    newTree.meta = {};
+                    sentenceText = '';
                 }
                 continue;
             }
             //the read meta data of the tree
             //store the original sentence to be displayed in the listings
             if (lines[i].trim().startsWith('#')) {
-                lineToks = lines[i].trim().split(' ')
+                lineToks = lines[i].trim().split(' ');
                 //index 0 = '#'
-                key = lineToks[1]
+                key = lineToks[1];
                 //index 2 = '='
-                value = lineToks.slice(3,lineToks.length).join(' ')
-                newTree.meta[key] = value
+                value = lineToks.slice(3,lineToks.length).join(' ');
+                newTree.meta[key] = value;
                 continue;
             }
             if (lines[i].trim().match(/^\d+-\d+\s/)) {
@@ -518,19 +524,19 @@ var convertToJSON = function(inputData) {
 
             treeNode.id = parseInt(singleLine[0]) * 2 - 1;
             treeNode.name = singleLine[1];
-            treeNode.lemma = singleLine[2]
+            treeNode.lemma = singleLine[2];
             treeNode.pos = singleLine[3];
-            treeNode.xpos = singleLine[4]
+            treeNode.xpos = singleLine[4];
 
-            treeNode.feats = {}
+            treeNode.feats = {};
 
             if (singleLine[5] == '_') { 
-                treeNode.feats['_'] = '_'
+                treeNode.feats['_'] = '_';
             } else {
-                var featToks = singleLine[5].split('|')
+                var featToks = singleLine[5].split('|');
                 for (var j = 0; j < featToks.length; j++) {
-                    var featKey = featToks[j].split('=')[0]
-                    var featValue = featToks[j].split('=')[1]
+                    var featKey = featToks[j].split('=')[0];
+                    var featValue = featToks[j].split('=')[1];
                     treeNode.feats[featKey] = featValue;
                 }
             }
@@ -538,11 +544,11 @@ var convertToJSON = function(inputData) {
             treeNode.pid = parseInt(singleLine[6]) * 2 - 1;
             treeNode.link = singleLine[7];
             treeNode.deps = singleLine[8];
-            treeNode.misc = singleLine[9]
-            treeNode.duplicate = false
-            treeNode.collapsed = false
+            treeNode.misc = singleLine[9];
+            treeNode.duplicate = false;
+            treeNode.collapsed = false;
             
-            sentenceText += treeNode.name + ' '
+            sentenceText += treeNode.name + ' ';
             newTree.push(treeNode);
 
             projectedNode.id = parseInt(singleLine[0]) * 2;
@@ -551,18 +557,18 @@ var convertToJSON = function(inputData) {
             //the parent of the projected node is the original node itself
             projectedNode.pid = parseInt(singleLine[0]) * 2 - 1;
             projectedNode.link = '';
-            projectedNode.duplicate = true
-            projectedNode.collapsed = false
+            projectedNode.duplicate = true;
+            projectedNode.collapsed = false;
             newTree.push(projectedNode);
         };
     };
 
     if (newTree.length > 0) {
         inputArray.push(newTree);
-        numberOfNodesArray.push(newTree.length/2)
-        newTree = []
-        newTree.meta = {}
-        sentenceText = ''
+        numberOfNodesArray.push(newTree.length/2);
+        newTree = [];
+        newTree.meta = {};
+        sentenceText = '';
     }
 
     //connect the nodes to their proper parents (i.e. create the tree)
@@ -579,7 +585,7 @@ var convertToJSON = function(inputData) {
             var pid = newTree[j].pid - 1;
             if (pid == -2) {
                 newTree[j].pid = 0;
-                rootNode.children.push(newTree[j])
+                rootNode.children.push(newTree[j]);
             }
             else {
                 if (typeof newTree[pid].children == 'undefined') {
@@ -591,11 +597,11 @@ var convertToJSON = function(inputData) {
         inputArray[i] = rootNode;
     };
 
-    return inputArray
+    return inputArray;
 };
 
 var setJSONtreeData = function() {
-    readConfigFile()
+    readConfigFile();
     var x = document.getElementById('inputFile');
 
     if ('files' in x) {
@@ -614,9 +620,8 @@ var setJSONtreeData = function() {
                     try {
                         getTree(treesArray[0]);
                     } catch(e) {
-                        console.log(e)
                         // alert user if error occurs
-                        alert('Sorry, something went wrong!');
+                        alert('File upload error!');
                     };
                 }
                 reader.readAsText(file);    
@@ -626,7 +631,7 @@ var setJSONtreeData = function() {
 };
 
 var setSentenceTreeData = function() {
-    readConfigFile()
+    readConfigFile();
     var original = $('#treedata2').val();
 
     if (original !== '') {
@@ -635,9 +640,9 @@ var setSentenceTreeData = function() {
         for (var i=0; i< (inputTextArray.length); i++) {
             var singleLine = inputTextArray[i].split(' ').filter(function(entry) { return entry.trim() != ''; });
             for (var j=0; j< (singleLine.length); j++) {
-                treeDataArray.push([j+1,singleLine[j],'_',newPOSTag,'_','_',0,newLinkLabel,'_','_'].join('\t'))
+                treeDataArray.push([j+1,singleLine[j],'_',newPOSTag,'_','_',0,newLinkLabel,'_','_'].join('\t'));
             };
-            treeDataArray.push('\n')
+            treeDataArray.push('\n');
         };
         try {
             // try to store tree data and display tree
@@ -646,12 +651,11 @@ var setSentenceTreeData = function() {
             $('.upload').hide();
         } catch(e) {
             // alert user if error occurs
-            alert('Sorry, something went wrong!');
+            alert('Text upload error!');
         };
     } else {
-        //alert('You forgot to enter a phrase!');
         $('.upload').hide();
-        addNewTree()
+        addNewTree();
     };
 };
 
@@ -666,105 +670,142 @@ var clearTree = function() {
 
 // add a new tree at the end
 var addNewTree = function() {
+    hideAllWindows();
     sessionStorage.removeItem('treeData');
     saveTree();
 
     var rootNode = new Object();
     rootNode.name = rootNodeName;
     rootNode.id = 0;
-    rootNode.collapsed = false
+    rootNode.collapsed = false;
     rootNode.children = [];
 
 
-    rootNode.meta = {}
-    rootNode.meta['sentenceText'] = ''
+    rootNode.meta = {};
+    rootNode.meta['sentenceText'] = '';
 
-    rootNode.lemma = ''
-    rootNode.pos = ''
-    rootNode.xpos = ''
+    rootNode.lemma = '';
+    rootNode.pos = '';
+    rootNode.xpos = '';
 
-    rootNode.feats = {}
+    rootNode.feats = {};
 
-    rootNode.deps = ''
-    rootNode.misc = ''
+    rootNode.deps = '';
+    rootNode.misc = '';
 
-    currentTreeIndex = treesArray.length
-    d3.select('body').select('svg').remove()
-    treesArray.push(rootNode)
-    numberOfNodesArray.push(0)
-    getTree(treesArray[currentTreeIndex])
+    currentTreeIndex = treesArray.length;
+    d3.select('body').select('svg').remove();
+    treesArray.push(rootNode);
+    numberOfNodesArray.push(0);
+    getTree(treesArray[currentTreeIndex]);
     update(root);
-    $('.morphologyMerge').show()
+    //$('.morphologyMerge').show();
 };
 
 // delete the current tree
 var deleteCurrentTree = function() {
-    if (window.confirm('Do you want to delete this tree?')) {
-        if (numberOfNodesArray.length > 1) {
-            d3.select('body').select('svg').remove()
-            treesArray.splice(currentTreeIndex,1)
-            numberOfNodesArray.splice(currentTreeIndex,1)
-            if (currentTreeIndex > 0) currentTreeIndex = currentTreeIndex - 1
-            getTree(treesArray[currentTreeIndex])
+   
+    //We only allow deletion with confirmation when there are more than one tree.
+    //A future solution should be to delete the last tree and insert and empty.
+    //We do not allow no trees.
+
+    hideAllWindows();
+    
+    if (treesArray.length > 1) {// if there are more than one tree in the file
+	if (window.confirm('Do you want to delete this tree?')) { //Check with user
+            d3.select('body').select('svg').remove();
+            treesArray.splice(currentTreeIndex,1);
+            numberOfNodesArray.splice(currentTreeIndex,1);
+            if (currentTreeIndex > 0) {
+                currentTreeIndex = currentTreeIndex - 1;
+            }
+            getTree(treesArray[currentTreeIndex]);
             update(root);
         }
+    } else {//if there is only one tree 
+        alert("Sorry! You cannot delete the last tree. Add a new tree first, then delete this tree.")
+        // TODO
+	    // addNewTree();
+	    // deleteCurrentTree();
     }
 };
 
+
 // move to the first tree
 var firstTree = function() {
+    hideAllWindows();
+
     if (currentTreeIndex != 0) 
         { 
             sessionStorage.removeItem('treeData');
             saveTree();
             currentTreeIndex = 0;
-            d3.select('body').select('svg').remove()
-            getTree(treesArray[currentTreeIndex])
+            d3.select('body').select('svg').remove();
+            getTree(treesArray[currentTreeIndex]);
             update(root);
+            selectRoot();
+            showSelection();
         }
 };
 
 // move to the last tree
 var lastTree = function() {
+    hideAllWindows();
+
     if (currentTreeIndex != treesArray.length - 1) 
         { 
             sessionStorage.removeItem('treeData');
             saveTree();
             currentTreeIndex = treesArray.length - 1;
-            d3.select('body').select('svg').remove()
-            getTree(treesArray[currentTreeIndex])
+            d3.select('body').select('svg').remove();
+            getTree(treesArray[currentTreeIndex]);
             update(root);
+            selectRoot();
+            
+            showSelection();
         }
+
 };
 
 // move to the next tree
 var nextTree = function() {
+    hideAllWindows();
+
     if (currentTreeIndex < treesArray.length - 1) 
         { 
             sessionStorage.removeItem('treeData');
             saveTree();
             currentTreeIndex++;
-            d3.select('body').select('svg').remove()
-            getTree(treesArray[currentTreeIndex])
+            d3.select('body').select('svg').remove();
+            getTree(treesArray[currentTreeIndex]);
             update(root);
+            selectRoot();
+            
+            showSelection();
         }
 };
 
 // move to the prev tree
 var prevTree = function() {
+    hideAllWindows();
+
     if (currentTreeIndex > 0) 
         { 
             sessionStorage.removeItem('treeData');
             saveTree();
             currentTreeIndex--;
-            d3.select('body').select('svg').remove()
-            getTree(treesArray[currentTreeIndex])
+            d3.select('body').select('svg').remove();
+            getTree(treesArray[currentTreeIndex]);
             update(root);
+            selectRoot();
+            
+            showSelection();
         }
 };
 
 // go to the input tree number
 var goToTree = function() {
+    hideAllWindows();
 
     if (currentTreeIndex !== (document.getElementById('treeNumberInput').value - 1)) 
     { 
@@ -773,59 +814,63 @@ var goToTree = function() {
             sessionStorage.removeItem('treeData');
             saveTree();
             currentTreeIndex = document.getElementById('treeNumberInput').value - 1;
-            d3.select('body').select('svg').remove()
-            getTree(treesArray[currentTreeIndex])
+            d3.select('body').select('svg').remove();
+            getTree(treesArray[currentTreeIndex]);
             update(root);
+            selectRoot();
+            showSelection();
         }
     }
 };
 
 // toggle between English and Arabic
 var directionToggle = function() {
+    hideAllWindows();
     if (orientation == 'r-to-l') {
-        orientation = 'l-to-r'
-        $('.morphologyMerge').hide()
+        orientation = 'l-to-r';
+        
     } else {
         orientation = 'r-to-l';
-        $('.morphologyMerge').hide()
+        
     }
     sessionStorage.removeItem('treeData');
     saveTree();
-    d3.select('body').select('svg').remove()
-    getTree(treesArray[currentTreeIndex])
+    d3.select('body').select('svg').remove();
+    getTree(treesArray[currentTreeIndex]);
     update(root);
 };
 
 // edit the relation labels through keystrokes
 var editLabel = function(labelText) {
-    console.log();
     d3.select('text#linkLabel' + selectedNodeLink.id).text(labelText);
     selectedNodeLink.link = labelText;
-	nodeSingleClick(selectedNodeLink);
-    update(root);
-    
+    //nodeSingleClick(selectedNodeLink);
+    //update(root);
+    //showSelection();
 };
 
 // edit the relation labels through button clicks
 var editLabelByButton = function(inputSource) {
+
      if(selectedNodeLink) {
         labelText = inputSource.currentTarget.value;
-        console.log();
         d3.select('text#linkLabel' + selectedNodeLink.id).text(labelText);
         selectedNodeLink.link = labelText;
 
-        d3.select('.links').selectAll('path').style('stroke', '#b3b3b3');
-        d3.select('.links').selectAll('text').style('stroke', 'white');
-        d3.select('.nodes').selectAll('text').style('stroke', '');
+        // d3.select('.links').selectAll('path').style('stroke', '#b3b3b3');
+        // d3.select('.links').selectAll('text').style('stroke', 'white');
+        // d3.select('.nodes').selectAll('text').style('stroke', '');
 
-        d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'cornflowerblue'); // Link line 
-        d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightgreen');       // POS Label
-        d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightgreen');        // Rel Label    
-        d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'black');  //Node name??
-        d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'orange');
+        // d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'cornflowerblue'); // Link line 
+        // d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightgreen');       // POS Label
+        // d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightgreen');        // Rel Label    
+        // d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'black');  //Node name??
+        // d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'orange');
 
-   	    nodeSingleClick(selectedNodeLink);
-        update(root);
+   	   // nodeSingleClick(selectedNodeLink);
+       // update(root);
+        showSelection();
+        
     }
 };
 
@@ -833,53 +878,57 @@ var editLabelByButton = function(inputSource) {
 
 // edit the POS tags through keystrokes
 var editPOS = function(posText) {
-    console.log()
-    d3.select('text#nodePOS' + selectedNodeLink.id).text(posText)
-    selectedNodeLink.pos = posText;
-	nodeSingleClick(selectedNodeLink);
-    update(root);   
+    d3.select('text#nodePOS' + selectedNodeLink.id).text(posText);
+    selectedNodeLink.pos = posText;  
+    //nodeSingleClick(selectedNodeLink);
+    //update(root);
+    //showSelection();
 };
 
 // edit the POS tags through button clicks
 var editPOSByButton = function(inputSource) {
     if(selectedNodeLink) {
         posText = inputSource.currentTarget.value;
-        console.log();
         d3.select('text#nodePOS' + selectedNodeLink.id).text(posText);
         selectedNodeLink.pos = posText;
 
-        d3.select('.links').selectAll('path').style('stroke', '#b3b3b3');
-        d3.select('.links').selectAll('text').style('stroke', 'white');
-        d3.select('.nodes').selectAll('text').style('stroke', '');
+        // d3.select('.links').selectAll('path').style('stroke', '#b3b3b3');
+        // d3.select('.links').selectAll('text').style('stroke', 'white');
+        // d3.select('.nodes').selectAll('text').style('stroke', '');
         
-        d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'cornflowerblue'); // Link line 
-        d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightgreen');       // POS Label
-        d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightgreen');        // Rel Label    
-        d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'black');  //Node name??
-        d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'orange');
+        // d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'cornflowerblue'); // Link line 
+        // d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightgreen');       // POS Label
+        // d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightgreen');        // Rel Label    
+        // d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'black');  //Node name??
+        // d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'orange');
 
-   	    nodeSingleClick(selectedNodeLink);
-        update(root);       
+        
+
+   	   // nodeSingleClick(selectedNodeLink);
+       // update(root);    
+        showSelection(); 
+
     }
 };
 
 // Morhology Handling
 // reset the morphology changes
 var cancelMorphology = function() {
-    d3.selectAll('.morphology').style('stroke', '');
-    $('#morphology').hide();
+    hideAllWindows();
 };
 
 // reset the morphology changes
 var saveMorphology = function() {
     var morphologyArray = document.getElementById('morphologyName').value.split(' ');
-    var morphologyText = morphologyArray.shift()
+    var morphologyText = morphologyArray.shift();
 
     
     while ((morphologyText.length < 1)&&(morphologyArray.length > 0)) { 
-        morphologyText = morphologyArray.shift() 
-        }
-    if (morphologyText.length < 1) {morphologyText=newNodeName}
+        morphologyText = morphologyArray.shift() ;
+    }
+    if (morphologyText.length < 1) {
+        morphologyText = newNodeName;
+    }
 
     
     d3.select('text#nodeLabel' + selectedMorphology.parent.id).text(morphologyText);
@@ -888,61 +937,128 @@ var saveMorphology = function() {
     selectedMorphology.parent.name = morphologyText;
 
     if (editLemma === true) {
-        selectedMorphology.parent.lemma = document.getElementById('lemma').value
+        selectedMorphology.parent.lemma = document.getElementById('lemma').value;
     }
 
     for (var i = 0; i < lexicalFeatsList.length; i++) {
-            selectedMorphology.parent.feats[lexicalFeatsList] = document.getElementById(lexicalFeatsList[i]).value
+            selectedMorphology.parent.feats[lexicalFeatsList] = document.getElementById(lexicalFeatsList[i]).value;
     }
 
     while (morphologyArray.length > 0) {
-        morphologyText = morphologyArray.shift()
-        if (morphologyText.length > 0) addNode(selectedMorphology,'right', morphologyText)
+        morphologyText = morphologyArray.shift();
+        if (morphologyText.length > 0) addNode(selectedMorphology,'right', morphologyText);
     }
 
-    var morphologyFeatures = document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')
+    var morphologyFeatures = document.getElementById('morphoFeats').getElementsByClassName('morphoFeat');
 
     for (var i = 0; i < morphologyFeatures.length; i++) {
-        feature = document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].id
-        selectedIndex = document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].selectedIndex
+        feature = document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].id;
+        selectedIndex = document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].selectedIndex;
 
         if(selectedIndex != -1) {
-        	featureDisplay = document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].options[selectedIndex].value
-        	featureValue = ''
+        	featureDisplay = document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].options[selectedIndex].value;
+        	featureValue = '';
 
         	for(var j = 0; j < featureValues[feature].length; j++) { 
 				if(featureValues[feature][j]['display'] === featureDisplay) {
-            		featureValue = featureValues[feature][j]['value']
+            		featureValue = featureValues[feature][j]['value'];
             	}
         	}
 
         	if(feature in selectedMorphology.parent.feats) {
-            	selectedMorphology.parent.feats[feature] = featureValue
-            	console.log(feature + '\t' + featureValue)
+            	selectedMorphology.parent.feats[feature] = featureValue;
         	}
     	}   
     }
 
-    $('#morphology').hide();
-    d3.select('text#morphology' + selectedMorphology.id).style('stroke', '');
+    hideAllWindows();
     update(root);
 };
+
+var selectRoot = function() {
+    if(selectedNodeLink === undefined) {
+        selectedNodeLink = root;
+        nodeSingleClick(root);
+        showSelection();
+    } else {
+        switchNodeSelection(selectedNodeLink, root);
+    }
+}
+
+var switchNodeSelection = function(initialNode, targetNode) {
+    if(initialNode !== targetNode) {
+        selectedNodeLink = targetNode;
+
+        //change colors of initialNode back to unselected version
+        d3.select('#link' + initialNode.id).select('path').style('stroke', 'lightsteelblue'); // Link
+        d3.select('text#nodePOS' + initialNode.id).style('stroke', 'white');       // POS Label
+        d3.select('text#linkLabel' + initialNode.id).style('stroke', 'white');        // Rel Label    
+        d3.select('text#nodeLabel' + initialNode.id).style('stroke', '');  //Node name
+        if (initialNode.collapsed){
+            d3.select('circle#nodeCircle' + initialNode.id).style('fill', 'black');
+        }else{
+            d3.select('circle#nodeCircle' + initialNode.id).style('fill', 'white');
+        }
+
+        // nodeSingleClick(selectedNodeLink);
+        
+    }
+    showSelection();
+}
+
+var showSelection = function() {
+    //change the colors of selectedNodeLink
+        
+    
+
+    if(selectedNodeLink.id === root.id) {
+        // we experimneted with coloring the root when selecting the tree... but had issues - to be revisited?
+        // d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', '#b3b3b3');
+        // d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'black');  //Node name
+        // d3.select('circle#nodeCircle' + 0).style('fill', 'lightsteelblue');
+        return;
+    } else {
+        d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'black');  //Node name
+        d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'cornflowerblue'); // Link line 
+
+        d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'cornflowerblue');
+
+        if ( editingControl === 'rel') {
+            d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightcoral');       // POS Label
+            d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightgreen');        // Rel Label    
+        } else if (editingControl === 'pos'){
+            d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightcoral');        // Rel Label    
+            d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightgreen');       // POS Label
+            
+        } else { // tags 
+            d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightgreen');       // POS Label
+            d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightgreen');        // Rel Label    
+        }
+    }
+
+    return;
+}
+
 
 // helper function
 // walks through the tree data and recreates the JSON structure
 var saveTree = function() {
-    try {
-        var json = JSON.stringify(root, function(k, v) {
-            if (k === 'parent') {
-                return 'PARENT';
-            }
-            return v;
-        });
-    sessionStorage.treeData = json;
-    treesArray[currentTreeIndex] = root;
-    }
-    catch(err) {
-        alert('Sorry, something went wrong!');
+    //this prevents an 'undefined' tree to be add to the top of the 
+    //treesArray when starting a new file from an empty text
+    if(root !== undefined) {    
+        try {
+            var json = JSON.stringify(root, function(k, v) {
+                if (k === 'parent') {
+                    return 'PARENT';
+                }
+                return v;
+            });
+        sessionStorage.treeData = json;
+        treesArray[currentTreeIndex] = root;
+        }
+        catch(err) {
+            alert('Save tree error!');
+        }
     }
 };
 
@@ -963,8 +1079,8 @@ var textTree = function() {
     if (sessionStorage.treeData !== 'undefined') {
         cleanjson();
         if (sessionStorage.original && sessionStorage.translation) {
-            output = sessionStorage.original + '\n' 
-                + sessionStorage.translation + '\n' 
+            output = sessionStorage.original + '\n'; 
+                + sessionStorage.translation + '\n'; 
                 + sessionStorage.treeData;
         } else if (sessionStorage.original) {
             output = sessionStorage.original + '\n' + sessionStorage.treeData;
@@ -982,56 +1098,48 @@ var textTree = function() {
 var downloadTree = function() {
     saveTree();
     var filename = $('#filename').val();
-    if (document.getElementById('downloadChoiceImage').checked == true) {
-        saveSvgAsPng(document.getElementsByTagName('svg')[0], filename+'.png');
-    } else {
-        var output = '';
-        if (sessionStorage.treeData !== 'undefined') {
-            for (var i=0; i<treesArray.length; i++) {
-                // clone treeArray and remove cycles through nested parents.
-                meta_keys = Object.keys(treesArray[i].meta)
-                for (var key_index = 0; key_index<meta_keys.length; key_index++){
-                    output = output + '# ' + meta_keys[key_index] + ' = ' + treesArray[i].meta[meta_keys[key_index]] + '\n';
-                }
-                let clone = JSON.parse(JSON.stringify(JSON.decycle(treesArray[i])));
-                output = output + convertJSONToCONLL(clone) + '\n\n';
-            };
-            // uses Blob and FileSaver libraries
-            var blob = new Blob([output], {type: 'text/plain;charset=utf-8'});
-            saveAs(blob, filename+'.conllu');
-        }
-        else {
-            alert('Tree not found.');
-        }
+    var output = '';
+    if (sessionStorage.treeData !== 'undefined') {
+        for (var i=0; i<treesArray.length; i++) {
+            // clone treeArray and remove cycles through nested parents.
+            meta_keys = Object.keys(treesArray[i].meta);
+            for (var key_index = 0; key_index<meta_keys.length; key_index++){
+                output = output + '# ' + meta_keys[key_index] + ' = ' + treesArray[i].meta[meta_keys[key_index]] + '\n';
+            }
+            let clone = JSON.parse(JSON.stringify(JSON.decycle(treesArray[i])));
+            output = output + convertJSONToCONLL(clone) + '\n\n';
+        };
+        // uses Blob and FileSaver libraries
+        var blob = new Blob([output], {type: 'text/plain;charset=utf-8'});
+        saveAs(blob, filename+'.conllu');
     }
-    $('#download').hide();
+    else {
+        alert('Tree not found.');
+    }
+    hideAllWindows();
 };
 
 // the function that gets called from the listing button
 var search = function() {
 
-    // if (document.getElementById('search').hasChildNodes()) {
-    //     document.getElementById('search').removeChild(document.getElementById('searchList'))
-    // }
-
     if(window.getComputedStyle(document.getElementById('listing')).display === 'none') {
-        var list = document.createElement('OL')
-        list.setAttribute('id', 'searchList')
+        var list = document.createElement('OL');
+        list.setAttribute('id', 'searchList');
         if (orientation === 'r-to-l') {
-            list.setAttribute('dir', 'rtl')
+            list.setAttribute('dir', 'rtl');
         } else {
-            list.setAttribute('dir', 'ltr')
+            list.setAttribute('dir', 'ltr');
         }
 
         for (var i=0; i<treesArray.length; i++) {
-            var x = document.createElement('LI')
-            x.setAttribute('id', i)
+            var x = document.createElement('LI');
+            x.setAttribute('id', i);
             if (orientation === 'r-to-l') {
-                x.style.direction = 'rtl'
-                x.style.textAlign = 'right'
+                x.style.direction = 'rtl';
+                x.style.textAlign = 'right';
             } else {
-                x.style.direction = 'ltr'
-                x.style.textAlign = 'left'
+                x.style.direction = 'ltr';
+                x.style.textAlign = 'left';
             }
 
             
@@ -1047,104 +1155,118 @@ var search = function() {
                     sessionStorage.removeItem('treeData');
                     saveTree();
                     currentTreeIndex = event.target.id;
-                    d3.select('body').select('svg').remove()
-                    getTree(treesArray[currentTreeIndex])
+                    d3.select('body').select('svg').remove();
+                    getTree(treesArray[currentTreeIndex]);
                     update(root);
                  }
             }
             list.appendChild(x);
         }
 
-        document.getElementById('search').appendChild(list)
-
-        $('#download').hide();
-        $('#labels').hide();
-        $('#postags').hide();
-        $('#morphology').hide()
-        $('#gototree').hide()
+        document.getElementById('search').appendChild(list);
     
-        $('#listing').show()
+        hideAllWindows();
+        focusWindow = 'listing';
+        $('#listing').show();
     } else {
-        document.getElementById('search').removeChild(document.getElementById('searchList'))
-        $('#listing').hide()
+        hideAllWindows();
+       // document.getElementById('search').removeChild(document.getElementById('searchList'));
+       // $('#listing').hide();
     }
-    update(root);
+   // update(root);
 }
 
 // SETTINGS
 // helper functions called by buttons in 'SETTINGS' menu
 
 // return all settings to defaults
-var tagsToggle = function() {
+var hideAllWindows = function() {
 
     $('#download').hide();
-    $('#morphology').hide()
+
+    $('#morphology').hide();
+    d3.selectAll('.morphology').style('stroke', '');
+
     if(window.getComputedStyle(document.getElementById('listing')).display !== 'none') {
-        document.getElementById('search').removeChild(document.getElementById('searchList'))
-        $('#listing').hide()
+        document.getElementById('search').removeChild(document.getElementById('searchList'));
+        $('#listing').hide();
     }
-    $('#gototree').hide()
+    $('#gototree').hide();
 
-    $('#labels').toggle();
-    $('#postags').toggle();
-    
-    if (editingControl=='tags'){
-        editingControl='pos';
+    $('#labels').hide();
+    $('#postags').hide();
+
+    $('.morphologyMerge').hide();
+
+    editingControl = 'pos';
+
+    focusWindow = '';
+}
+
+var tagsToggle = function() {
+       
+    if(focusWindow !== 'tags') {
+        hideAllWindows();
+        $('#labels').show();
+        $('#postags').show();
+        focusWindow = 'tags';
+        editingControl = 'tags';
     }else{
-
-        editingControl='tags'
+        hideAllWindows();
     }
 
-    update(root);
+    selectRoot();
+    // update(root);
+    showSelection();    
 };
 
 var downloadToggle = function() {
-    $('#labels').hide();
-    $('#postags').hide();
-    $('#morphology').hide()
-    if(window.getComputedStyle(document.getElementById('listing')).display !== 'none') {
-        document.getElementById('search').removeChild(document.getElementById('searchList'))
-        $('#listing').hide()
-    }
-    $('#gototree').hide()
 
-    $('#download').toggle()
-    update(root)
+    if (focusWindow !== 'download') {
+        hideAllWindows();
+        $('#download').show();
+        focusWindow = 'download';
+    }else{
+        hideAllWindows();
+    }
 } 
 
 var editToggle = function() {
-    $('.morphologyMerge').toggle()
-    //we don't call update root here because redrawing the tree will cancel toggling the morphologyMerge.
+    if (focusWindow !== 'edit') {
+        hideAllWindows();
+        $('.morphologyMerge').show();
+        focusWindow = 'edit';
+    }else{
+        hideAllWindows();
+    }
 }
 
 var goToTreeToggle = function() {
-    $('#labels').hide();
-    $('#postags').hide();
-    $('#morphology').hide()
-    if(window.getComputedStyle(document.getElementById('listing')).display !== 'none') {
-        document.getElementById('search').removeChild(document.getElementById('searchList'))
-        $('#listing').hide()
-    }
-    $('#download').hide()
+   
 
-    $('#gototree').toggle()
+    if (focusWindow !== 'goToTree') {
+        hideAllWindows();
+        $('#gototree').show();
+        focusWindow = 'goToTree';
+    }else{
+           hideAllWindows();
+    }
 }
 
 // END SETTINGS
 
 // ************** Generate the tree diagram  *****************
 var getTree = function(treeData) {
- if (numberOfNodesArray.length==0){return;}
+    if (numberOfNodesArray.length==0){return;}
 
     // set height and width equal to HTML doc properties
-    numberOfNodes = numberOfNodesArray[currentTreeIndex]
+    numberOfNodes = numberOfNodesArray[currentTreeIndex];
     var requiredWidth = parseFloat(localStorage['customwidth']) * 500 * numberOfNodes * 1.37;
-    // console.log(numberOfNodes, requiredWidth)
-    if (requiredWidth > $(document).width()) var viewerWidth = requiredWidth
+    if (requiredWidth > $(document).width()) var viewerWidth = requiredWidth;
         else var viewerWidth = $(document).width();
     viewerHeight = $(document).height();
-    d3.select('svg').attr('dir', 'rtl')
-    d3.select('#sents').attr('dir', 'rtl')
+    d3.select('svg').attr('dir', 'rtl');
+    d3.select('#sents').attr('dir', 'rtl');
     document.getElementById('currentTreeNumber').textContent = (parseInt(currentTreeIndex) + 1) + '/' + numberOfNodesArray.length;
     document.getElementById('treeNumberInput').max = numberOfNodesArray.length;
     document.getElementById('treeNumberInput').value = currentTreeIndex + 1;
@@ -1154,14 +1276,17 @@ var getTree = function(treeData) {
     var i = 0;
     if (nodeDeleted == true) {
         var duration = 0;
-        nodeDeleted = false
+        nodeDeleted = false;
     } else var duration = 0;   // increase to 750 to add animation
     var selectedNode = null;
     var draggingNode = null;
     var orient = function(xcoord) { 
-        if (orientation == 'r-to-l') 
-            {return viewerWidth - xcoord; }
-        else {return xcoord};
+        if (orientation == 'r-to-l') {
+            return viewerWidth - xcoord; 
+        }
+        else {
+            return xcoord;
+        }
     }
 
     // names the tree layout 'tree' and gives it a size value
@@ -1194,7 +1319,7 @@ var getTree = function(treeData) {
      .attr('width', viewerWidth)
      .attr('height', viewerHeight)
      .attr('class', 'overlay')
-     .call(zoomListener).on('dblclick.zoom', null)
+     .call(zoomListener).on('dblclick.zoom', null);
 
 
     //translate and scale to whatever value you wish
@@ -1204,8 +1329,8 @@ var getTree = function(treeData) {
         zoomListener.translate([viewerWidth*.318,30]).scale(.67);
     } else {
         zoomListener.translate([20,30]).scale(.67);
-        d3.select('svg').attr('dir', 'ltr')
-        d3.select('#sents').attr('dir','ltr')
+        d3.select('svg').attr('dir', 'ltr');
+        d3.select('#sents').attr('dir','ltr');
     }
     zoomListener.event(baseSvg.transition().duration(50));//does a zoom
      
@@ -1214,12 +1339,8 @@ var getTree = function(treeData) {
     // create a group for holding the links -- this group will be drawn first
     var lgroup = fullTree.append('g').attr('class', 'links');
     // create a group for holding the nods -- this group will be drawn second
-    var ngroup = fullTree.append('g').attr('class', 'nodes')
+    var ngroup = fullTree.append('g').attr('class', 'nodes');
 
-
-
-
-    ;
     // create a group for holding the temporary link(s) -- this group will be drawn last
     fullTree.append('g').attr('class', 'templinks');
 
@@ -1232,13 +1353,13 @@ var getTree = function(treeData) {
     function expand(d) {
         if(d.collapsed == true) {
             d.children.forEach(function (childNode) {
-                childNode.name = childNode.name.slice(2, -2)
+                childNode.name = childNode.name.slice(2, -2);
             });
 
             d.children = d._children;
             d._children = null;
-            d.name = d.name.slice(2,-2)
-            d.collapsed = false
+            d.name = d.name.slice(2,-2);
+            d.collapsed = false;
         }
     }
 
@@ -1247,17 +1368,17 @@ var getTree = function(treeData) {
     function toggleChildren(d) {
             if(d.collapsed == true) {
                 d.children.forEach(function (childNode) {
-                    childNode.name = childNode.name.slice(2, -2)
+                    childNode.name = childNode.name.slice(2, -2);
                 });
     
                 d.children = d._children;
                 d._children = null;
-                d.name = d.name.slice(2,-2)
-                d.collapsed = false
+                d.name = d.name.slice(2,-2);
+                d.collapsed = false;
             } else {
                 d._children = d.children;
                 d.children = null;
-                d.name = '<<' + d.name + '>>'
+                d.name = '<<' + d.name + '>>';
                 d._children.forEach(function (childNode) {
                     if(childNode.duplicate == true){
                         d.children = []
@@ -1265,89 +1386,78 @@ var getTree = function(treeData) {
                         d.children.push(childNode)
                     }
                 });
-                d.collapsed = true
+                d.collapsed = true;
             }
         return d;
     }
 
-
-
-    function nodeNoFocus(d) {
-        //update(root);
-       // if (editingControl!='tags'){
-        d3.select('.links').selectAll('path').style('stroke', 'lightsteelblue');
-       // d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'lightsteelblue'); // Link line 
-        d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'white');       // POS Label
-        d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'white');        // Rel Label    
-        d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', '');  //Node name??
-        if (selectedNodeLink.collapsed){
-            d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'black');
-        }else{
-            d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'white');
+    function nodeNoFocus() {
+        if(editingControl !== 'tags') {
+            selectRoot();
+        } else {
+            showSelection();
         }
-       
-        return;
-      
-       // }
-    };
+    }
 
     // focus link on click
     function nodeSingleClick(d) {
 
-        if (d3.event.defaultPrevented) return
+        if (d3.event.defaultPrevented) return;
 
         if (d.hasOwnProperty('source')) {
-            selectedNodeLink = d.target
+            // selectedNodeLink = d.target;
+            switchNodeSelection(selectedNodeLink, d.target)
         } else {
-            selectedNodeLink = d
+            // selectedNodeLink = d;
+            switchNodeSelection(selectedNodeLink, d)
         }
 
-        if(lastClickedNodeId !== selectedNodeLink.id) {
-            lastKeyStroke = ''
-            pointer = 0
-            lastClickedNodeId = selectedNodeLink.id
+        // if(lastClickedNodeId !== selectedNodeLink.id) {
+        //     lastKeyStroke = '';
+        //     pointer = 0;
+        //     lastClickedNodeId = selectedNodeLink.id;
 
-        }
+        // }
 
-        // d3.select('.links').selectAll('path').style('stroke', '#545454');
+
+
         // this greys out the links for the nodes that are not selected
-        d3.select('.links').selectAll('path').style('stroke', '#b3b3b3');
-        d3.select('.links').selectAll('text').style('stroke', 'white');
-        d3.select('.nodes').selectAll('text').style('stroke', '');
+       //  d3.select('.links').selectAll('path').style('stroke', '#b3b3b3');
+       //  d3.select('.links').selectAll('text').style('stroke', 'white');
+       //  d3.select('.nodes').selectAll('text').style('stroke', '');
         
-        //d3.selectAll('.nodeCircle').style('fill', 'white');
-
-        if (selectedNodeLink.collapsed){
-            d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'black');
-        }else{
-            d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'white');
-        }
+       //  if (selectedNodeLink.collapsed){
+       //      d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'black');
+       //  }else{
+       //      d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'white');
+       //  }
 
         
-        d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'cornflowerblue'); // Link line 
+       //  d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'cornflowerblue'); // Link line 
         
-       if ( editingControl === 'rel') {
-              d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightcoral');       // POS Label
-               d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightgreen');        // Rel Label    
-       }else if (editingControl === 'pos'){
-             d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightgreen');       // POS Label
-             d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightcoral');        // Rel Label    
+       // if ( editingControl === 'rel') {
+       //        d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightcoral');       // POS Label
+       //         d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightgreen');        // Rel Label    
+       // }else if (editingControl === 'pos'){
+       //       d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightgreen');       // POS Label
+       //       d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightcoral');        // Rel Label    
 
-       }else{ // tags 
-             d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightgreen');       // POS Label
-             d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightgreen');        // Rel Label    
-       }
+       // }else{ // tags 
+       //       d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightgreen');       // POS Label
+       //       d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightgreen');        // Rel Label    
+       // }
 
-        d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'black');  //Node name??
+       //  d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'black');  //Node name
         
-        d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'cornflowerblue');
+       //  d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'cornflowerblue');
 
         return;
-    };
+    }
  
     // collapse and expand node's children  on click
     function nodeDoubleClick(d) {
         if (d3.event.defaultPrevented) return;
+        if ((focusWindow === 'edit')||(focusWindow === 'morphology')) {hideAllWindows();}
         if(!hasNoChildren(d)) {
             d = toggleChildren(d);
         }
@@ -1357,16 +1467,21 @@ var getTree = function(treeData) {
     // keypress handler for nodes
     function nodeKeypress(d) {
 
-        if (d3.event.defaultPrevented) return;
+        d3.event.preventDefault();
+        
+        if (focusWindow==='') {   
+
+        //if (d3.event.defaultPrevented) return;
+        
         if(d3.event.keyCode === 9 && editingControl !== 'tags') { // click on tab!
             if(editingControl === 'pos') {
                 editingControl = 'rel';
-                lastKeyStroke = ''
+                lastKeyStroke = '';
             } else {
                 editingControl = 'pos'
-                lastKeyStroke = ''
+                lastKeyStroke = '';
             }
-            nodeSingleClick(selectedNodeLink);
+            showSelection();
             
         } else {
             if(d3.event.keyCode >= 65 && d3.event.keyCode <= 90) { //ONLY A-Z are allowed.
@@ -1376,14 +1491,14 @@ var getTree = function(treeData) {
                             if(lastKeyStroke.toUpperCase() !== d3.event.key.toUpperCase()) {
                                 pointer = 0;
                                 lastKeyStroke = d3.event.key.toUpperCase();
-                                editPOS(posTags[posKey][pointer].toUpperCase())
+                                editPOS(posTags[posKey][pointer].toUpperCase());
                             } else {
                                 if(pointer === posTags[posKey].length - 1) {
                                     pointer = 0;
                                 } else {
                                     pointer++;
                                 }
-                                editPOS(posTags[posKey][pointer].toUpperCase())
+                                editPOS(posTags[posKey][pointer].toUpperCase());
                             }
                         } 
                     }
@@ -1393,38 +1508,42 @@ var getTree = function(treeData) {
                             if(lastKeyStroke.toUpperCase() !== d3.event.key.toUpperCase()) {
                                 pointer = 0;
                                 lastKeyStroke = d3.event.key.toUpperCase();
-                                editLabel(relLabels[relKey][pointer])
+                                editLabel(relLabels[relKey][pointer]);
                             } else {
                                 if(pointer === relLabels[relKey].length - 1) {
                                     pointer = 0;
                                 } else {
                                     pointer++;
                                 }
-                                editLabel(relLabels[relKey][pointer])
+                                editLabel(relLabels[relKey][pointer]);
                             }
                         } 
                     }
                 }
             } else {
-                if (editingControl !== 'tags') {
+                //if (editingControl !== 'tags') {
+                  if (focusWindow==='') {
                     switch (d3.event.key) {
                         case 'ArrowDown':
                            
                             if (selectedNodeLink.children.length > 1) { //This is a tree node with one or more tree node children
-                                nodeNoFocus(d);
-                                var childNode = selectedNodeLink.children[0]
+                                // nodeNoFocus(d);
+                                var childNode = selectedNodeLink.children[0];
                                 if (childNode.id == selectedNodeLink.id + 1) { // the first child is a projectedNode; so jump to next child.
-                                    nodeSingleClick(selectedNodeLink.children[1])
+                                    // nodeSingleClick(selectedNodeLink.children[1]);
+                                    switchNodeSelection(selectedNodeLink,selectedNodeLink.children[1]);
                                 } else {
-                                    nodeSingleClick(selectedNodeLink.children[0]) //the first child is not a projected node; the treenode child precedes the parent.
+                                    // nodeSingleClick(selectedNodeLink.children[0]); //the first child is not a projected node; the treenode child precedes the parent.
+                                    switchNodeSelection(selectedNodeLink,selectedNodeLink.children[0]);
                                 }
 
                             }
                             break;
                         case 'ArrowUp':
                             if (selectedNodeLink.pid !== 0) {
-                                nodeNoFocus(d);
-                                nodeSingleClick(selectedNodeLink.parent)
+                                // nodeNoFocus(d);
+                                // nodeSingleClick(selectedNodeLink.parent);
+                                switchNodeSelection(selectedNodeLink,selectedNodeLink.parent);
                             }
                             break;
                         case 'ArrowRight':
@@ -1437,9 +1556,16 @@ var getTree = function(treeData) {
                                     var neighborID = -1;
                                     for (var k=0; k<neighborArray.length; k++) {
                                         if (neighborArray[k].id == selectedNodeLink.id) {
-                                            if (neighborID !== -1) {nodeNoFocus(d); nodeSingleClick(neighborArray[neighborID]);}
+                                            if (neighborID !== -1) {
+                                                // nodeNoFocus(d); 
+                                                // nodeSingleClick(neighborArray[neighborID]);
+                                                switchNodeSelection(selectedNodeLink,neighborArray[neighborID]);
+                                                // d = neighborArray[neighborID];
+                                            }
                                             break;
-                                        } else if (!neighborArray[k].duplicate) {neighborID = k;}
+                                        } else if (!neighborArray[k].duplicate) {
+                                            neighborID = k;
+                                        }
                                     }
                                 }
                             } else {
@@ -1449,15 +1575,21 @@ var getTree = function(treeData) {
                                     var neighborID = -1;
                                     for (var k=neighborArray.length-1; k>-1; k--) {
                                         if (neighborArray[k].id == selectedNodeLink.id) {
-                                            if (neighborID !== -1) {nodeNoFocus(d); nodeSingleClick(neighborArray[neighborID]);}
+                                            if (neighborID !== -1) {
+                                                // nodeNoFocus(d); 
+                                                // nodeSingleClick(neighborArray[neighborID]);
+                                                switchNodeSelection(selectedNodeLink,neighborArray[neighborID]);
+                                            }
                                             break;
-                                        } else if (!neighborArray[k].duplicate) {neighborID = k;}
+                                        } else if (!neighborArray[k].duplicate) {
+                                            neighborID = k;
+                                        }
                                     }
                                 }
                             }
                             break;
                         case 'ArrowLeft':
-                            var neighborCheck = 1
+                            var neighborCheck = 1;
                             if (selectedNodeLink.pid !== 0) neighborCheck = 2;
                             if (orientation == 'l-to-r') {
                                 
@@ -1466,9 +1598,15 @@ var getTree = function(treeData) {
                                     var neighborID = -1;
                                     for (var k=0; k<neighborArray.length; k++) {
                                         if (neighborArray[k].id == selectedNodeLink.id) {
-                                            if (neighborID !== -1) {nodeNoFocus(d); nodeSingleClick(neighborArray[neighborID]);}
+                                            if (neighborID !== -1) {
+                                                // nodeNoFocus(d); 
+                                                // nodeSingleClick(neighborArray[neighborID]);
+                                                switchNodeSelection(selectedNodeLink,neighborArray[neighborID]);
+                                            }
                                             break;
-                                        } else if (!neighborArray[k].duplicate) {neighborID = k;}
+                                        } else if (!neighborArray[k].duplicate) {
+                                            neighborID = k;
+                                        }
                                     }
                                 }
                             } else {
@@ -1478,99 +1616,104 @@ var getTree = function(treeData) {
                                     var neighborID = -1;
                                     for (var k=neighborArray.length-1; k>-1; k--) {
                                         if (neighborArray[k].id == selectedNodeLink.id) {
-                                            if (neighborID !== -1) {nodeNoFocus(d); nodeSingleClick(neighborArray[neighborID]);}
+                                            if (neighborID !== -1) {
+                                                // nodeNoFocus(d); 
+                                                // nodeSingleClick(neighborArray[neighborID]);
+                                                switchNodeSelection(selectedNodeLink,neighborArray[neighborID]);
+                                            }
                                             break;
-                                        } else if (!neighborArray[k].duplicate) {neighborID = k;}
+                                        } else if (!neighborArray[k].duplicate) {
+                                            neighborID = k;
+                                        }
                                     }
                                 }
                             }
                             break;
 
-                        case 'Home':
-                            firstTree()
-                            break;
-                        case 'End':
-                            lastTree()
-                            break;
-                        case 'PageUp':
-                            nextTree();
-                            break;
-                        case 'PageDown':
-                            prevTree();
-                            break;
-                        case 'Escape':
-                            console.log('Escape')
-                            $('#labels').hide();
-                            $('#postags').hide();
-                            d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', '#545454');
-                            d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', '#ffffff');
-                            update(root);
-                            break;
+                        //case 'Home':
+                        //    firstTree();
+                        //    break;
+                        //case 'End':
+                        //    lastTree();
+                        //    break;
+                        //case 'PageUp':
+                        //    nextTree();
+                        //    break;
+                        //case 'PageDown':
+                        //    prevTree();
+                        //    break;
+                        //case 'Escape':
+                            //selectRoot();
+                            //showSelection();
+                            //$('#labels').hide();
+                            //$('#postags').hide();
+                            //d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', '#545454');
+                            //d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', '#ffffff');
+                           // update(root);
+                          //  break;
                         default:
                             return; // Quit when this doesn't handle the key event.
                     }
                 }
             }
         }
-
-        d3.event.preventDefault();
+        }
+        
         return;
     };
 
     // toggle morphology info window
     function morphologyClick(d) {
+        
+        if (!d.parent.collapsed){
+
+        
+        hideAllWindows();
+        $('#morphology').show();
+        focusWindow='morphology';
+
         selectedMorphology = d;
-        d3.selectAll('.morphology').style('stroke', '');
         d3.select('text#morphology' + selectedMorphology.id).style('stroke', 'blue');
         document.getElementById('morphologyName').value = d.name;
 
         if (editLemma === true) {
-            document.getElementById('lemma').value = d.parent.lemma
+            document.getElementById('lemma').value = d.parent.lemma;
         }
 
         for (var i = 0; i < lexicalFeatsList.length; i++) {
-            document.getElementById(lexicalFeatsList[i]).value = d.parent.feats[lexicalFeatsList[i]]   
+            document.getElementById(lexicalFeatsList[i]).value = d.parent.feats[lexicalFeatsList[i]];
         }
 
         
         for (var i = 0; i < document.getElementById('morphoFeats').getElementsByClassName('morphoFeat').length; i++) {
-            document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].disabled = false
+            document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].disabled = false;
         }
 
         for (var i = 0; i < document.getElementById('morphoFeats').getElementsByClassName('morphoFeat').length; i++) {
-            featName = document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].id
+            featName = document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].id;
 
             
             if(d.parent.pos.toUpperCase() in defaultFeatValues && featName in defaultFeatValues[d.parent.pos.toUpperCase()]) {
                 if(defaultFeatValues[d.parent.pos.toUpperCase()][featName] === 'N/A') {
-                    document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].value = 'N/A'
-                    document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].disabled = true
+                    document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].value = 'N/A';
+                    document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].disabled = true;
                 } else {
                     if(featName in selectedMorphology.parent.feats) {
                     	for(var j = 0; j < featureValues[featName].length; j++) { 
                     		if(featureValues[featName][j]['value'] === selectedMorphology.parent.feats[featName]) {
-                     	   		document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].value = featureValues[featName][j]['display']
+                     	   		document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].value = featureValues[featName][j]['display'];
                      		}
                     	}
                     } else {
-                        document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].value = defaultFeatValues[d.parent.pos][featName]
+                        document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].value = defaultFeatValues[d.parent.pos][featName];
                     }
                 }
             } else {
-                document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].value = document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0][0].value
+                document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0].value = document.getElementById('morphoFeats').getElementsByClassName('morphoFeat')[i].getElementsByClassName('inputArray')[0][0].value;
             }
         }
 
-        $('#download').hide();
-        $('#labels').hide();
-        $('#postags').hide();
-        if(window.getComputedStyle(document.getElementById('listing')).display !== 'none') {
-            document.getElementById('search').removeChild(document.getElementById('searchList'))
-            $('#listing').hide()
         }
-        $('#gototree').hide()
-
-        $('#morphology').show();
     };
 
     // merge node into right neighbor
@@ -1610,7 +1753,7 @@ var getTree = function(treeData) {
 
          if (typeof node.children !== 'undefined') {
              for (var k=0; k<node.children.length; k++) {
-                  node.children[k] = updateTreeOrderDelete(node.children[k], delId)
+                  node.children[k] = updateTreeOrderDelete(node.children[k], delId);
               }
          }
      return node;    
@@ -1630,7 +1773,7 @@ var getTree = function(treeData) {
         if (typeof node.children !== 'undefined') {
             
             for (var k=0; k<node.children.length; k++) {
-                node.children[k] = updateTreeOrderAdd(node.children[k], addId)
+                node.children[k] = updateTreeOrderAdd(node.children[k], addId);
             }
         }
         
@@ -1640,6 +1783,8 @@ var getTree = function(treeData) {
 
     // Delete a node
     function deleteNode(d) {
+
+        if(numberOfNodesArray[currentTreeIndex]>1){
 
         var delNodeId = d.id - 1;
         var nodeToDelete;
@@ -1652,19 +1797,22 @@ var getTree = function(treeData) {
                 d.parent.children[k].parent= d.parent.parent;
             }
 	    
-            d.parent.parent.children = d.parent.parent.children.concat(d.parent.children)
+            d.parent.parent.children = d.parent.parent.children.concat(d.parent.children);
         }
 
         nodeToDelete = _.where(d.parent.parent.children, {id: delNodeId});
         d.parent.parent.children = _.without(d.parent.parent.children, nodeToDelete[0]);
         numberOfNodesArray[currentTreeIndex] = numberOfNodesArray[currentTreeIndex] - 1;
 
-        updateTreeOrderDelete(root, delNodeId)
+        updateTreeOrderDelete(root, delNodeId);
         nodeDeleted = true;
-        d3.select('body').select('svg').remove()
-        getTree(root)
-        update(root)
-        $('.morphologyMerge').toggle()
+        d3.select('body').select('svg').remove();
+        getTree(root);
+        update(root);
+        $('.morphologyMerge').toggle();
+        }else{
+            alert("Sorry! You cannot delete the last node. Use Delete Tree, instead.")
+        }
     };
 
     // Add a new node to left of an existing node
@@ -1674,11 +1822,11 @@ var getTree = function(treeData) {
 
         if (position == 'left') {
             newNodeId = d.id - 1;
-            updateTreeOrderAdd(root, newNodeId)
+            updateTreeOrderAdd(root, newNodeId);
         } else if (position == 'right') {
             newNodeId = d.id + 1;
             parent = d.parent.parent;
-            updateTreeOrderAdd(root, newNodeId)
+            updateTreeOrderAdd(root, newNodeId);
         } else if (position == 'end') {
             newNodeId = d.id + 1;
         } else if (position == 'root') {
@@ -1694,35 +1842,35 @@ var getTree = function(treeData) {
         projectedNode.pos = newPOSTag;
         projectedNode.pid = newNodeId;
         projectedNode.link = '';
-        projectedNode.duplicate = true
-        projectedNode.collapsed = false
+        projectedNode.duplicate = true;
+        projectedNode.collapsed = false;
 
         treeNode.id = newNodeId;
         treeNode.name = name;
         treeNode.pos = newPOSTag;
         treeNode.pid = parent.id;
         treeNode.link = newLinkLabel;
-        treeNode.collapsed = false
-        treeNode.duplicate = false
+        treeNode.collapsed = false;
+        treeNode.duplicate = false;
         treeNode.children = [];
         treeNode.children.push(projectedNode);
         numberOfNodesArray[currentTreeIndex] = numberOfNodesArray[currentTreeIndex] + 1;
 
 
-        treeNode.lemma = ''
-        treeNode.xpos = ''
+        treeNode.lemma = '';
+        treeNode.xpos = '';
 
-        treeNode.feats = {}
+        treeNode.feats = {};
 
-        treeNode.deps = ''
-        treeNode.misc = ''
+        treeNode.deps = '';
+        treeNode.misc = '';
 
-        parent.children.push(treeNode)
+        parent.children.push(treeNode);
         nodeDeleted = true;
-        d3.select('body').select('svg').remove()
-        getTree(root)
-        update(root)
-        $('.morphologyMerge').toggle()
+        d3.select('body').select('svg').remove();
+        getTree(root);
+        update(root);
+        $('.morphologyMerge').toggle();
     };
 
     // display 'drop zone' on mouseover
@@ -1766,7 +1914,7 @@ var getTree = function(treeData) {
 
     // prepare node for dragging by removing children and paths
     function initiateDrag(d, domNode) {
-        $('.morphologyMerge').hide();
+        if (focusWindow!=='tags'){hideAllWindows();}
         draggingNode = d;
         d3.select(domNode).select('.ghostCircle').attr('pointer-events', 'none');
         d3.selectAll('.ghostCircle').attr('class', 'ghostCircle show');
@@ -1865,8 +2013,13 @@ var getTree = function(treeData) {
                     selectedNode.children.push(draggingNode);
                 }
                 endDrag();
+                selectRoot();
+                showSelection();
             } else {
                 endDrag();
+                selectRoot();
+                showSelection();
+
             }
         });
 
@@ -1974,12 +2127,12 @@ var getTree = function(treeData) {
         if(childNode.parent === parentNode) {
             return true;
         } else {
-            parentNode = parentNode.parent
+            parentNode = parentNode.parent;
             while(parentNode.id !== 0) {
                 if (childNode.parent === parentNode) {
                     return true;
                 } else {
-                    parentNode = parentNode.parent
+                    parentNode = parentNode.parent;
                 }
             }
         }
@@ -1993,12 +2146,12 @@ var getTree = function(treeData) {
         if(node.id === 0) {
             return false;
         } else {
-            parent = node.parent
+            parent = node.parent;
             while(parent.id !== 0) {
                 if(parent.collapsed) {
                     return true;
                 } else {
-                    parent = parent.parent
+                    parent = parent.parent;
                 }
             }
             return false;
@@ -2022,7 +2175,7 @@ var getTree = function(treeData) {
         var tempNodes = tree.nodes(root);
         tempNodes.sort(function(a,b) { return parseFloat(a.id) - parseFloat(b.id) } );
 
-        var indexNodes = []
+        var indexNodes = [];
 
         for (var i=0; i<tempNodes.length; i++) {
             if(!tempNodes[i].duplicate) {
@@ -2036,16 +2189,16 @@ var getTree = function(treeData) {
 
         var nodeCount = nodes.length - 1;
         if (orientation == 'l-to-r') {
-            var nodeTextDirStyle = 'ltr'
-            var nodeTextAnchorStyle = 'start'
+            var nodeTextDirStyle = 'ltr';
+            var nodeTextAnchorStyle = 'start';
         } else {
             var nodeTextDirStyle = 'rtl';
-            var nodeTextAnchorStyle = 'end'
+            var nodeTextAnchorStyle = 'end';
         }
 
         // build sentenceArray and sentenceText
         var sentenceArray = [];
-        var sentenceText = ''
+        var sentenceText = '';
         nodes.forEach(function(d) {
             if (d.id % 2 == 1)  {
                 sentenceArray.push([d.id,d.name]);
@@ -2054,9 +2207,9 @@ var getTree = function(treeData) {
 
         sentenceArray.sort(function(a, b){return a[0]-b[0]})
         for (var i = 0; i < sentenceArray.length; i++) {
-            sentenceText += sentenceArray[i][1] + ' '    
+            sentenceText += sentenceArray[i][1] + ' ';    
         }
-        root.meta['sentenceText'] = sentenceText.trim()
+        root.meta['sentenceText'] = sentenceText.trim();
 
         var counter = 0;
 
@@ -2077,10 +2230,10 @@ var getTree = function(treeData) {
             }
 
             if (d.y > lowestNodeY) {
-                lowestNodeY = d.y
+                lowestNodeY = d.y;
             }
             if (d.id == 0) {
-                d.x = orient(parseFloat(localStorage['customwidth']) * 300) ;
+                d.x = orient(parseFloat(localStorage['customwidth']) * 300);
             }
             else if (d.id % 2 == 0) {
                 // if leaf node
@@ -2104,7 +2257,7 @@ var getTree = function(treeData) {
 
         nodes.forEach(function(d) {
             if (d.id != 0 && d.id % 2 == 0)  {
-                d.y = lowestNodeY
+                d.y = lowestNodeY;
             }
         });
 
@@ -2115,14 +2268,14 @@ var getTree = function(treeData) {
                 sentenceArray.push([d.id,d.name]);
             }
         });
-        sentenceArray.sort(function(a, b){return a[0]-b[0]})
+        sentenceArray.sort(function(a, b){return a[0]-b[0];});
         for (var i=0; i<sentenceArray.length; i++) {
-          sentenceArray[i] = sentenceArray[i][1]
+          sentenceArray[i] = sentenceArray[i][1];
         }
-        sentenceArray = sentenceArray.join(' ')
+        sentenceArray = sentenceArray.join(' ');
         document.getElementById('fullSentence').textContent = sentenceArray;
-        $('#sents').show()
-        $('.toolbar input').show()
+        $('#sents').show();
+        $('.toolbar input').show();
 
         // force full tree redraw to update dynamic changes like doubleclick etc.
         fullTree.selectAll('.node').remove();
@@ -2257,8 +2410,6 @@ var getTree = function(treeData) {
                 return d.children || d._children ? 0 : parseFloat(localStorage['ysep']); })
             .attr('x', function(d) {
                 return d.children || d._children ? parseFloat(localStorage['xsep'])+parseFloat(localStorage['nodesize']) : -parseFloat(localStorage['nodesize']); })
-            // .attr('dy', '.85em')
-            // .attr('dx', '.2em')
             .attr('dy', '0em')
             .attr('dx', '.2em')
             .attr('text-anchor', nodeTextAnchorStyle)
@@ -2275,8 +2426,6 @@ var getTree = function(treeData) {
             .attr('id', function(d) { return 'nodePOS' + d.id; })
             .attr('class', localStorage.currentFont)
             .classed('nodepos', true)
-            // .attr('dx', '1.5em')
-            // .attr('dy', '2.35em')
             .attr('dy', '2em')
             .attr('dx', '-1em')
             .attr('text-anchor', 'start')
@@ -2535,8 +2684,6 @@ var getTree = function(treeData) {
                 tempTree[i].children.sort(function(a,b) { return parseFloat(a.id) - parseFloat(b.id) } );
             }
         }
-
-
     };
 
     // lay out the initial tree
