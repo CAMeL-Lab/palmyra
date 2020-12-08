@@ -53,6 +53,8 @@ var lastClickedNodeId = 0;
 
 var focusWindow = '';
 
+var alreadyReadConfigFiles = [];
+
 var settings = [['customwidth', 0.25], ['customdepth', 100], ['nodesize', 10], ['xsep', 5], ['ysep', 10], ['currentFont', 'standard']];
 
 // if custom setting not saved, initialize with default
@@ -105,14 +107,16 @@ var readConfigFile = function() {
             var morphoLabel = document.getElementById('labelspMorphoFeats');
             morphoLabel.style.visibility = 'hidden';
             txt = 'Select config file.';
-        } else {
-
+        } else {    
             var file = x.files[0];
-            var reader=new FileReader();
-            reader.onload = function(e) {
-                parseConfig(reader.result);
-            }
-            reader.readAsText(file);                
+            if(!alreadyReadConfigFiles.includes(file)) {
+                alreadyReadConfigFiles.push(file);
+                var reader=new FileReader();
+                reader.onload = function(e) {
+                    parseConfig(reader.result);
+                }
+                reader.readAsText(file);   
+            }             
         }
     }
   
@@ -406,6 +410,25 @@ var convertJSONToCONLL = function(node) {
     }
     // include hidden nodes
     else {
+
+        node.features = '';
+        
+        for (var featKey in node.feats) {
+            if (node.features === '') {
+                if (featKey !== '_' && node.feats[featKey] !== '' && node.feats[featKey] !== 'undefined') {
+                    node.features = featKey + '=' + node.feats[featKey];
+                }
+            } else {
+                if (featKey !== '_' && node.feats[featKey] !== '' && node.feats[featKey] !== 'undefined') {
+                    node.features += '|' + featKey + '=' + node.feats[featKey];
+                }
+            }
+        }
+
+        if (node.features === '') {
+            node.features = '_';
+        }
+
         var fullArray = [];
         if (typeof node.parent !== 'undefined' && node.parent.id ) {
             var pid = (node.parent.id+1)/2;
@@ -444,7 +467,7 @@ var convertJSONToCONLL = function(node) {
                 node.misc = '_';
             }
             
-            fullArray.push([(node.id+1)/2,node.name,node.lemma,node.pos,node.xpos,node.feats,pid,node.link,node.deps,node.misc]);
+            fullArray.push([(node.id+1)/2,node.name,node.lemma,node.pos,node.xpos,node.features,pid,node.link,node.deps,node.misc]);
         } else {
             fullArray.sort(function(a, b){return a[0]-b[0]});
             for (var i=0; i<fullArray.length; i++) {
@@ -601,13 +624,14 @@ var convertToJSON = function(inputData) {
 };
 
 var setJSONtreeData = function() {
-    readConfigFile();
+    
     var x = document.getElementById('inputFile');
 
     if ('files' in x) {
         if (x.files.length == 0) {
-            txt = 'Select one or more files.';
+            alert('Please select one or more files, or use use the Upload button in the sentence uploader section.');
         } else {
+            readConfigFile();
             for (var i = 0; i < x.files.length; i++) {
                 var file = x.files[i];
                 var reader=new FileReader();
@@ -626,13 +650,16 @@ var setJSONtreeData = function() {
                 }
                 reader.readAsText(file);    
             }
+
         }
+
     } 
 };
 
 var setSentenceTreeData = function() {
-    readConfigFile();
     var original = $('#treedata2').val();
+
+    readConfigFile();
 
     if (original !== '') {
         var treeDataArray = [];
@@ -975,6 +1002,46 @@ var saveMorphology = function() {
     update(root);
 };
 
+// this is a recursive function that goes through the tree and uncollapses all the nodes that need to be collapsed.
+var uncollapseAllNodes = function(currentTree) {
+    if (!currentTree.duplicate) {
+        for (var i = 0; i < currentTree.children.length; i++) {
+            if(currentTree.children[i].collapsed) {
+                toggleChildrenOut(currentTree.children[i]);
+            }
+            uncollapseAllNodes(currentTree.children[i])
+        }
+    }
+}
+
+// this is a replica of the toggleChildren function that we needed to be outside of the getTree function 
+// to be called from uncollapseAllNodes
+function toggleChildrenOut(d) {
+            if(d.collapsed == true) {
+                d.children.forEach(function (childNode) {
+                    childNode.name = childNode.name.slice(2, -2);
+                });
+    
+                d.children = d._children;
+                d._children = null;
+                d.name = d.name.slice(2,-2);
+                d.collapsed = false;
+            } else {
+                d._children = d.children;
+                d.children = null;
+                d.name = '<<' + d.name + '>>';
+                d._children.forEach(function (childNode) {
+                    if(childNode.duplicate == true){
+                        d.children = []
+                        childNode.name = '<<' + childNode.name + '>>'
+                        d.children.push(childNode)
+                    }
+                });
+                d.collapsed = true;
+            }
+        update(d);
+    }
+
 var selectRoot = function() {
     if(selectedNodeLink === undefined) {
         selectedNodeLink = root;
@@ -1094,6 +1161,66 @@ var textTree = function() {
     document.getElementById('jsonfield').innerHTML = output;
 };
 
+// this function goes over a tree recursively in the style of ConvertJSONToCoNLL to generate
+// the full text of the sentence as read from the node names
+var updateSentenceText = function(node) {
+    if(typeof node.children === 'undefined' && typeof node._children === 'undefined') {
+        return [];
+    }
+
+    if (node.collapsed === false) {
+
+        var fullText = [];
+        if (typeof node.parent !== 'undefined' && node.parent.id ) {
+            var pid = (node.parent.id+1)/2;
+        } else 
+            pid = (node.pid+1)/2;
+        if (pid == 0.5) 
+                pid = 0;
+        for (var k=0; k<node.children.length; k++) {
+            var tempArray = updateSentenceText(node.children[k]);
+            fullText = fullText.concat(tempArray);
+        }
+        if (node.id !== 0) {
+
+            fullText.push([(node.id+1)/2,node.name]);
+        } else {
+            fullText.sort(function(a, b){return a[0]-b[0]});
+            for (var i=0; i<fullText.length; i++) {
+              fullText[i] = fullText[i][1];
+            }
+            fullText = fullText.join(' ');
+        }
+        return fullText;
+    }
+    // include hidden nodes
+    else {
+        var fullText = [];
+        if (typeof node.parent !== 'undefined' && node.parent.id ) {
+            var pid = (node.parent.id+1)/2;
+        } else 
+            pid = (node.pid+1)/2;
+        if (pid == 0.5) 
+            pid = 0;
+        node.name = node.name.slice(2,-2);
+        for (var k=0; k<node._children.length; k++) {
+            var tempArray = updateSentenceText(node._children[k]);
+            fullText = fullText.concat(tempArray);
+        }
+        if (node.id !== 0) {
+            
+            fullText.push([(node.id+1)/2,node.name]);
+        } else {
+            fullText.sort(function(a, b){return a[0]-b[0]});
+            for (var i=0; i<fullText.length; i++) {
+              fullText[i] = fullText[i][1];
+            }
+            fullText = fullText.join(' ');
+        }
+        return fullText;
+    }
+}
+
 // output CONLL files for the tree
 var downloadTree = function() {
     saveTree();
@@ -1101,11 +1228,20 @@ var downloadTree = function() {
     var output = '';
     if (sessionStorage.treeData !== 'undefined') {
         for (var i=0; i<treesArray.length; i++) {
-            // clone treeArray and remove cycles through nested parents.
+
             meta_keys = Object.keys(treesArray[i].meta);
+
             for (var key_index = 0; key_index<meta_keys.length; key_index++){
-                output = output + '# ' + meta_keys[key_index] + ' = ' + treesArray[i].meta[meta_keys[key_index]] + '\n';
+                if (meta_keys[key_index] === 'sentenceText') {
+                    //clone the treeArray to use that to generate the complete sentenceText comment
+                    let clone = JSON.parse(JSON.stringify(JSON.decycle(treesArray[i])));
+                    output = output + '# ' + meta_keys[key_index] + ' = ' + updateSentenceText(clone) + '\n';
+                } else {
+                    output = output + '# ' + meta_keys[key_index] + ' = ' + treesArray[i].meta[meta_keys[key_index]] + '\n';
+                }
             }
+
+            // clone treeArray and remove cycles through nested parents.
             let clone = JSON.parse(JSON.stringify(JSON.decycle(treesArray[i])));
             output = output + convertJSONToCONLL(clone) + '\n\n';
         };
@@ -1232,8 +1368,12 @@ var downloadToggle = function() {
 } 
 
 var editToggle = function() {
+
     if (focusWindow !== 'edit') {
         hideAllWindows();
+        // when turning on the edit mode, we uncollapse the entire tree so 
+        // that all edit functions are clearly defined
+        uncollapseAllNodes(treesArray[currentTreeIndex]);
         $('.morphologyMerge').show();
         focusWindow = 'edit';
     }else{
@@ -2273,7 +2413,18 @@ var getTree = function(treeData) {
           sentenceArray[i] = sentenceArray[i][1];
         }
         sentenceArray = sentenceArray.join(' ');
-        document.getElementById('fullSentence').textContent = sentenceArray;
+
+        //add the text in a bdi html tag
+        bdi_tag = document.createElement('bdi')
+        textContentString = document.createTextNode(sentenceArray);
+        bdi_tag.appendChild(textContentString);
+        //if there is already a text in fullSentence element, remove it
+        if (document.getElementById('fullSentence').hasChildNodes()) {
+            document.getElementById('fullSentence').innerHTML = '';
+        }
+        //add the bdi_tag containing the text
+        document.getElementById('fullSentence').appendChild(bdi_tag);
+
         $('#sents').show();
         $('.toolbar input').show();
 
