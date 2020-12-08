@@ -54,6 +54,7 @@ var lastClickedNodeId = 0;
 var focusWindow = '';
 
 var alreadyReadConfigFiles = [];
+configRead = false;
 
 var settings = [['customwidth', 0.25], ['customdepth', 100], ['nodesize', 10], ['xsep', 5], ['ysep', 10], ['currentFont', 'standard']];
 
@@ -99,6 +100,8 @@ $( window ).resize(function() {
 //Read the config file
 var readConfigFile = function() {
 
+    configRead = false;
+
     var x = document.getElementById('configFile');
     var input = '';
 
@@ -114,6 +117,39 @@ var readConfigFile = function() {
                 var reader=new FileReader();
                 reader.onload = function(e) {
                     parseConfig(reader.result);
+                    configRead = true;  
+                }
+                reader.readAsText(file);   
+            }             
+        }
+    }
+  
+    return;  
+};
+
+//Read the config file that is called when using the sentence uploader which will continue to call
+//the readSentenceTreeData when the FileReader finishes loading the file.
+var readConfigFileForSentence = function() {
+
+    configRead = false;
+
+    var x = document.getElementById('configFile');
+    var input = '';
+
+    if ('files' in x) {
+        if (x.files.length == 0) {
+            var morphoLabel = document.getElementById('labelspMorphoFeats');
+            morphoLabel.style.visibility = 'hidden';
+            txt = 'Select config file.';
+        } else {    
+            var file = x.files[0];
+            if(!alreadyReadConfigFiles.includes(file)) {
+                alreadyReadConfigFiles.push(file);
+                var reader=new FileReader();
+                reader.onload = function(e) {
+                    parseConfig(reader.result);
+                    configRead = true;  
+                    readSentenceTreeData();
                 }
                 reader.readAsText(file);   
             }             
@@ -656,11 +692,8 @@ var setJSONtreeData = function() {
     } 
 };
 
-var setSentenceTreeData = function() {
+var readSentenceTreeData = function() {
     var original = $('#treedata2').val();
-
-    readConfigFile();
-
     if (original !== '') {
         var treeDataArray = [];
         var inputTextArray = original.split('\n').filter(function(entry) { return entry.trim() != ''; });
@@ -684,6 +717,15 @@ var setSentenceTreeData = function() {
         $('.upload').hide();
         addNewTree();
     };
+}
+ 
+var setSentenceTreeData = function() {
+    
+    //we conly call the readConfigFileForSentence here to insure that the configuration file is 
+    //completely read before moving on to the rest of the funcion. The actual reading of the sentence
+    //data happens in the readSentenceTreeData function which gets called in the readConfigFileForSentence
+    //function in the .onload part of the FileReader.
+    readConfigFileForSentence();
 };
 
 // helper function
@@ -1162,7 +1204,7 @@ var textTree = function() {
 };
 
 // this function goes over a tree recursively in the style of ConvertJSONToCoNLL to generate
-// the full text of the sentence as read from the node names
+// the full text of the sentence as read from the node names.
 var updateSentenceText = function(node) {
     if(typeof node.children === 'undefined' && typeof node._children === 'undefined') {
         return [];
