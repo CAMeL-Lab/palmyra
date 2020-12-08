@@ -141,6 +141,7 @@ var readConfigFileForSentence = function() {
             var morphoLabel = document.getElementById('labelspMorphoFeats');
             morphoLabel.style.visibility = 'hidden';
             txt = 'Select config file.';
+	    readSentenceTreeData();
         } else {    
             var file = x.files[0];
             if(!alreadyReadConfigFiles.includes(file)) {
