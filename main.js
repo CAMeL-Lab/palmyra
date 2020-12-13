@@ -1047,7 +1047,7 @@ var saveMorphology = function() {
 
 // this is a recursive function that goes through the tree and uncollapses all the nodes that need to be collapsed.
 var uncollapseAllNodes = function(currentTree) {
-    if (!currentTree.duplicate) {
+    if (!currentTree.duplicate && currentTree.children !== undefined) {
         for (var i = 0; i < currentTree.children.length; i++) {
             if(currentTree.children[i].collapsed) {
                 toggleChildrenOut(currentTree.children[i]);
