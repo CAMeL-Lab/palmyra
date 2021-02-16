@@ -97,6 +97,21 @@ $( window ).resize(function() {
     update(root);
 });
 
+// Add listener to textbox when downloading a file. When the enter key is pressed, the file will be downloaded
+var download_form = document.getElementById("filename");
+
+download_form.addEventListener("keydown", function(event) {
+  // Number 13 is the "Enter" key on the keyboard
+  if (event.keyCode === 13) {
+    // Cancel the default action, if needed
+    event.preventDefault();
+    // Trigger the button element with a click
+    document.getElementById("dwnbtn").click();
+    /* download_button.click(); */
+    /* document.querySelector('form').submit(); */
+  }
+});
+
 //Read the config file
 var readConfigFile = function() {
 
