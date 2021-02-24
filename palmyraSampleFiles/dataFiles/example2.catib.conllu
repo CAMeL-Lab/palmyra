@@ -1,3 +1,4 @@
+# sentenceText = و+ استقبل رئيس الجمهورية أيضا المدير العام ل+ الدفاع المدني العميد الطيار درويش حبيقة و+ عرض مع +ه أوضاع الدفاع المدني و+ ما يحتاج +ه ل+ تعزيز عمل +ه و+ تطوير +ه , و+ قد أشاد الرئيس لحود ب+ الجهود التي يبذل +ها عناصر الدفاع المدني , خصوصا في الظروف الطبيعية و+ المناخية الصعبة إضافة إلى أعمال الإغاثة و+ الخدمات الإنسانية الأخرى .
 1	و+	wa+	PRT	conj	gloss=clitic|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	2	MOD	_	_
 2	استقبل	Aisotaqobal	VRB	verb	gloss=receive;greet;meet;welcome|per=3|asp=p|vox=a|mod=i|gen=m|num=s|stt=na|cas=na|rat=na	0	---	_	_
 3	رئيس	ra}iys	NOM	noun	gloss=president;head;chairman|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=c|cas=n|rat=y	2	SBJ	_	_
@@ -10,7 +11,7 @@
 10	المدني	madaniy~	NOM	adj	gloss=civilian|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=d|cas=g|rat=y	9	MOD	_	_
 11	العميد	Eamiyd	NOM	noun	gloss=dean;chief|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=d|cas=a|rat=y	6	MOD	_	_
 12	الطيار	Tay~Ar	NOM	noun	gloss=aviator;pilot;flyer|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=d|cas=a|rat=y	6	MOD	_	_
-13	درويش	darowiy$	PROP	noun_prop	gloss=Darweesh|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=i|cas=u|rat=y	12	MOD	_	_
+13	درويش	darowiy$	PROP	noun_prop	gloss=Darweesh|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=i|cas=u|rat=y	6	MOD	_	_
 14	حبيقة	Hubayoqap	PROP	noun_prop	gloss=Hubeiqa|per=na|asp=na|vox=na|mod=na|gen=f|num=s|stt=i|cas=u|rat=y	13	---	_	_
 15	و+	wa+	PRT	conj	gloss=clitic|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	2	MOD	_	_
 16	عرض	EaraD	VRB	verb	gloss=exhibit;present;review;inspect|per=3|asp=p|vox=a|mod=i|gen=m|num=s|stt=na|cas=na|rat=na	15	OBJ	_	_
@@ -31,9 +32,9 @@
 31	تطوير	taTowiyr	NOM	noun	gloss=development;advancement;promotion|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=c|cas=g|rat=y	30	OBJ	_	_
 32	+ه	+hu	NOM	pron	gloss=clitic|per=3|asp=na|vox=na|mod=na|gen=m|num=s|stt=d|cas=g|rat=na	31	IDF	_	_
 33	,	,	PNX	punc	gloss=,|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	2	MOD	_	_
-34	و+	wa+	PRT	conj	gloss=clitic|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	2	MOD	_	_
+34	و+	wa+	PRT	conj	gloss=clitic|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	36	MOD	_	_
 35	قد	qado	PRT	part_verb	gloss=may,_might,_perhaps,_maybe,_possibly,_probably|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	36	MOD	_	_
-36	أشاد	>a$Ad	VRB	verb	gloss=praise;commend;build|per=3|asp=p|vox=a|mod=i|gen=m|num=s|stt=na|cas=na|rat=na	34	OBJ	_	_
+36	أشاد	>a$Ad	VRB	verb	gloss=praise;commend;build|per=3|asp=p|vox=a|mod=i|gen=m|num=s|stt=na|cas=na|rat=na	0	---	_	_
 37	الرئيس	ra}iys	NOM	noun	gloss=president;head;chairman|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=d|cas=n|rat=y	36	SBJ	_	_
 38	لحود	laHuwd	PROP	noun_prop	gloss=Lahoud|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=i|cas=u|rat=y	37	MOD	_	_
 39	ب+	bi+	PRT	prep	gloss=clitic|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	36	MOD	_	_
@@ -51,17 +52,18 @@
 51	الطبيعية	TabiyEiy~	NOM	adj	gloss=natural;normal|per=na|asp=na|vox=na|mod=na|gen=f|num=s|stt=d|cas=g|rat=y	50	MOD	_	_
 52	و+	wa+	PRT	conj	gloss=clitic|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	51	MOD	_	_
 53	المناخية	munAxiy~	NOM	adj	gloss=climatic|per=na|asp=na|vox=na|mod=na|gen=f|num=s|stt=d|cas=g|rat=y	52	OBJ	_	_
-54	الصعبة	SaEob	NOM	adj	gloss=difficult;hard;arduous|per=na|asp=na|vox=na|mod=na|gen=f|num=s|stt=d|cas=g|rat=y	53	MOD	_	_
+54	الصعبة	SaEob	NOM	adj	gloss=difficult;hard;arduous|per=na|asp=na|vox=na|mod=na|gen=f|num=s|stt=d|cas=g|rat=y	50	MOD	_	_
 55	إضافة	<iDAfap	NOM	noun	gloss=addition;appending|per=na|asp=na|vox=na|mod=na|gen=f|num=s|stt=i|cas=a|rat=y	42	MOD	_	_
 56	إلى	<ilaY	PRT	prep	gloss=to;towards|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	55	MOD	_	_
 57	أعمال	Eamal	NOM	noun	gloss=actions;activities;work|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=c|cas=g|rat=y	56	OBJ	_	_
 58	الإغاثة	<igAvap	NOM	noun	gloss=aid;relief_assistance|per=na|asp=na|vox=na|mod=na|gen=f|num=s|stt=d|cas=g|rat=y	57	IDF	_	_
-59	و+	wa+	PRT	conj	gloss=clitic|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	58	MOD	_	_
+59	و+	wa+	PRT	conj	gloss=clitic|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	57	MOD	_	_
 60	الخدمات	xidomap	NOM	noun	gloss=services;assistance|per=na|asp=na|vox=na|mod=na|gen=f|num=p|stt=d|cas=g|rat=y	59	OBJ	_	_
 61	الإنسانية	<inosAniy~	NOM	adj	gloss=human;humane;humanitarian|per=na|asp=na|vox=na|mod=na|gen=f|num=s|stt=d|cas=g|rat=y	60	MOD	_	_
 62	الأخرى	>uxoraY	NOM	adj	gloss=other;another;additional|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=d|cas=u|rat=y	60	MOD	_	_
-63	.	.	PNX	punc	gloss=.|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	2	MOD	_	_
+63	.	.	PNX	punc	gloss=.|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	36	MOD	_	_
 
+# sentenceText = من جهة ثانية , تلقى الرئيس لحود بطاقات تهنئة ب+ الأعياد و+ السنة الجديدة من الرئيس التونسي زين العابدين بن علي و+ رئيس الهند نارايانان , و+ رئيس الوزراء الهندي أتال بيهاري فاجبايي .
 1	من	min	PRT	prep	gloss=from|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	5	MOD	_	_
 2	جهة	jihap	NOM	noun	gloss=side;part;direction|per=na|asp=na|vox=na|mod=na|gen=f|num=s|stt=i|cas=g|rat=y	1	OBJ	_	_
 3	ثانية	vAniy	NOM	adj_num	gloss=second;next|per=na|asp=na|vox=na|mod=na|gen=f|num=s|stt=i|cas=g|rat=y	2	MOD	_	_
@@ -80,23 +82,20 @@
 16	الرئيس	ra}iys	NOM	noun	gloss=president;head;chairman|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=d|cas=g|rat=y	15	OBJ	_	_
 17	التونسي	tuwnisiy~	NOM	adj	gloss=Tunisian|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=d|cas=g|rat=y	16	MOD	_	_
 18	زين	zayon	PROP	noun_prop	gloss=Zein|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=i|cas=u|rat=y	16	MOD	_	_
-19	العابدين	EAbid	NOM	noun	gloss=worshipping;God-fearing|per=na|asp=na|vox=na|mod=na|gen=m|num=p|stt=d|cas=g|rat=y	16	MOD	_	_
-20	بن	bin	PROP	noun_prop	gloss=bin|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=i|cas=u|rat=y	16	MOD	_	_
+19	العابدين	EAbid	PROP	noun	gloss=worshipping;God-fearing|per=na|asp=na|vox=na|mod=na|gen=m|num=p|stt=d|cas=g|rat=y	18	---	_	_
+20	بن	bin	PROP	noun_prop	gloss=bin|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=i|cas=u|rat=y	19	---	_	_
 21	علي	Ealiy~	PROP	noun_prop	gloss=Ali|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=i|cas=u|rat=y	20	---	_	_
-22	.	.	PNX	punc	gloss=.|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	5	MOD	_	_
-
-1	و+	wa+	PRT	conj	gloss=clitic|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	13	MOD	_	_
-2	رئيس	ra}iys	NOM	noun	gloss=president;head;chairman|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=c|cas=n|rat=y	13	SBJ	_	_
-3	الهند	hinod	PROP	noun_prop	gloss=India|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=d|cas=g|rat=y	2	IDF	_	_
-4	نارايانان	nArAyAnAn	PROP	noun_prop	gloss=Narayanan|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=i|cas=u|rat=y	2	MOD	_	_
-5	,	,	PNX	punc	gloss=,|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	2	MOD	_	_
-6	و+	wa+	PRT	conj	gloss=clitic|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	2	MOD	_	_
-7	رئيس	ra}iys	NOM	noun	gloss=president;head;chairman|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=c|cas=n|rat=y	6	OBJ	_	_
-8	الوزراء	waziyr	NOM	noun	gloss=ministers|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=d|cas=g|rat=y	7	IDF	_	_
-9	الهندي	hinodiy~	NOM	adj	gloss=Indian|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=d|cas=a|rat=y	7	MOD	_	_
-10	أتال	>atAl	PROP	noun_prop	gloss=Atal|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=i|cas=u|rat=y	7	MOD	_	_
-11	بيهاري	biyhAriy	PROP	noun_prop	gloss=Behari|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=i|cas=u|rat=y	10	---	_	_
-12	فاجبايي	fAjobAyiy	PROP	noun_prop	gloss=Vajpayee|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=i|cas=u|rat=y	11	---	_	_
-13	.	.	PNX	punc	gloss=.|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	0	---	_	_
-
+22	و+	wa+	PRT	conj	gloss=clitic|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	16	MOD	_	_
+23	رئيس	ra}iys	NOM	noun	gloss=president;head;chairman|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=c|cas=n|rat=y	22	OBJ	_	_
+24	الهند	hinod	PROP	noun_prop	gloss=India|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=d|cas=g|rat=y	23	IDF	_	_
+25	نارايانان	nArAyAnAn	PROP	noun_prop	gloss=Narayanan|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=i|cas=u|rat=y	23	MOD	_	_
+26	,	,	PNX	punc	gloss=,|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	23	MOD	_	_
+27	و+	wa+	PRT	conj	gloss=clitic|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	23	MOD	_	_
+28	رئيس	ra}iys	NOM	noun	gloss=president;head;chairman|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=c|cas=n|rat=y	27	OBJ	_	_
+29	الوزراء	waziyr	NOM	noun	gloss=ministers|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=d|cas=g|rat=y	28	IDF	_	_
+30	الهندي	hinodiy~	NOM	adj	gloss=Indian|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=d|cas=a|rat=y	28	MOD	_	_
+31	أتال	>atAl	PROP	noun_prop	gloss=Atal|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=i|cas=u|rat=y	28	MOD	_	_
+32	بيهاري	biyhAriy	PROP	noun_prop	gloss=Behari|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=i|cas=u|rat=y	31	---	_	_
+33	فاجبايي	fAjobAyiy	PROP	noun_prop	gloss=Vajpayee|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=i|cas=u|rat=y	32	---	_	_
+34	.	.	PNX	punc	gloss=.|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	5	---	_	_
 
