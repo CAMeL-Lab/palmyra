@@ -93,7 +93,7 @@
 27	و+	wa+	PRT	conj	gloss=clitic|per=na|asp=na|vox=na|mod=na|gen=na|num=na|stt=na|cas=na|rat=na	23	MOD	_	_
 28	رئيس	ra}iys	NOM	noun	gloss=president;head;chairman|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=c|cas=n|rat=y	27	OBJ	_	_
 29	الوزراء	waziyr	NOM	noun	gloss=ministers|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=d|cas=g|rat=y	28	IDF	_	_
-30	الهندي	hinodiy~	NOM	adj	gloss=Indian|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=d|cas=a|rat=y	28	MOD	_	_
+30	الهندي	hinodiy~	NOM	adj	gloss=Indian|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=d|cas=n|rat=y	28	MOD	_	_
 31	أتال	>atAl	PROP	noun_prop	gloss=Atal|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=i|cas=u|rat=y	28	MOD	_	_
 32	بيهاري	biyhAriy	PROP	noun_prop	gloss=Behari|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=i|cas=u|rat=y	31	---	_	_
 33	فاجبايي	fAjobAyiy	PROP	noun_prop	gloss=Vajpayee|per=na|asp=na|vox=na|mod=na|gen=m|num=s|stt=i|cas=u|rat=y	32	---	_	_
