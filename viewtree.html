@@ -30,6 +30,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
             <div class="toolbar btn-initial" align="left">
                 <input type="button" tabindex="-1" value="clear" onClick="clearTree()" />
             </div>
+            <div id="conlluFileNameDiv">
+                <p id="conlluFileName"></p>
+            </div>
             <div style="width:50px">
                 <p id="currentTreeNumber" onClick="goToTreeToggle()"></p>
             </div>
@@ -79,7 +82,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         <section id="download">
             <form id="download">
                 <p>Please select a filename:</p>
-                <input type="text" id="filename" value="treeOutputFile"/>
+                <input type="text" id="filename"/>
             </form>
             <input type="button" id="dwnbtn" value="Download" onClick="downloadTree()"/>
             <button onClick="hideAllWindows()">Close</button>
