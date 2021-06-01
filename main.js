@@ -678,7 +678,8 @@ var convertToJSON = function(inputData) {
 var setJSONtreeData = function() {
     
     var x = document.getElementById('inputFile');
-
+    var file_name_elem = document.getElementById("conlluFileName");
+    var output_file_name_elem = document.getElementById("filename");
     if ('files' in x) {
         if (x.files.length == 0) {
             alert('Please select one or more files, or use use the Upload button in the sentence uploader section.');
@@ -686,6 +687,8 @@ var setJSONtreeData = function() {
             readConfigFile();
             for (var i = 0; i < x.files.length; i++) {
                 var file = x.files[i];
+                file_name_elem.innerHTML = file.name.split('.')[0];
+                output_file_name_elem.value = file.name.split('.')[0];
                 var reader=new FileReader();
                 reader.onload = function(e) {
                     treesArray = convertToJSON(reader.result);
