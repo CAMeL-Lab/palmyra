@@ -687,8 +687,14 @@ var setJSONtreeData = function() {
             readConfigFile();
             for (var i = 0; i < x.files.length; i++) {
                 var file = x.files[i];
-                file_name_elem.innerHTML = file.name.split('.')[0];
-                output_file_name_elem.value = file.name.split('.')[0];
+                if (!file.name.endsWith('.conllu')) {
+                    alert('File does not end with the .conllu extension, this will automatically be added when the file is saved.');
+                    file_name_elem.innerHTML = file.name;
+                    output_file_name_elem.value = file.name;
+                } else {
+                    file_name_elem.innerHTML = file.name.replace(/.conllu$/, '');
+                    output_file_name_elem.value = file.name.replace(/.conllu$/, '');
+                }
                 var reader=new FileReader();
                 reader.onload = function(e) {
                     treesArray = convertToJSON(reader.result);
