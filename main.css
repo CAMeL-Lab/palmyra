@@ -203,14 +203,14 @@ li #faq {
     vertical-align:middle;
     cursor:pointer;
 }
-.navbar #conlluFileNameDiv {
+#conlluFileNameDiv {
     margin: 10px 15px 10px 4px;
 }
 
-.navbar #conlluFileName {
+#conlluFileName {
     color: #fff;
     font-family: 'bebas';
-    font-size: 14px;
+    font-size: 0.8vw;
     width: 200%;
 }
 
