@@ -1,0 +1,15 @@
+﻿# sentenceText = يحب الأطفال كتاب " Harry Potter and the Goblet of Fire " جدا .
+1	يحب	_	VRB	_	_	0	---	_	_
+2	الأطفال	_	NOM	_	_	1	SBJ	_	_
+3	كتاب	_	NOM	_	_	1	OBJ	_	_
+4	"	_	PNX	_	_	5	MOD	_	_
+5	Harry	_	FOREIGN	_	_	3	IDF	_	_
+6	Potter	_	FOREIGN	_	_	5	---	_	_
+7	and	_	FOREIGN	_	_	6	---	_	_
+8	the	_	FOREIGN	_	_	7	---	_	_
+9	Goblet	_	FOREIGN	_	_	8	---	_	_
+10	of	_	FOREIGN	_	_	9	---	_	_
+11	Fire	_	FOREIGN	_	_	10	---	_	_
+12	"	_	PNX	_	_	5	MOD	_	_
+13	جدا	_	NOM	_	_	1	MOD	_	_
+14	.	_	PNX	_	_	1	MOD	_	_
