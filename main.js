@@ -192,10 +192,10 @@ var parseConfig = function(content) {
         if(configs.pos.values[i].key in posTags) {
             posTags[configs.pos.values[i].key].push(configs.pos.values[i].label);
             var btn = document.createElement('BUTTON');
-            var text = document.createTextNode(configs.pos.values[i].label.toUpperCase());
+            var text = document.createTextNode(configs.pos.values[i].label);
             btn.appendChild(text);
             btn.tabindex = -1;
-            btn.value = configs.pos.values[i].label.toUpperCase();
+            btn.value = configs.pos.values[i].label;
             btn.onclick = editPOSByButton;
 
 
@@ -210,10 +210,10 @@ var parseConfig = function(content) {
             posTags[configs.pos.values[i].key] = [];
             posTags[configs.pos.values[i].key].push(configs.pos.values[i].label);
             var btn = document.createElement('BUTTON');
-            var text = document.createTextNode(configs.pos.values[i].label.toUpperCase());
+            var text = document.createTextNode(configs.pos.values[i].label);
             btn.appendChild(text);
             btn.tabindex = -1;
-            btn.value = configs.pos.values[i].label.toUpperCase();
+            btn.value = configs.pos.values[i].label;
             btn.onclick = editPOSByButton;
 
             group = configs.pos.values[i].group;
@@ -240,10 +240,10 @@ var parseConfig = function(content) {
         if(configs.relation.values[i].key in relLabels) {
             relLabels[configs.relation.values[i].key].push(configs.relation.values[i].label);
             var btn = document.createElement('BUTTON');
-            var text = document.createTextNode(configs.relation.values[i].label.toUpperCase());
+            var text = document.createTextNode(configs.relation.values[i].label);
             btn.appendChild(text);
-            btn.setAttribute('id', configs.relation.values[i].label.toUpperCase());
-            btn.value = configs.relation.values[i].label.toUpperCase();
+            btn.setAttribute('id', configs.relation.values[i].label);
+            btn.value = configs.relation.values[i].label;
             btn.onclick = editLabelByButton;
 
             group = configs.relation.values[i].group;
@@ -258,10 +258,10 @@ var parseConfig = function(content) {
             relLabels[configs.relation.values[i].key] = [];
             relLabels[configs.relation.values[i].key].push(configs.relation.values[i].label);
             var btn = document.createElement('BUTTON');
-            var text = document.createTextNode(configs.relation.values[i].label.toUpperCase());
+            var text = document.createTextNode(configs.relation.values[i].label);
             btn.appendChild(text);
-            btn.setAttribute('id', configs.relation.values[i].label.toUpperCase());
-            btn.value = configs.relation.values[i].label.toUpperCase();
+            btn.setAttribute('id', configs.relation.values[i].label);
+            btn.value = configs.relation.values[i].label;
             btn.onclick = editLabelByButton;
 
             group = configs.relation.values[i].group;
@@ -349,7 +349,7 @@ var parseConfig = function(content) {
         }
 
         for (var i = 0; i < configs.defaultFeatures.length; i++) {
-            var posTag = configs.defaultFeatures[i].pos.toUpperCase();
+            var posTag = configs.defaultFeatures[i].pos;
 
             var defaultFeatValuePairs = {};
             for (var j = 0; j < configs.defaultFeatures[i].features.length; j++) {
@@ -380,7 +380,7 @@ var parseConfig = function(content) {
         lemmaField.appendChild(lexDiv);
     }
 
-    newPOSTag = configs.newNodeDefaults.pos.toUpperCase();
+    newPOSTag = configs.newNodeDefaults.pos;
     newLinkLabel = configs.newNodeDefaults.relation;
     newNodeName = configs.newNodeDefaults.name;
 
