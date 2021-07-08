@@ -1,0 +1,15 @@
+# sentenceText = وَ كَانَ أَهْلُ الأَرْضِ جَمِيعاً يَتَكَلَّمُونَ أَوَّلاً بِ لِسَانٍ وَاحِدٍ وَ لُغَةٍ وَاحِدَةٍ .
+1	وَ	وَ	PART	conj	gloss=and|asp=na|vox=na|mod=na|per=na|gen=na|num=na|stt=na|cas=na|rat=na	2	MOD	_	_
+2	كَانَ	كان	VRB	verb	gloss=be;was;were+he/it_[verb]|asp=p|vox=a|mod=i|per=3|gen=m|num=s|stt=na|cas=na|rat=n	0	---	_	_
+3	أَهْلُ	أَهْل	NOM	noun	gloss=family;people|asp=na|vox=na|mod=na|per=na|gen=m|num=p|stt=c|cas=n|rat=r	2	SBJ	_	_
+4	الأَرْضِ	أَرْض	NOM	noun	gloss=earth;territory;land|asp=na|vox=na|mod=na|per=na|gen=f|num=s|stt=d|cas=g|rat=i	3	IDF	_	_
+5	جَمِيعاً	جَمِيع	NOM	noun_quant	gloss=all,_entire,_every,_whole|asp=na|vox=na|mod=na|per=na|gen=m|num=p|stt=i|cas=a|rat=n	3	MOD	_	_
+6	يَتَكَلَّمُونَ	تَكَلَّم	VRB	verb	gloss=speak;talk;discuss|asp=i|vox=a|mod=i|per=3|gen=m|num=p|stt=na|cas=na|rat=n	2	PRD	_	_
+7	أَوَّلاً	أَوَّل	NOM	adj_num	gloss=first_of_all;primarily;in_the_first_place|asp=na|vox=na|mod=na|per=na|gen=m|num=s|stt=i|cas=a|rat=n	6	MOD	_	_
+8	بِ	بِ	PART	prep	gloss=with;by|asp=na|vox=na|mod=na|per=na|gen=na|num=na|stt=na|cas=na|rat=na	6	MOD	_	_
+9	لِسَانٍ	لِسان	NOM	noun	gloss=tongue|asp=na|vox=na|mod=na|per=na|gen=m|num=s|stt=i|cas=g|rat=i	8	OBJ	_	_
+10	وَاحِدٍ	واحِد	NOM	noun_num	gloss=one|asp=na|vox=na|mod=na|per=na|gen=m|num=s|stt=i|cas=g|rat=na	9	MOD	_	_
+11	وَ	وَ	PART	conj	gloss=and|asp=na|vox=na|mod=na|per=na|gen=na|num=na|stt=na|cas=na|rat=na	9	MOD	_	_
+12	لُغَةٍ	لُغَة	NOM	noun	gloss=language|asp=na|vox=na|mod=na|per=na|gen=f|num=s|stt=i|cas=g|rat=i	11	OBJ	_	_
+13	وَاحِدَةٍ	واحِد	NOM	noun_num	gloss=one|asp=na|vox=na|mod=na|per=na|gen=f|num=s|stt=i|cas=g|rat=na	12	MOD	_	_
+14	.	.	PNX	punct	asp=na|vox=na|mod=na|per=na|gen=na|num=na|stt=na|cas=na|rat=na	2	MOD	_	_
