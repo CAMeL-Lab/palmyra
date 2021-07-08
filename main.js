@@ -2485,6 +2485,12 @@ var getTree = function(treeData) {
         bdi_tag = document.createElement('bdi')
         textContentString = document.createTextNode(sentenceArray);
         bdi_tag.appendChild(textContentString);
+	//Fix issue with RTL/LTR of full sentence.
+	if (orientation == 'r-to-l'){
+	    bdi_tag.setAttribute('dir', 'rtl');
+	}else{
+	     bdi_tag.setAttribute('dir', 'ltr');
+	}
         //if there is already a text in fullSentence element, remove it
         if (document.getElementById('fullSentence').hasChildNodes()) {
             document.getElementById('fullSentence').innerHTML = '';
