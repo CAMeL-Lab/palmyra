@@ -1039,7 +1039,7 @@ var saveMorphology = function() {
     }
 
     while (morphologyArray.length > 0) {
-        morphologyText = morphologyArray.shift();
+        morphologyText = morphologyArray.pop();
         if (morphologyText.length > 0) addNode(selectedMorphology,'right', morphologyText);
     }
 
