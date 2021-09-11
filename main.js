@@ -1483,10 +1483,10 @@ function addEngBdiToNum(tempFullSen) {
       } else if (
         // char is not a digit or punctuation AND we're in the digit
         // which means this char is the first char after the number
+        // (a space between digits/punctuation is included)
         !(
           (tempFullSen[i] >= "0" && tempFullSen[i] <= "9") ||
-          !!tempFullSen[i].match(/^[.,:!?]/) ||
-          tempFullSen[i] == " "
+          !!tempFullSen[i].match(/^[.,:!? %]/) ||
         ) &&
         in_digit
       ) {
