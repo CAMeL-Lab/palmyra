@@ -1486,7 +1486,7 @@ function addEngBdiToNum(tempFullSen) {
         // (a space between digits/punctuation is included)
         !(
           (tempFullSen[i] >= "0" && tempFullSen[i] <= "9") ||
-          !!tempFullSen[i].match(/^[.,:!? %]/) ||
+          !!tempFullSen[i].match(/^[.,:!? %]/)
         ) &&
         in_digit
       ) {
