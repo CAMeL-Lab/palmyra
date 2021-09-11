@@ -1462,6 +1462,44 @@ var goToTreeToggle = function() {
 
 // END SETTINGS
 
+/*** utility functions * * * * * * */
+function addEngBdiToNum(tempFullSen) {
+    /**
+     * if a digit is reached, append an English bdi to the beginning,
+     * and close it when the last digit is reached.
+     *
+     * an in_digit variable is used to keep track of the start and end of the digit.
+     */
+  
+    var in_digit = false;
+    var tempNewFullSen = "";
+    // iterate characters in the sentence
+    for (i = 0; i < tempFullSen.length; i++) {
+      // check if char is digit
+      if (tempFullSen[i] >= "0" && tempFullSen[i] <= "9" && in_digit == false) {
+        // add bdi eng
+        tempNewFullSen += '<bdi lang="en">&nbsp;' + tempFullSen[i];
+        in_digit = true;
+      } else if (
+        // char is not a digit or punctuation AND we're in the digit
+        // which means this char is the first char after the number
+        !(
+          (tempFullSen[i] >= "0" && tempFullSen[i] <= "9") ||
+          !!tempFullSen[i].match(/^[.,:!?]/) ||
+          tempFullSen[i] == " "
+        ) &&
+        in_digit
+      ) {
+        tempNewFullSen += "&nbsp;</bdi>" + tempFullSen[i];
+        in_digit = false;
+      } else {
+        tempNewFullSen += tempFullSen[i];
+      }
+    }
+    return tempNewFullSen;
+}
+  
+
 // ************** Generate the tree diagram  *****************
 var getTree = function(treeData) {
     if (numberOfNodesArray.length==0){return;}
@@ -2496,7 +2534,12 @@ var getTree = function(treeData) {
             document.getElementById('fullSentence').innerHTML = '';
         }
         //add the bdi_tag containing the text
-        document.getElementById('fullSentence').appendChild(bdi_tag);
+        // document.getElementById('fullSentence').appendChild(bdi_tag);
+        var fullSen = document.getElementById("fullSentence");
+        fullSen.appendChild(bdi_tag);
+
+        // adds English bdi tags to numbers
+        fullSen.innerHTML = addEngBdiToNum(fullSen.innerHTML);
 
         $('#sents').show();
         $('.toolbar input').show();
