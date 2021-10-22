@@ -75,6 +75,11 @@ var main = function() {
     $('.upload').show();
 };
 
+window.onbeforeunload = function() {
+    var message = 'Do you want to leave this page?';
+    return message;
+}
+
 var findStorage = function() {
     var check = 'check';
     try {
