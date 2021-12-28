@@ -1914,7 +1914,9 @@ var getTree = function(treeData) {
 
     // toggle morphology info window
     function morphologyClick(d) {
-        
+        // when nodes are collapsed, token IDs were not being updated. So nodes are uncollapsed before token splits are made.
+        uncollapseAllNodes(treesArray[currentTreeIndex]);
+
         if (!d.parent.collapsed){
 
         
