@@ -692,7 +692,7 @@ var setJSONtreeData = function() {
             readConfigFile();
             for (var i = 0; i < x.files.length; i++) {
                 var file = x.files[i];
-                if (!file.name.endsWith('.conllu') || !file.name.endsWith('.conllx')) {
+                if (!file.name.endsWith('.conllu') && !file.name.endsWith('.conllx')) {
                     alert('File does not end with the .conllu/conllx extension, conllx will automatically be added when the file is saved.');
                     file_name_elem.innerHTML = file.name;
                     output_file_name_elem.value = file.name;
