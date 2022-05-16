@@ -692,13 +692,13 @@ var setJSONtreeData = function() {
             readConfigFile();
             for (var i = 0; i < x.files.length; i++) {
                 var file = x.files[i];
-                if (!file.name.endsWith('.conllu')) {
-                    alert('File does not end with the .conllu extension, this will automatically be added when the file is saved.');
+                if (!file.name.endsWith('.conllu') || !file.name.endsWith('.conllx')) {
+                    alert('File does not end with the .conllu/conllx extension, conllx will automatically be added when the file is saved.');
                     file_name_elem.innerHTML = file.name;
                     output_file_name_elem.value = file.name;
                 } else {
-                    file_name_elem.innerHTML = file.name.replace(/.conllu$/, '');
-                    output_file_name_elem.value = file.name.replace(/.conllu$/, '');
+                    file_name_elem.innerHTML = file.name.replace(/.conll[ux]$/, '');
+                    output_file_name_elem.value = file.name.replace(/.conll[ux]$/, '');
                 }
                 var reader=new FileReader();
                 reader.onload = function(e) {
@@ -1319,7 +1319,7 @@ var downloadTree = function() {
         };
         // uses Blob and FileSaver libraries
         var blob = new Blob([output], {type: 'text/plain;charset=utf-8'});
-        saveAs(blob, filename+'.conllu');
+        saveAs(blob, filename+'.conllx');
     }
     else {
         alert('Tree not found.');
