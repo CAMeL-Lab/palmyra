@@ -4,7 +4,7 @@
   "description": "PALMYRA is a configurable platform independent graphical dependency tree visualization and editing software",
   "source": "index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "start": "parcel",
     "build": "parcel build"
   },
@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/CAMeL-Lab/palmyra#readme",
   "devDependencies": {
+    "jest": "^29.0.3",
     "parcel": "^2.7.0"
   }
 }
