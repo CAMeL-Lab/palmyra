@@ -21,13 +21,9 @@ var root;
 var currentTreeIndex = 0;
 var treesArray = [];
 var numberOfNodesArray = [];
-var viewerHeight = 0;
 
-var addNode;
 var selectedNodeLink, selectedMorphology;
-var nodeDeleted = false;
 var rootNodeName = "*";
-var enableNodeSelection = true;
 
 // default settings that can be configured
 var orientation = "r-to-l";
@@ -49,12 +45,11 @@ var lexicalFeatsList = [];
 var pointer = 0;
 var lastKeyStroke = "";
 var editingControl = "pos";
-var lastClickedNodeId = 0;
 
 var focusWindow = "";
 
 var alreadyReadConfigFiles = [];
-configRead = false;
+var configRead = false;
 
 var settings = [
   ["customwidth", 0.25],
@@ -1603,13 +1598,15 @@ var getTree = function (treeData) {
     return;
   }
 
+  var nodeDeleted = false;
+
   // set height and width equal to HTML doc properties
   numberOfNodes = numberOfNodesArray[currentTreeIndex];
   var requiredWidth =
     parseFloat(localStorage["customwidth"]) * 500 * numberOfNodes * 1.37;
   if (requiredWidth > $(document).width()) var viewerWidth = requiredWidth;
   else var viewerWidth = $(document).width();
-  viewerHeight = $(document).height();
+  var viewerHeight = $(document).height();
   d3.select("svg").attr("dir", "rtl");
   d3.select("#sents").attr("dir", "rtl");
   document.getElementById("currentTreeNumber").textContent =
@@ -2242,7 +2239,7 @@ var getTree = function (treeData) {
   }
 
   // Add a new node to left of an existing node
-  addNode = function (d, position, name = newNodeName) {
+  var addNode = function (d, position, name = newNodeName) {
     var newNodeId;
     var parent = root;
 
