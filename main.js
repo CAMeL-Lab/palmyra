@@ -680,11 +680,15 @@ var convertToJSON = function(inputData) {
     return inputArray;
 };
 
-var setJSONtreeData = function() {
-    
-    var x = document.getElementById('inputFile');
-    var file_name_elem = document.getElementById("conlluFileName");
-    var output_file_name_elem = document.getElementById("filename");
+function setupTrees() {
+  var x = document.getElementById('inputFile');
+  var file_name_elem = document.getElementById("conlluFileName");
+  var output_file_name_elem = document.getElementById("filename");
+  
+  setJSONtreeData(x, file_name_elem, output_file_name_elem)
+}
+
+export function setJSONtreeData(x, file_name_elem, output_file_name_elem) {
     if ('files' in x) {
         if (x.files.length == 0) {
             alert('Please select one or more files, or use use the Upload button in the sentence uploader section.');
