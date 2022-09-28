@@ -701,7 +701,7 @@ function setFilenameElements(file) {
   }
 
   var file_name_elem = document.getElementById("conlluFileName");
-  var output_file_name_elem = document.getElementById("filename");
+  var output_file_name_elem = document.getElementById("filename"); // fills textbox in download modal.
   file_name_elem.innerHTML = file_name;
   output_file_name_elem.value = file_name;
 }
