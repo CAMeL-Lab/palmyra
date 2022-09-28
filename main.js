@@ -686,51 +686,56 @@ var convertToJSON = function(inputData) {
     return inputArray;
 };
 
+function isFileSelected(fileElement) {
+  return fileElement.files.length;
+}
+
 function setupTrees() {
-  var inputFile = document.getElementById('inputFile');
+  var fileElement = document.getElementById('inputFile');
+  
+  if (!isFileSelected(fileElement)) {
+      alert('Please select a Conll-U/X file, or use use the Upload button in the sentence uploader section.');
+      return;
+  }
+  var file = fileElement.files[0];
+
   var file_name_elem = document.getElementById("conlluFileName");
   var output_file_name_elem = document.getElementById("filename");
 
-  setJSONtreeData(inputFile, file_name_elem, output_file_name_elem);
+  setJSONtreeData(file, file_name_elem, output_file_name_elem);
   readConfigFile();
 }
 
-function setJSONtreeData(inputFile, file_name_elem, output_file_name_elem) {
-  if (inputFile.files.length == 0) {
-      alert('Please select a Conll-U/X file, or use use the Upload button in the sentence uploader section.');
-  } else {
-      var file = inputFile.files[0];
-      
-      // handles file name displayed on toolbar above, 
-      // as well as default text when downloading the conllx file
-      if (!file.name.endsWith('.conllu') && !file.name.endsWith('.conllx')) {
-          alert('File does not end with the .conllu/conllx extension, conllx will automatically be added when the file is saved.');
-          file_name = file.name;
-      } else {
-          file_name = file.name.replace(/.conll[ux]$/, '');
-      }
-      file_name_elem.innerHTML = file_name;
-      output_file_name_elem.value = file_name;
+function setJSONtreeData(file, file_name_elem, output_file_name_elem) {
+    // handles file name displayed on toolbar above, 
+    // as well as default text when downloading the conllx file
+    if (!file.name.endsWith('.conllu') && !file.name.endsWith('.conllx')) {
+        alert('File does not end with the .conllu/conllx extension, conllx will automatically be added when the file is saved.');
+        file_name = file.name;
+    } else {
+        file_name = file.name.replace(/.conll[ux]$/, '');
+    }
+    file_name_elem.innerHTML = file_name;
+    output_file_name_elem.value = file_name;
 
-      // read file
-      var reader=new FileReader();
-      reader.onload = function(e) {
-          // convert tree to a JSON array
-          treesArray = convertToJSON(reader.result);
-          currentTreeIndex = 0;
+    // read file
+    var reader=new FileReader();
+    reader.onload = function(e) {
+        // convert tree to a JSON array
+        treesArray = convertToJSON(reader.result);
+        currentTreeIndex = 0;
 
-          // hide upload window
-          hideWindows(['.upload']);
-          
-          try {
-              getTree(treesArray[0]); // displays tree (d3 stuff)
-          } catch(e) {
-              // alert user if error occurs
-              alert('File upload error!');
-          };
-      }
-      reader.readAsText(file);
-  }
+        // hide upload window
+        hideWindows(['.upload']);
+        
+        try {
+            getTree(treesArray[0]); // displays tree (d3 stuff)
+        } catch(e) {
+            // alert user if error occurs
+            alert('File upload error!');
+        };
+    }
+    reader.readAsText(file);
 };
 
 var readSentenceTreeData = function() {
