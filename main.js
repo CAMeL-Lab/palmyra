@@ -690,34 +690,36 @@ function isFileSelected(fileElement) {
   return fileElement.files.length;
 }
 
-function setupTrees() {
+function setFilenameElements(file) {
+  // handles file name displayed on toolbar above, 
+  // as well as default text when downloading the conllx file
+  if (!file.name.endsWith('.conllu') && !file.name.endsWith('.conllx')) {
+    alert('File does not end with the .conllu/conllx extension, conllx will automatically be added when the file is saved.');
+    file_name = file.name;
+  } else {
+      file_name = file.name.replace(/.conll[ux]$/, '');
+  }
+
+  var file_name_elem = document.getElementById("conlluFileName");
+  var output_file_name_elem = document.getElementById("filename");
+  file_name_elem.innerHTML = file_name;
+  output_file_name_elem.value = file_name;
+}
+
+function setupTreePage() {
   var fileElement = document.getElementById('inputFile');
-  
   if (!isFileSelected(fileElement)) {
       alert('Please select a Conll-U/X file, or use use the Upload button in the sentence uploader section.');
       return;
   }
   var file = fileElement.files[0];
 
-  var file_name_elem = document.getElementById("conlluFileName");
-  var output_file_name_elem = document.getElementById("filename");
-
-  setJSONtreeData(file, file_name_elem, output_file_name_elem);
+  setFilenameElements(file);
+  setJSONtreeData(file);
   readConfigFile();
 }
 
-function setJSONtreeData(file, file_name_elem, output_file_name_elem) {
-    // handles file name displayed on toolbar above, 
-    // as well as default text when downloading the conllx file
-    if (!file.name.endsWith('.conllu') && !file.name.endsWith('.conllx')) {
-        alert('File does not end with the .conllu/conllx extension, conllx will automatically be added when the file is saved.');
-        file_name = file.name;
-    } else {
-        file_name = file.name.replace(/.conll[ux]$/, '');
-    }
-    file_name_elem.innerHTML = file_name;
-    output_file_name_elem.value = file_name;
-
+function setJSONtreeData(file) {
     // read file
     var reader=new FileReader();
     reader.onload = function(e) {
