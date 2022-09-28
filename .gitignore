@@ -1,3 +1,5 @@
 .DS_Store
-node_modules
+node_modules/
+.parcel-cache/
+dist/
 package-lock.json

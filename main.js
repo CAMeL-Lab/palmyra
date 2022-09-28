@@ -67,12 +67,18 @@ for (var k = 0; k < settings.length; k++) {
   }
 }
 
+function hideWindows(windows) {
+  // Given a list of elements, hide them.
+  for (var i = 0; i < windows.length; i++) {
+    $(windows[i]).hide();
+  }
+}
+
 // the main display function
 var main = function () {
   // in case extra toolbar windows are showing, hide them
-  $("#download").hide();
-  $("#linktext").hide();
-  $("#listing").hide();
+  hideWindows(["#download", "#linktext", "#listing"]);
+
   findStorage();
   $(".upload").show();
 };
@@ -713,48 +719,63 @@ var convertToJSON = function (inputData) {
   return inputArray;
 };
 
-var setJSONtreeData = function () {
-  var x = document.getElementById("inputFile");
-  var file_name_elem = document.getElementById("conlluFileName");
-  var output_file_name_elem = document.getElementById("filename");
-  if ("files" in x) {
-    if (x.files.length == 0) {
-      alert(
-        "Please select one or more files, or use use the Upload button in the sentence uploader section."
-      );
-    } else {
-      readConfigFile();
-      for (var i = 0; i < x.files.length; i++) {
-        var file = x.files[i];
-        if (!file.name.endsWith(".conllu") && !file.name.endsWith(".conllx")) {
-          alert(
-            "File does not end with the .conllu/conllx extension, conllx will automatically be added when the file is saved."
-          );
-          file_name_elem.innerHTML = file.name;
-          output_file_name_elem.value = file.name;
-        } else {
-          file_name_elem.innerHTML = file.name.replace(/.conll[ux]$/, "");
-          output_file_name_elem.value = file.name.replace(/.conll[ux]$/, "");
-        }
-        var reader = new FileReader();
-        reader.onload = function (e) {
-          treesArray = convertToJSON(reader.result);
-          currentTreeIndex = 0;
+function isFileSelected(fileElement) {
+  return fileElement.files.length;
+}
 
-          // hide upload window
-          $(".upload").hide();
-          try {
-            getTree(treesArray[0]);
-          } catch (e) {
-            // alert user if error occurs
-            alert("File upload error!");
-          }
-        };
-        reader.readAsText(file);
-      }
-    }
+function setFilenameElements(file) {
+  // handles file name displayed on toolbar above,
+  // as well as default text when downloading the conllx file
+  if (!file.name.endsWith(".conllu") && !file.name.endsWith(".conllx")) {
+    alert(
+      "File does not end with the .conllu/conllx extension, conllx will automatically be added when the file is saved."
+    );
+    file_name = file.name;
+  } else {
+    file_name = file.name.replace(/.conll[ux]$/, "");
   }
-};
+
+  var file_name_elem = document.getElementById("conlluFileName");
+  var output_file_name_elem = document.getElementById("filename"); // fills textbox in download modal.
+  file_name_elem.innerHTML = file_name;
+  output_file_name_elem.value = file_name;
+}
+
+function setupTreePage() {
+  var fileElement = document.getElementById("inputFile");
+  if (!isFileSelected(fileElement)) {
+    alert(
+      "Please select a Conll-U/X file, or use use the Upload button in the sentence uploader section."
+    );
+    return;
+  }
+  var file = fileElement.files[0];
+
+  setFilenameElements(file);
+  setJSONtreeData(file);
+  readConfigFile();
+}
+
+function setJSONtreeData(file) {
+  // read file
+  var reader = new FileReader();
+  reader.onload = function (e) {
+    // convert tree to a JSON array
+    treesArray = convertToJSON(reader.result);
+    currentTreeIndex = 0;
+
+    // hide upload window
+    hideWindows([".upload"]);
+
+    try {
+      getTree(treesArray[0]); // displays tree (d3 stuff)
+    } catch (e) {
+      // alert user if error occurs
+      alert("File upload error!");
+    }
+  };
+  reader.readAsText(file);
+}
 
 var readSentenceTreeData = function () {
   var original = $("#treedata2").val();
@@ -789,13 +810,13 @@ var readSentenceTreeData = function () {
       // try to store tree data and display tree
       treesArray = convertToJSON(treeDataArray.join("\n"));
       getTree(treesArray[0]);
-      $(".upload").hide();
+      hideWindows([".upload"]);
     } catch (e) {
       // alert user if error occurs
       alert("Text upload error!");
     }
   } else {
-    $(".upload").hide();
+    hideWindows([".upload"]);
     addNewTree();
   }
 };
@@ -1468,7 +1489,7 @@ var search = function () {
   } else {
     hideAllWindows();
     // document.getElementById('search').removeChild(document.getElementById('searchList'));
-    // $('#listing').hide();
+    // hideWindows(['#listing'])
   }
   // update(root);
 };
@@ -1478,11 +1499,19 @@ var search = function () {
 
 // return all settings to defaults
 var hideAllWindows = function () {
-  $("#download").hide();
+  hideWindows([
+    "#download",
+    "#morphology",
+    "#gototree",
+    "#labels",
+    "#postags",
+    ".morphologyMerge",
+  ]);
 
-  $("#morphology").hide();
+  // in addition to hiding the morphology window,
+  // TODO check what this does
   d3.selectAll(".morphology").style("stroke", "");
-
+  // TODO check what this does
   if (
     window.getComputedStyle(document.getElementById("listing")).display !==
     "none"
@@ -1490,17 +1519,10 @@ var hideAllWindows = function () {
     document
       .getElementById("search")
       .removeChild(document.getElementById("searchList"));
-    $("#listing").hide();
+    hideWindows(["#listing"]);
   }
-  $("#gototree").hide();
-
-  $("#labels").hide();
-  $("#postags").hide();
-
-  $(".morphologyMerge").hide();
 
   editingControl = "pos";
-
   focusWindow = "";
 };
 
@@ -2014,8 +2036,7 @@ var getTree = function (treeData) {
               //case 'Escape':
               //selectRoot();
               //showSelection();
-              //$('#labels').hide();
-              //$('#postags').hide();
+              //hideWindows(['#labels', '#postags']);
               //d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', '#545454');
               //d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', '#ffffff');
               // update(root);
