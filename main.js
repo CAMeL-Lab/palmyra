@@ -720,16 +720,16 @@ var convertToJSON = function (inputData) {
 
 function setupTreePage() {
 
-  setJSONtreeData();
-}
-
-var setJSONtreeData = function () {
   // get uploaded file to read
   var x = document.getElementById("inputFile");
   // get 2 elements to display the file name on the page
   var file_name_elem = document.getElementById("conlluFileName");
   var output_file_name_elem = document.getElementById("filename");
   
+  setJSONtreeData(x, file_name_elem, output_file_name_elem);
+}
+
+var setJSONtreeData = function (x, file_name_elem, output_file_name_elem) {
   // TODO: remove this, the next if handles this already
   if ("files" in x) {
     // checks if file is uploaded
