@@ -723,8 +723,9 @@ function isValidExtension(original_filename) {
     alert(
       "File does not end with the .conllu/conllx extension, please upload a ConllU/X file."
     );
-    return False;
+    return false;
   }
+  return true;
 }
 
 function addFilenameToHtmlElements(original_filename) {
@@ -744,7 +745,6 @@ function addFilenameToHtmlElements(original_filename) {
 function setupTreePage() {
   // get uploaded file to read
   var x = document.getElementById("inputFile");
-
   if (("files" in x) && (x.files.length == 0)) {
     alert(
       "Please select a ConllU/X file, or use use the Upload button in the sentence uploader section."
