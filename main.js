@@ -727,6 +727,7 @@ function setupTreePage() {
   var output_file_name_elem = document.getElementById("filename");
   
   setJSONtreeData(x, file_name_elem, output_file_name_elem);
+  readConfigFile();
 }
 
 var setJSONtreeData = function (x, file_name_elem, output_file_name_elem) {
@@ -738,9 +739,6 @@ var setJSONtreeData = function (x, file_name_elem, output_file_name_elem) {
         "Please select one or more files, or use use the Upload button in the sentence uploader section."
       );
     } else {
-      // TODO: read config independent of setting up tree, should move
-      readConfigFile();
-
       // Only one file is uploaded,
       // TODO: remove this loop
       for (var i = 0; i < x.files.length; i++) {
