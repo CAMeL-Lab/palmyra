@@ -905,36 +905,30 @@ var deleteCurrentTree = function () {
   }
 };
 
+function moveToTreeHelper(treeIndex) {
+  sessionStorage.removeItem("treeData");
+  saveTree();
+  currentTreeIndex = treeIndex;
+  d3.select("body").select("svg").remove();
+  getTree(treesArray[currentTreeIndex]);
+  update(root);
+  selectRoot();
+  showSelection();
+}
+
 // move to the first tree
 var firstTree = function () {
   hideAllWindows();
-
   if (currentTreeIndex != 0) {
-    sessionStorage.removeItem("treeData");
-    saveTree();
-    currentTreeIndex = 0;
-    d3.select("body").select("svg").remove();
-    getTree(treesArray[currentTreeIndex]);
-    update(root);
-    selectRoot();
-    showSelection();
+    moveToTreeHelper(0);
   }
 };
 
 // move to the last tree
 var lastTree = function () {
   hideAllWindows();
-
   if (currentTreeIndex != treesArray.length - 1) {
-    sessionStorage.removeItem("treeData");
-    saveTree();
-    currentTreeIndex = treesArray.length - 1;
-    d3.select("body").select("svg").remove();
-    getTree(treesArray[currentTreeIndex]);
-    update(root);
-    selectRoot();
-
-    showSelection();
+    moveToTreeHelper(treesArray.length-1);
   }
 };
 
