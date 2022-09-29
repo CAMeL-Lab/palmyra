@@ -719,18 +719,30 @@ var convertToJSON = function (inputData) {
 };
 
 var setJSONtreeData = function () {
+  // get uploaded file to read
   var x = document.getElementById("inputFile");
+  // get 2 elements to display the file name on the page
   var file_name_elem = document.getElementById("conlluFileName");
   var output_file_name_elem = document.getElementById("filename");
+  
+  // TODO: remove this, the next if handles this already
   if ("files" in x) {
+    // checks if file is uploaded
     if (x.files.length == 0) {
       alert(
         "Please select one or more files, or use use the Upload button in the sentence uploader section."
       );
     } else {
+      // TODO: read config independent of setting up tree, should move
       readConfigFile();
+
+      // Only one file is uploaded,
+      // TODO: remove this loop
       for (var i = 0; i < x.files.length; i++) {
         var file = x.files[i];
+
+        // display filename on page and when downloading files
+        // TODO: can handle this step somewhere else
         if (!file.name.endsWith(".conllu") && !file.name.endsWith(".conllx")) {
           alert(
             "File does not end with the .conllu/conllx extension, conllx will automatically be added when the file is saved."
@@ -741,6 +753,7 @@ var setJSONtreeData = function () {
           file_name_elem.innerHTML = file.name.replace(/.conll[ux]$/, "");
           output_file_name_elem.value = file.name.replace(/.conll[ux]$/, "");
         }
+        // set up function that is triggered when file is read 
         var reader = new FileReader();
         reader.onload = function (e) {
           treesArray = convertToJSON(reader.result);
