@@ -718,6 +718,11 @@ var convertToJSON = function (inputData) {
   return inputArray;
 };
 
+function setupTreePage() {
+
+  setJSONtreeData();
+}
+
 var setJSONtreeData = function () {
   // get uploaded file to read
   var x = document.getElementById("inputFile");
