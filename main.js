@@ -728,6 +728,8 @@ function isValidExtension(original_filename) {
 }
 
 function addFilenameToHtmlElements(original_filename) {
+  // display filename on page and when downloading files
+  
   // get 2 elements to display the file name on the page
   var file_name_elem = document.getElementById("conlluFileName");
   var output_file_name_elem = document.getElementById("filename");
@@ -754,12 +756,11 @@ function setupTreePage() {
   if (!isValidExtension(file.name)) {return;}
 
   addFilenameToHtmlElements(file.name);
-  setJSONtreeData(file);
+  parseConllFile(file);
   readConfigFile();
 }
 
-var setJSONtreeData = function (file) {
-  // display filename on page and when downloading files
+var parseConllFile = function (file) {
   // set up function that is triggered when file is read 
   var reader = new FileReader();
   reader.onload = function (e) {
