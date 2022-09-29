@@ -718,60 +718,65 @@ var convertToJSON = function (inputData) {
   return inputArray;
 };
 
-var setJSONtreeData = function () {
-  // get uploaded file to read
-  var x = document.getElementById("inputFile");
+function isValidExtension(original_filename) {
+  if (!original_filename.endsWith(".conllu") && !original_filename.endsWith(".conllx")) {
+    alert(
+      "File does not end with the .conllu/conllx extension, please upload a ConllU/X file."
+    );
+    return false;
+  }
+  return true;
+}
+
+function addFilenameToHtmlElements(original_filename) {
+  // display filename on page and when downloading files
+  
   // get 2 elements to display the file name on the page
   var file_name_elem = document.getElementById("conlluFileName");
   var output_file_name_elem = document.getElementById("filename");
-  
-  // TODO: remove this, the next if handles this already
-  if ("files" in x) {
-    // checks if file is uploaded
-    if (x.files.length == 0) {
-      alert(
-        "Please select one or more files, or use use the Upload button in the sentence uploader section."
-      );
-    } else {
-      // TODO: read config independent of setting up tree, should move
-      readConfigFile();
 
-      // Only one file is uploaded,
-      // TODO: remove this loop
-      for (var i = 0; i < x.files.length; i++) {
-        var file = x.files[i];
+  var filename = "";
+  filename = original_filename.replace(/.conll[ux]$/, "");
 
-        // display filename on page and when downloading files
-        // TODO: can handle this step somewhere else
-        if (!file.name.endsWith(".conllu") && !file.name.endsWith(".conllx")) {
-          alert(
-            "File does not end with the .conllu/conllx extension, conllx will automatically be added when the file is saved."
-          );
-          file_name_elem.innerHTML = file.name;
-          output_file_name_elem.value = file.name;
-        } else {
-          file_name_elem.innerHTML = file.name.replace(/.conll[ux]$/, "");
-          output_file_name_elem.value = file.name.replace(/.conll[ux]$/, "");
-        }
-        // set up function that is triggered when file is read 
-        var reader = new FileReader();
-        reader.onload = function (e) {
-          treesArray = convertToJSON(reader.result);
-          currentTreeIndex = 0;
+  file_name_elem.innerHTML = filename;
+  output_file_name_elem.value = filename;
+}
 
-          // hide upload window
-          $(".upload").hide();
-          try {
-            getTree(treesArray[0]);
-          } catch (e) {
-            // alert user if error occurs
-            alert("File upload error!");
-          }
-        };
-        reader.readAsText(file);
-      }
-    }
+function setupTreePage() {
+  // get uploaded file to read
+  var x = document.getElementById("inputFile");
+  if (("files" in x) && (x.files.length == 0)) {
+    alert(
+      "Please select a ConllU/X file, or use use the Upload button in the sentence uploader section."
+    );
+    return;
   }
+
+  var file = x.files[0];
+  if (!isValidExtension(file.name)) {return;}
+
+  addFilenameToHtmlElements(file.name);
+  parseConllFile(file);
+  readConfigFile();
+}
+
+var parseConllFile = function (file) {
+  // set up function that is triggered when file is read 
+  var reader = new FileReader();
+  reader.onload = function (e) {
+    treesArray = convertToJSON(reader.result);
+    currentTreeIndex = 0;
+
+    // hide upload window
+    $(".upload").hide();
+    try {
+      getTree(treesArray[0]);
+    } catch (e) {
+      // alert user if error occurs
+      alert("File upload error!");
+    }
+  };
+  reader.readAsText(file);
 };
 
 var readSentenceTreeData = function () {
