@@ -937,15 +937,7 @@ var nextTree = function () {
   hideAllWindows();
 
   if (currentTreeIndex < treesArray.length - 1) {
-    sessionStorage.removeItem("treeData");
-    saveTree();
-    currentTreeIndex++;
-    d3.select("body").select("svg").remove();
-    getTree(treesArray[currentTreeIndex]);
-    update(root);
-    selectRoot();
-
-    showSelection();
+    moveToTreeHelper(currentTreeIndex+1);
   }
 };
 
@@ -954,15 +946,7 @@ var prevTree = function () {
   hideAllWindows();
 
   if (currentTreeIndex > 0) {
-    sessionStorage.removeItem("treeData");
-    saveTree();
-    currentTreeIndex--;
-    d3.select("body").select("svg").remove();
-    getTree(treesArray[currentTreeIndex]);
-    update(root);
-    selectRoot();
-
-    showSelection();
+    moveToTreeHelper(currentTreeIndex-1);
   }
 };
 
@@ -979,14 +963,7 @@ var goToTree = function () {
       document.getElementById("treeNumberInput").value > 0 &&
       document.getElementById("treeNumberInput").value <= treesArray.length
     ) {
-      sessionStorage.removeItem("treeData");
-      saveTree();
-      currentTreeIndex = document.getElementById("treeNumberInput").value - 1;
-      d3.select("body").select("svg").remove();
-      getTree(treesArray[currentTreeIndex]);
-      update(root);
-      selectRoot();
-      showSelection();
+      moveToTreeHelper(document.getElementById("treeNumberInput").value - 1);
     }
   }
 };
