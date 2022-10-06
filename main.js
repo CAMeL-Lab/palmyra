@@ -164,33 +164,10 @@ var readConfigFile = function () {
 //Read the config file that is called when using the sentence uploader which will continue to call
 //the readSentenceTreeData when the FileReader finishes loading the file.
 var readConfigFileForSentence = function () {
-  configRead = false;
-
-  var x = document.getElementById("configFile");
-  var input = "";
-
-  if ("files" in x) {
-    if (x.files.length == 0) {
-      var morphoLabel = document.getElementById("labelspMorphoFeats");
-      morphoLabel.style.visibility = "hidden";
-      txt = "Select config file.";
-      readSentenceTreeData();
-    } else {
-      var file = x.files[0];
-      if (!alreadyReadConfigFiles.includes(file)) {
-        alreadyReadConfigFiles.push(file);
-        var reader = new FileReader();
-        reader.onload = function (e) {
-          parseConfig(reader.result);
-          configRead = true;
-          readSentenceTreeData();
-        };
-        reader.readAsText(file);
-      }
-    }
+  readConfigFile();
+  if ("files" in document.getElementById("configFile")) {
+    readSentenceTreeData();
   }
-
-  return;
 };
 
 var parseConfig = function (content) {
@@ -913,75 +890,53 @@ var deleteCurrentTree = function () {
   }
 };
 
-// move to the first tree
-var firstTree = function () {
-  hideAllWindows();
+function moveToTreeHelper(treeIndex) {
+  sessionStorage.removeItem("treeData");
+  saveTree();
+  currentTreeIndex = treeIndex;
+  d3.select("body").select("svg").remove();
+  getTree(treesArray[currentTreeIndex]);
+  update(root);
+  selectRoot();
+  showSelection();
+}
 
+// move to the first tree
+function firstTree() {
+  hideAllWindows();
   if (currentTreeIndex != 0) {
-    sessionStorage.removeItem("treeData");
-    saveTree();
-    currentTreeIndex = 0;
-    d3.select("body").select("svg").remove();
-    getTree(treesArray[currentTreeIndex]);
-    update(root);
-    selectRoot();
-    showSelection();
+    moveToTreeHelper(0);
   }
-};
+}
 
 // move to the last tree
-var lastTree = function () {
+function lastTree() {
   hideAllWindows();
-
   if (currentTreeIndex != treesArray.length - 1) {
-    sessionStorage.removeItem("treeData");
-    saveTree();
-    currentTreeIndex = treesArray.length - 1;
-    d3.select("body").select("svg").remove();
-    getTree(treesArray[currentTreeIndex]);
-    update(root);
-    selectRoot();
-
-    showSelection();
+    moveToTreeHelper(treesArray.length-1);
   }
-};
+}
 
 // move to the next tree
-var nextTree = function () {
+function nextTree() {
   hideAllWindows();
 
   if (currentTreeIndex < treesArray.length - 1) {
-    sessionStorage.removeItem("treeData");
-    saveTree();
-    currentTreeIndex++;
-    d3.select("body").select("svg").remove();
-    getTree(treesArray[currentTreeIndex]);
-    update(root);
-    selectRoot();
-
-    showSelection();
+    moveToTreeHelper(currentTreeIndex+1);
   }
-};
+}
 
 // move to the prev tree
-var prevTree = function () {
+function prevTree() {
   hideAllWindows();
 
   if (currentTreeIndex > 0) {
-    sessionStorage.removeItem("treeData");
-    saveTree();
-    currentTreeIndex--;
-    d3.select("body").select("svg").remove();
-    getTree(treesArray[currentTreeIndex]);
-    update(root);
-    selectRoot();
-
-    showSelection();
+    moveToTreeHelper(currentTreeIndex-1);
   }
-};
+}
 
 // go to the input tree number
-var goToTree = function () {
+function goToTree() {
   hideAllWindows();
 
   if (
@@ -993,17 +948,10 @@ var goToTree = function () {
       document.getElementById("treeNumberInput").value > 0 &&
       document.getElementById("treeNumberInput").value <= treesArray.length
     ) {
-      sessionStorage.removeItem("treeData");
-      saveTree();
-      currentTreeIndex = document.getElementById("treeNumberInput").value - 1;
-      d3.select("body").select("svg").remove();
-      getTree(treesArray[currentTreeIndex]);
-      update(root);
-      selectRoot();
-      showSelection();
+      moveToTreeHelper(document.getElementById("treeNumberInput").value - 1);
     }
   }
-};
+}
 
 // toggle between English and Arabic
 var directionToggle = function () {
