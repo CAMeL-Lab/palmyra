@@ -882,75 +882,53 @@ var deleteCurrentTree = function () {
   }
 };
 
-// move to the first tree
-var firstTree = function () {
-  hideAllWindows();
+function moveToTreeHelper(treeIndex) {
+  sessionStorage.removeItem("treeData");
+  saveTree();
+  currentTreeIndex = treeIndex;
+  d3.select("body").select("svg").remove();
+  getTree(treesArray[currentTreeIndex]);
+  update(root);
+  selectRoot();
+  showSelection();
+}
 
+// move to the first tree
+function firstTree() {
+  hideAllWindows();
   if (currentTreeIndex != 0) {
-    sessionStorage.removeItem("treeData");
-    saveTree();
-    currentTreeIndex = 0;
-    d3.select("body").select("svg").remove();
-    getTree(treesArray[currentTreeIndex]);
-    update(root);
-    selectRoot();
-    showSelection();
+    moveToTreeHelper(0);
   }
-};
+}
 
 // move to the last tree
-var lastTree = function () {
+function lastTree() {
   hideAllWindows();
-
   if (currentTreeIndex != treesArray.length - 1) {
-    sessionStorage.removeItem("treeData");
-    saveTree();
-    currentTreeIndex = treesArray.length - 1;
-    d3.select("body").select("svg").remove();
-    getTree(treesArray[currentTreeIndex]);
-    update(root);
-    selectRoot();
-
-    showSelection();
+    moveToTreeHelper(treesArray.length-1);
   }
-};
+}
 
 // move to the next tree
-var nextTree = function () {
+function nextTree() {
   hideAllWindows();
 
   if (currentTreeIndex < treesArray.length - 1) {
-    sessionStorage.removeItem("treeData");
-    saveTree();
-    currentTreeIndex++;
-    d3.select("body").select("svg").remove();
-    getTree(treesArray[currentTreeIndex]);
-    update(root);
-    selectRoot();
-
-    showSelection();
+    moveToTreeHelper(currentTreeIndex+1);
   }
-};
+}
 
 // move to the prev tree
-var prevTree = function () {
+function prevTree() {
   hideAllWindows();
 
   if (currentTreeIndex > 0) {
-    sessionStorage.removeItem("treeData");
-    saveTree();
-    currentTreeIndex--;
-    d3.select("body").select("svg").remove();
-    getTree(treesArray[currentTreeIndex]);
-    update(root);
-    selectRoot();
-
-    showSelection();
+    moveToTreeHelper(currentTreeIndex-1);
   }
-};
+}
 
 // go to the input tree number
-var goToTree = function () {
+function goToTree() {
   hideAllWindows();
 
   if (
@@ -962,17 +940,10 @@ var goToTree = function () {
       document.getElementById("treeNumberInput").value > 0 &&
       document.getElementById("treeNumberInput").value <= treesArray.length
     ) {
-      sessionStorage.removeItem("treeData");
-      saveTree();
-      currentTreeIndex = document.getElementById("treeNumberInput").value - 1;
-      d3.select("body").select("svg").remove();
-      getTree(treesArray[currentTreeIndex]);
-      update(root);
-      selectRoot();
-      showSelection();
+      moveToTreeHelper(document.getElementById("treeNumberInput").value - 1);
     }
   }
-};
+}
 
 // toggle between English and Arabic
 var directionToggle = function () {
