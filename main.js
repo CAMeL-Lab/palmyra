@@ -75,12 +75,20 @@ for (var k = 0; k < settings.length; k++) {
 // the main display function
 var main = function () {
   // in case extra toolbar windows are showing, hide them
-  $("#download").hide();
-  $("#linktext").hide();
-  $("#listing").hide();
+  view([$("#download"), $("#linktext"), $("#listing")], hideComponents);
   findStorage();
   $(".upload").show();
 };
+
+function hideComponents(ComponentsList) {
+  for (let component of ComponentsList) {
+    component.hide();
+  }
+}
+
+function view(ComponentsList, callback) {
+  callback(ComponentsList);
+}
 
 window.onbeforeunload = function () {
   var message = "Do you want to leave this page?";
@@ -745,7 +753,7 @@ var parseConllFile = function (file) {
     currentTreeIndex = 0;
 
     // hide upload window
-    $(".upload").hide();
+    view([$(".upload")], hideComponents);
     try {
       getTree(treesArray[0]);
     } catch (e) {
@@ -789,13 +797,13 @@ var readSentenceTreeData = function () {
       // try to store tree data and display tree
       treesArray = convertToJSON(treeDataArray.join("\n"));
       getTree(treesArray[0]);
-      $(".upload").hide();
+      view([$(".upload")], hideComponents)
     } catch (e) {
       // alert user if error occurs
       alert("Text upload error!");
     }
   } else {
-    $(".upload").hide();
+    view([$(".upload")], hideComponents)
     addNewTree();
   }
 };
@@ -1449,9 +1457,7 @@ var search = function () {
 
 // return all settings to defaults
 var hideAllWindows = function () {
-  $("#download").hide();
-
-  $("#morphology").hide();
+  view([$("#download"), $("#morphology")], hideComponents);
   d3.selectAll(".morphology").style("stroke", "");
 
   if (
@@ -1461,14 +1467,9 @@ var hideAllWindows = function () {
     document
       .getElementById("search")
       .removeChild(document.getElementById("searchList"));
-    $("#listing").hide();
+    view([$("#listing")], hideComponents);
   }
-  $("#gototree").hide();
-
-  $("#labels").hide();
-  $("#postags").hide();
-
-  $(".morphologyMerge").hide();
+  view([$("#gototree"), $("#labels"), $("#postags"), $(".morphologyMerge")], hideComponents);
 
   editingControl = "pos";
 
