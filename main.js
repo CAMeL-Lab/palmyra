@@ -917,41 +917,41 @@ function moveToTreeHelper(treeIndex) {
 }
 
 // move to the first tree
-var firstTree = function () {
+function firstTree() {
   hideAllWindows();
   if (currentTreeIndex != 0) {
     moveToTreeHelper(0);
   }
-};
+}
 
 // move to the last tree
-var lastTree = function () {
+function lastTree() {
   hideAllWindows();
   if (currentTreeIndex != treesArray.length - 1) {
     moveToTreeHelper(treesArray.length-1);
   }
-};
+}
 
 // move to the next tree
-var nextTree = function () {
+function nextTree() {
   hideAllWindows();
 
   if (currentTreeIndex < treesArray.length - 1) {
     moveToTreeHelper(currentTreeIndex+1);
   }
-};
+}
 
 // move to the prev tree
-var prevTree = function () {
+function prevTree() {
   hideAllWindows();
 
   if (currentTreeIndex > 0) {
     moveToTreeHelper(currentTreeIndex-1);
   }
-};
+}
 
 // go to the input tree number
-var goToTree = function () {
+function goToTree() {
   hideAllWindows();
 
   if (
@@ -966,7 +966,7 @@ var goToTree = function () {
       moveToTreeHelper(document.getElementById("treeNumberInput").value - 1);
     }
   }
-};
+}
 
 // toggle between English and Arabic
 var directionToggle = function () {
