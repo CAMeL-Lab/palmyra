@@ -21,9 +21,13 @@ var root;
 var currentTreeIndex = 0;
 var treesArray = [];
 var numberOfNodesArray = [];
+var viewerHeight = 0;
 
+var addNode;
 var selectedNodeLink, selectedMorphology;
+var nodeDeleted = false;
 var rootNodeName = "*";
+var enableNodeSelection = true;
 
 // default settings that can be configured
 var orientation = "r-to-l";
@@ -45,11 +49,12 @@ var lexicalFeatsList = [];
 var pointer = 0;
 var lastKeyStroke = "";
 var editingControl = "pos";
+var lastClickedNodeId = 0;
 
 var focusWindow = "";
 
 var alreadyReadConfigFiles = [];
-var configRead = false;
+configRead = false;
 
 var settings = [
   ["customwidth", 0.25],
@@ -67,21 +72,23 @@ for (var k = 0; k < settings.length; k++) {
   }
 }
 
-function hideWindows(windows) {
-  // Given a list of elements, hide them.
-  for (var i = 0; i < windows.length; i++) {
-    $(windows[i]).hide();
-  }
-}
-
 // the main display function
 var main = function () {
   // in case extra toolbar windows are showing, hide them
-  hideWindows(["#download", "#linktext", "#listing"]);
-
+  view([$("#download"), $("#linktext"), $("#listing")], hideComponents);
   findStorage();
   $(".upload").show();
 };
+
+function hideComponents(ComponentsList) {
+  for (let component of ComponentsList) {
+    component.hide();
+  }
+}
+
+function view(ComponentsList, callback) {
+  callback(ComponentsList);
+}
 
 window.onbeforeunload = function () {
   var message = "Do you want to leave this page?";
@@ -157,33 +164,10 @@ var readConfigFile = function () {
 //Read the config file that is called when using the sentence uploader which will continue to call
 //the readSentenceTreeData when the FileReader finishes loading the file.
 var readConfigFileForSentence = function () {
-  configRead = false;
-
-  var x = document.getElementById("configFile");
-  var input = "";
-
-  if ("files" in x) {
-    if (x.files.length == 0) {
-      var morphoLabel = document.getElementById("labelspMorphoFeats");
-      morphoLabel.style.visibility = "hidden";
-      txt = "Select config file.";
-      readSentenceTreeData();
-    } else {
-      var file = x.files[0];
-      if (!alreadyReadConfigFiles.includes(file)) {
-        alreadyReadConfigFiles.push(file);
-        var reader = new FileReader();
-        reader.onload = function (e) {
-          parseConfig(reader.result);
-          configRead = true;
-          readSentenceTreeData();
-        };
-        reader.readAsText(file);
-      }
-    }
+  readConfigFile();
+  if ("files" in document.getElementById("configFile")) {
+    readSentenceTreeData();
   }
-
-  return;
 };
 
 var parseConfig = function (content) {
@@ -719,63 +703,66 @@ var convertToJSON = function (inputData) {
   return inputArray;
 };
 
-function isFileSelected(fileElement) {
-  return fileElement.files.length;
+function isValidExtension(original_filename) {
+  if (!original_filename.endsWith(".conllu") && !original_filename.endsWith(".conllx")) {
+    alert(
+      "File does not end with the .conllu/conllx extension, please upload a ConllU/X file."
+    );
+    return false;
+  }
+  return true;
 }
 
-function setFilenameElements(file) {
-  // handles file name displayed on toolbar above,
-  // as well as default text when downloading the conllx file
-  if (!file.name.endsWith(".conllu") && !file.name.endsWith(".conllx")) {
-    alert(
-      "File does not end with the .conllu/conllx extension, conllx will automatically be added when the file is saved."
-    );
-    file_name = file.name;
-  } else {
-    file_name = file.name.replace(/.conll[ux]$/, "");
-  }
-
+function addFilenameToHtmlElements(original_filename) {
+  // display filename on page and when downloading files
+  
+  // get 2 elements to display the file name on the page
   var file_name_elem = document.getElementById("conlluFileName");
-  var output_file_name_elem = document.getElementById("filename"); // fills textbox in download modal.
-  file_name_elem.innerHTML = file_name;
-  output_file_name_elem.value = file_name;
+  var output_file_name_elem = document.getElementById("filename");
+
+  var filename = "";
+  filename = original_filename.replace(/.conll[ux]$/, "");
+
+  file_name_elem.innerHTML = filename;
+  output_file_name_elem.value = filename;
 }
 
 function setupTreePage() {
-  var fileElement = document.getElementById("inputFile");
-  if (!isFileSelected(fileElement)) {
+  // get uploaded file to read
+  var x = document.getElementById("inputFile");
+  if (("files" in x) && (x.files.length == 0)) {
     alert(
-      "Please select a Conll-U/X file, or use use the Upload button in the sentence uploader section."
+      "Please select a ConllU/X file, or use use the Upload button in the sentence uploader section."
     );
     return;
   }
-  var file = fileElement.files[0];
 
-  setFilenameElements(file);
-  setJSONtreeData(file);
+  var file = x.files[0];
+  if (!isValidExtension(file.name)) {return;}
+
+  addFilenameToHtmlElements(file.name);
+  parseConllFile(file);
   readConfigFile();
 }
 
-function setJSONtreeData(file) {
-  // read file
+var parseConllFile = function (file) {
+  // set up function that is triggered when file is read 
   var reader = new FileReader();
   reader.onload = function (e) {
-    // convert tree to a JSON array
     treesArray = convertToJSON(reader.result);
     currentTreeIndex = 0;
 
     // hide upload window
-    hideWindows([".upload"]);
-
+    view([$(".upload")], hideComponents);
     try {
-      getTree(treesArray[0]); // displays tree (d3 stuff)
+      getTree(treesArray[0]);
     } catch (e) {
       // alert user if error occurs
       alert("File upload error!");
     }
   };
   reader.readAsText(file);
-}
+};
 
 var readSentenceTreeData = function () {
   var original = $("#treedata2").val();
@@ -810,13 +797,13 @@ var readSentenceTreeData = function () {
       // try to store tree data and display tree
       treesArray = convertToJSON(treeDataArray.join("\n"));
       getTree(treesArray[0]);
-      hideWindows([".upload"]);
+      view([$(".upload")], hideComponents)
     } catch (e) {
       // alert user if error occurs
       alert("Text upload error!");
     }
   } else {
-    hideWindows([".upload"]);
+    view([$(".upload")], hideComponents)
     addNewTree();
   }
 };
@@ -903,75 +890,53 @@ var deleteCurrentTree = function () {
   }
 };
 
-// move to the first tree
-var firstTree = function () {
-  hideAllWindows();
+function moveToTreeHelper(treeIndex) {
+  sessionStorage.removeItem("treeData");
+  saveTree();
+  currentTreeIndex = treeIndex;
+  d3.select("body").select("svg").remove();
+  getTree(treesArray[currentTreeIndex]);
+  update(root);
+  selectRoot();
+  showSelection();
+}
 
+// move to the first tree
+function firstTree() {
+  hideAllWindows();
   if (currentTreeIndex != 0) {
-    sessionStorage.removeItem("treeData");
-    saveTree();
-    currentTreeIndex = 0;
-    d3.select("body").select("svg").remove();
-    getTree(treesArray[currentTreeIndex]);
-    update(root);
-    selectRoot();
-    showSelection();
+    moveToTreeHelper(0);
   }
-};
+}
 
 // move to the last tree
-var lastTree = function () {
+function lastTree() {
   hideAllWindows();
-
   if (currentTreeIndex != treesArray.length - 1) {
-    sessionStorage.removeItem("treeData");
-    saveTree();
-    currentTreeIndex = treesArray.length - 1;
-    d3.select("body").select("svg").remove();
-    getTree(treesArray[currentTreeIndex]);
-    update(root);
-    selectRoot();
-
-    showSelection();
+    moveToTreeHelper(treesArray.length-1);
   }
-};
+}
 
 // move to the next tree
-var nextTree = function () {
+function nextTree() {
   hideAllWindows();
 
   if (currentTreeIndex < treesArray.length - 1) {
-    sessionStorage.removeItem("treeData");
-    saveTree();
-    currentTreeIndex++;
-    d3.select("body").select("svg").remove();
-    getTree(treesArray[currentTreeIndex]);
-    update(root);
-    selectRoot();
-
-    showSelection();
+    moveToTreeHelper(currentTreeIndex+1);
   }
-};
+}
 
 // move to the prev tree
-var prevTree = function () {
+function prevTree() {
   hideAllWindows();
 
   if (currentTreeIndex > 0) {
-    sessionStorage.removeItem("treeData");
-    saveTree();
-    currentTreeIndex--;
-    d3.select("body").select("svg").remove();
-    getTree(treesArray[currentTreeIndex]);
-    update(root);
-    selectRoot();
-
-    showSelection();
+    moveToTreeHelper(currentTreeIndex-1);
   }
-};
+}
 
 // go to the input tree number
-var goToTree = function () {
+function goToTree() {
   hideAllWindows();
 
   if (
@@ -983,17 +948,10 @@ var goToTree = function () {
       document.getElementById("treeNumberInput").value > 0 &&
       document.getElementById("treeNumberInput").value <= treesArray.length
     ) {
-      sessionStorage.removeItem("treeData");
-      saveTree();
-      currentTreeIndex = document.getElementById("treeNumberInput").value - 1;
-      d3.select("body").select("svg").remove();
-      getTree(treesArray[currentTreeIndex]);
-      update(root);
-      selectRoot();
-      showSelection();
+      moveToTreeHelper(document.getElementById("treeNumberInput").value - 1);
     }
   }
-};
+}
 
 // toggle between English and Arabic
 var directionToggle = function () {
@@ -1489,7 +1447,7 @@ var search = function () {
   } else {
     hideAllWindows();
     // document.getElementById('search').removeChild(document.getElementById('searchList'));
-    // hideWindows(['#listing'])
+    // $('#listing').hide();
   }
   // update(root);
 };
@@ -1499,19 +1457,9 @@ var search = function () {
 
 // return all settings to defaults
 var hideAllWindows = function () {
-  hideWindows([
-    "#download",
-    "#morphology",
-    "#gototree",
-    "#labels",
-    "#postags",
-    ".morphologyMerge",
-  ]);
-
-  // in addition to hiding the morphology window,
-  // TODO check what this does
+  view([$("#download"), $("#morphology")], hideComponents);
   d3.selectAll(".morphology").style("stroke", "");
-  // TODO check what this does
+
   if (
     window.getComputedStyle(document.getElementById("listing")).display !==
     "none"
@@ -1519,10 +1467,12 @@ var hideAllWindows = function () {
     document
       .getElementById("search")
       .removeChild(document.getElementById("searchList"));
-    hideWindows(["#listing"]);
+    view([$("#listing")], hideComponents);
   }
+  view([$("#gototree"), $("#labels"), $("#postags"), $(".morphologyMerge")], hideComponents);
 
   editingControl = "pos";
+
   focusWindow = "";
 };
 
@@ -1620,15 +1570,13 @@ var getTree = function (treeData) {
     return;
   }
 
-  var nodeDeleted = false;
-
   // set height and width equal to HTML doc properties
   numberOfNodes = numberOfNodesArray[currentTreeIndex];
   var requiredWidth =
     parseFloat(localStorage["customwidth"]) * 500 * numberOfNodes * 1.37;
   if (requiredWidth > $(document).width()) var viewerWidth = requiredWidth;
   else var viewerWidth = $(document).width();
-  var viewerHeight = $(document).height();
+  viewerHeight = $(document).height();
   d3.select("svg").attr("dir", "rtl");
   d3.select("#sents").attr("dir", "rtl");
   document.getElementById("currentTreeNumber").textContent =
@@ -2036,7 +1984,8 @@ var getTree = function (treeData) {
               //case 'Escape':
               //selectRoot();
               //showSelection();
-              //hideWindows(['#labels', '#postags']);
+              //$('#labels').hide();
+              //$('#postags').hide();
               //d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', '#545454');
               //d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', '#ffffff');
               // update(root);
@@ -2260,7 +2209,7 @@ var getTree = function (treeData) {
   }
 
   // Add a new node to left of an existing node
-  var addNode = function (d, position, name = newNodeName) {
+  addNode = function (d, position, name = newNodeName) {
     var newNodeId;
     var parent = root;
 
