@@ -806,6 +806,7 @@ var readSentenceTreeData = function () {
     view([$(".upload")], hideComponents)
     addNewTree();
   }
+  return treesArray;
 };
 
 var setSentenceTreeData = function () {
@@ -3219,4 +3220,8 @@ var getTree = function (treeData) {
 
   // lay out the initial tree
   update(root);
+};
+
+module.exports = {
+  readSentenceTreeData: readSentenceTreeData,
 };

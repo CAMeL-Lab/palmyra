@@ -20,6 +20,16 @@
   "homepage": "https://github.com/CAMeL-Lab/palmyra#readme",
   "devDependencies": {
     "jest": "^29.0.3",
+    "jest-environment-jsdom": "^29.1.2",
     "parcel": "^2.7.0"
+  },
+  "jest": {
+    "setupFiles": [
+      "./browserMocks.js"
+    ],
+    "testEnvironment": "jest-environment-jsdom"
+  },
+  "dependencies": {
+    "jquery": "^3.6.1"
   }
 }
