@@ -28,5 +28,8 @@
       "./browserMocks.js"
     ],
     "testEnvironment": "jest-environment-jsdom"
+  },
+  "dependencies": {
+    "jquery": "^3.6.1"
   }
 }
