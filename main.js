@@ -3224,4 +3224,7 @@ var getTree = function (treeData) {
 
 module.exports = {
   readSentenceTreeData: readSentenceTreeData,
+  search: search,
+  hideAllWindows: hideAllWindows,
+  listingBtn: document.getElementById("listingBtn")
 };
