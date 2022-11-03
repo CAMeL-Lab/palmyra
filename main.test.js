@@ -3,18 +3,14 @@ global.$ = require('jquery');
 global.d3 = require('d3');
 
 const puppeteer = require('puppeteer');
-const fs = require('fs');
 
 describe('Opening viewTree.html', () => {
-  let contentHtml = fs.readFileSync('./viewtree.html', 'utf8');
   let browser;
   let page;
   beforeEach(async () => {
     browser = await puppeteer.launch();
     page = await browser.newPage();  
-    // await page.setContent(contentHtml, { waitUntil: "networkidle0" });
-    // await page.addScriptTag({path: "main.js"});
-    await page.goto("http://127.0.0.1:5500/viewtree.html"); // do this to be able to call functions in main.js, might need to direct the browser at this url
+    await page.goto("https://camel-lab.github.io/palmyra/viewtree.html"); // do this to be able to call functions in main.js, might need to direct the browser at this url
   });
   afterEach(() => {
     browser.close();
@@ -44,9 +40,12 @@ describe('Opening viewTree.html', () => {
     expect(dialog.message()).toEqual(expectedMessage);
   });
 
-  test('Click on treebtn without adding a conll file and a config file', async () => {
+  test('Click on treebtn without adding a conll file and with a config file', async () => {
     const expectedMessage = "Please select a ConllU/X file, or use use the Upload button in the sentence uploader section.";
 
+    let ConfigFileUploader = await page.$('#configFile');
+    await ConfigFileUploader.uploadFile('palmyraSampleFiles/config/ud.config');
+    
     let expectedLabelsText = "Relation Labels";
     let testingLabelsText = (await page.$eval("#labels", el => el.innerText)).trim();
 
@@ -85,10 +84,14 @@ describe('Opening viewTree.html', () => {
     let expectedSent = "From the AP comes this story :"
     let testingSent = (await page.$eval('#sents', el => el.innerText)).trim();
 
+    let expectedTreeCount = 3;
+    let testingTreeCount = parseInt((await page.$eval('#currentTreeNumber', el => el.innerText)).trim().split('/')[1]);
+
     // assert that no alert is generated
     expect(dialogHandler.mock.calls.length).toEqual(0);
     // assert text
     expect(testingSent).toEqual(expectedSent);
+    expect(testingTreeCount).toEqual(expectedTreeCount);
   })
 
   test('Click on treebtn with adding a conll file and a config file', async () => {
@@ -108,7 +111,10 @@ describe('Opening viewTree.html', () => {
     let expectedSent = "From the AP comes this story :"
     let testingSent = (await page.$eval('#sents', el => el.innerText)).trim();
 
-    let expectedLabelsText = "apposdislocatedexpliobjnsubjnmodnummodobjoblvocativeadvclaclcsubjccompxcompadvmodamoddiscourseauxcopclfcasedetmarkconjcccompoundfixedflatlistparataxisgoeswithorphanreparandumdeppunctroot"
+    let expectedTreeCount = 3;
+    let testingTreeCount = parseInt((await page.$eval('#currentTreeNumber', el => el.innerText)).trim().split('/')[1]);
+
+    let expectedLabelsText = "apposdislocatedexpliobjnsubjnmodnummodobjoblvocativeadvclaclcsubjccompxcompadvmodamoddiscourseauxcopclfcasedetmarkconjcccompoundfixedflatlistparataxisgoeswithorphanreparandumdeppunctroot";
     let testingLabelsText = (await page.$eval("#labels", el => el.innerText)).trim().split(' ');
     testingLabelsText = testingLabelsText[testingLabelsText.length-1];
 
@@ -120,6 +126,7 @@ describe('Opening viewTree.html', () => {
     expect(dialogHandler.mock.calls.length).toEqual(0);
     // assert text
     expect(testingSent).toEqual(expectedSent);
+    expect(testingTreeCount).toEqual(expectedTreeCount);
     expect(testingLabelsText).toEqual(expectedLabelsText);
     expect(testingPosTagsText).toEqual(expectedPosTagsText);
   })
@@ -138,6 +145,9 @@ describe('Opening viewTree.html', () => {
     let expectedSent = "this is a sentence";
     let testingSent = (await page.$eval('#sents', el => el.innerText)).trim();
 
+    let expectedTreeCount = 2;
+    let testingTreeCount = parseInt((await page.$eval('#currentTreeNumber', el => el.innerText)).trim().split('/')[1]);
+
     let expectedLabelsText = "apposdislocatedexpliobjnsubjnmodnummodobjoblvocativeadvclaclcsubjccompxcompadvmodamoddiscourseauxcopclfcasedetmarkconjcccompoundfixedflatlistparataxisgoeswithorphanreparandumdeppunctroot"
     let testingLabelsText = (await page.$eval("#labels", el => el.innerText)).trim().split(' ');
     testingLabelsText = testingLabelsText[testingLabelsText.length-1];
@@ -150,6 +160,7 @@ describe('Opening viewTree.html', () => {
     expect(dialogHandler.mock.calls.length).toEqual(0);
     // assert text
     expect(testingSent).toEqual(expectedSent);
+    expect(testingTreeCount).toEqual(expectedTreeCount);
     expect(testingLabelsText).toEqual(expectedLabelsText);
     expect(testingPosTagsText).toEqual(expectedPosTagsText);
   })  
@@ -163,6 +174,9 @@ describe('Opening viewTree.html', () => {
     let expectedSent = "this is a sentence";
     let testingSent = (await page.$eval('#sents', el => el.innerText)).trim();
 
+    let expectedTreeCount = 2;
+    let testingTreeCount = parseInt((await page.$eval('#currentTreeNumber', el => el.innerText)).trim().split('/')[1]);
+
     let expectedLabelsText = "Relation Labels";
     let testingLabelsText = (await page.$eval("#labels", el => el.innerText)).trim();
 
@@ -170,7 +184,8 @@ describe('Opening viewTree.html', () => {
     let testingPosTagsText = (await page.$eval("#postags", el => el.innerText)).trim();
 
     // assert text
-    expect(testingSent).toEqual(expectedSent);    
+    expect(testingSent).toEqual(expectedSent);   
+    expect(testingTreeCount).toEqual(expectedTreeCount); 
     expect(testingLabelsText).toEqual(expectedLabelsText);
     expect(testingPosTagsText).toEqual(expectedPosTagsText);
   })
