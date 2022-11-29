@@ -2473,7 +2473,6 @@ var getTree = function (treeData) {
     })
     .on("dragend", function (d) { 
       // check that this is a dragend event on a node
-      console.log(d3.event.sourceEvent.srcElement.className.baseVal);
       if (d === root) {
         return;
       }
