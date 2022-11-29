@@ -2473,12 +2473,13 @@ var getTree = function (treeData) {
     })
     .on("dragend", function (d) { 
       // check that this is a dragend event on a node
-      if (d3.event.sourceEvent.srcElement.nodeName == 'circle' && d3.event.sourceEvent.srcElement.className.baseVal == 'ghostCircle show') {
-        if (d === root) {
-          return;
-        }
-        domNode = this;
-        if (selectedNode) {
+      console.log(d3.event.sourceEvent.srcElement.className.baseVal);
+      if (d === root) {
+        return;
+      }
+      domNode = this;
+      if (selectedNode) { // if the node is dropped into another node
+        if (d3.event.sourceEvent.srcElement.nodeName == 'circle' && d3.event.sourceEvent.srcElement.className.baseVal == 'ghostCircle show') { // the actual node-drop-into-node action
           UndoRedoHelperOnTreeUpdate(); // update the undo stack before the top element (which is also the current state of the tree) is updated
           // Make sure that the node being added to is expanded so user can see added node is correctly moved
           expand(selectedNode);
@@ -2515,12 +2516,12 @@ var getTree = function (treeData) {
           endDrag();
           selectRoot();
           showSelection();
-        } else {
-          UndoRedoHelperOnTreeUpdate();
-          endDrag();
-          selectRoot();
-          showSelection();
         }
+      } 
+      else { 
+        endDrag();
+        selectRoot();
+        showSelection();
       }
     });
 
