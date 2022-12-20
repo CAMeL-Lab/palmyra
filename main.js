@@ -54,7 +54,7 @@ var lastClickedNodeId = 0;
 var focusWindow = "";
 
 var alreadyReadConfigFiles = [];
-configRead = false;
+var configRead = false;
 
 var settings = [
   ["customwidth", 0.25],
@@ -194,10 +194,23 @@ download_form.addEventListener("keydown", function (event) {
   };
 });
 
-//Read the config file
-var readConfigFile = function () {
-  configRead = false;
+function loadFile(file) {
+  return new Promise((resolve, reject) => {
+    var reader = new FileReader();
+    reader.onload = function () {
+      parseConfig(reader.result);
+      configRead = true;
+      resolve();
+    };
+    reader.onerror = function (error) {
+      reject(error);
+    }
+    reader.readAsText(file);
+  })
+}
 
+//Read the config file
+var readConfigFile = async function () {
   var x = document.getElementById("configFile");
   var input = "";
 
@@ -210,26 +223,18 @@ var readConfigFile = function () {
       var file = x.files[0];
       if (!alreadyReadConfigFiles.includes(file)) {
         alreadyReadConfigFiles.push(file);
-        var reader = new FileReader();
-        reader.onload = function (e) {
-          parseConfig(reader.result);
-          configRead = true;
-        };
-        reader.readAsText(file);
+        await loadFile(file);
       }
     }
   }
-
   return;
 };
 
 //Read the config file that is called when using the sentence uploader which will continue to call
 //the readSentenceTreeData when the FileReader finishes loading the file.
-var readConfigFileForSentence = function () {
-  readConfigFile();
-  if ("files" in document.getElementById("configFile")) {
-    readSentenceTreeData();
-  }
+var readConfigFileForSentence = async function () {
+  await readConfigFile();
+  if (configRead) readSentenceTreeData();
 };
 
 var parseConfig = function (content) {
@@ -789,7 +794,7 @@ function addFilenameToHtmlElements(original_filename) {
   output_file_name_elem.value = filename;
 }
 
-function setupTreePage() {
+async function setupTreePage() {
   // get uploaded file to read
   var x = document.getElementById("inputFile");
   if (("files" in x) && (x.files.length == 0)) {
@@ -802,8 +807,8 @@ function setupTreePage() {
   if (!isValidExtension(file.name)) {return;}
 
   addFilenameToHtmlElements(file.name);
+  await readConfigFile();
   parseConllFile(file);
-  readConfigFile();
 }
 
 var parseConllFile = function (file) {
