@@ -234,7 +234,7 @@ var readConfigFile = async function () {
 //the readSentenceTreeData when the FileReader finishes loading the file.
 var readConfigFileForSentence = async function () {
   await readConfigFile();
-  if (configRead) readSentenceTreeData();
+  readSentenceTreeData();
 };
 
 var parseConfig = function (content) {
