@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer');
+const {Point} = require('puppeteer');
 
 describe('Upload tree content', () => {
   let browser;
@@ -420,3 +421,276 @@ describe('Edit trees', () => {
     expect(testingCurrentTreeNumber).toEqual(expectedCurrentTreeNumber);
   })
 })
+
+// for tests in the suite to pass, we need to stay at the upload window (if open with VSCode Live Server)
+describe('Redo-Undo feature', () => {
+  let browser;
+  let page;
+  let filterFullTreeSVGString = function (FullTreeSVGString) {
+    let AttributeFilterList = ["transform", "style", "opacity", "d", "dy", "dx", "x", "y", "r", "id", "class"];
+    for (const attribute of AttributeFilterList) {
+      let regEx = new RegExp(" "+attribute+"=\"(.*?)\"", "g");
+      FullTreeSVGString = FullTreeSVGString.replace(regEx, '');
+    };
+    // remove redundant <g></g> tags
+    FullTreeSVGString = FullTreeSVGString.replace(/<g><\/g>/g, '')
+    return FullTreeSVGString;
+  }
+  beforeEach(async () => {
+    browser = await puppeteer.launch();
+    page = await browser.newPage();  
+    await page.goto(/*"https://camel-lab.github.io/palmyra/viewtree.html"*/"http://127.0.0.1:5500/viewtree.html"); // do this to be able to call functions in main.js, might need to direct the browser at this url
+    let ConfigFileUploader = await page.$('#configFile');
+    await ConfigFileUploader.uploadFile('palmyraSampleFiles/config/ud.config');
+    await page.$eval('#treedata2', el => el.value = "this is a sentence");
+    // simulate the click
+    await page.$eval('#treebtn2', el => el.click());
+  });
+  afterEach(() => {
+    browser.close();
+  });
+
+  test('Undo morphology add', async() => {
+    let initialFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0];
+    
+    // simulate user action
+    await page.$eval('#editbtn', el => el.click());
+    await page.click('#morphologyAddLeft8'); 
+    // note that the styling is changed when we undo (dimension, opacity, stroke, ...)
+    await page.keyboard.down('Meta');
+    await page.keyboard.down('z');
+
+    let testingFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0]; 
+    // apply the filter function on SVG strings then assert
+    expect(filterFullTreeSVGString(testingFullTreeSVGString)).toEqual(filterFullTreeSVGString(initialFullTreeSVGString)); 
+  });
+
+  test('Undo morphology delete', async() => {
+    let initialFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0];
+    
+    // simulate user action
+    await page.$eval('#editbtn', el => el.click());
+    await page.click('#morphologyDelete8'); 
+    // note that the styling is changed when we undo (dimension, opacity, stroke, ...)
+    await page.keyboard.down('Meta');
+    await page.keyboard.down('z');
+
+    let testingFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0]; 
+    // apply the filter function on SVG strings then assert
+    expect(filterFullTreeSVGString(testingFullTreeSVGString)).toEqual(filterFullTreeSVGString(initialFullTreeSVGString)); 
+  });
+
+  test('Undo POS Tags edit', async() => {
+    let initialFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0];
+    
+    // simulate user action
+    await page.$eval('#editbtn', el => el.click());
+    await page.click('[value="tags"]');
+    await page.click('text[id="linkLabel1"]');
+    await page.click('button[value="PROPN"]'); 
+    // note that the styling is changed when we undo (dimension, opacity, stroke, ...)
+    await page.keyboard.down('Meta');
+    await page.keyboard.down('z');
+
+    let testingFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0]; 
+    // apply the filter function on SVG strings then assert
+    expect(filterFullTreeSVGString(testingFullTreeSVGString)).toEqual(filterFullTreeSVGString(initialFullTreeSVGString)); 
+  });
+
+  test('Undo Labels edit', async() => {
+    let initialFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0];
+    
+    // simulate user action
+    await page.$eval('#editbtn', el => el.click());
+    await page.click('[value="tags"]');
+    await page.click('text[id="linkLabel1"]');
+    await page.click('button[id="root"][value="root"]'); 
+    // note that the styling is changed when we undo (dimension, opacity, stroke, ...)
+    await page.keyboard.down('Meta');
+    await page.keyboard.down('z');
+
+    let testingFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0]; 
+    // apply the filter function on SVG strings then assert
+    expect(filterFullTreeSVGString(testingFullTreeSVGString)).toEqual(filterFullTreeSVGString(initialFullTreeSVGString)); 
+  });
+
+  test('Undo save morphology', async() => {
+    let initialFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0];
+    
+    // simulate user action
+    await page.click('text[id="morphology8"]');
+    await page.click('text[id="linkLabel1"]');
+    await page.$eval('input[id="morphologyName"]', el => el.value = "test");
+    await ((await page.$$('section[id="morphology"] > p > button'))[0].click());
+    // note that the styling is changed when we undo (dimension, opacity, stroke, ...)
+    await page.keyboard.down('Meta');
+    await page.keyboard.down('z');
+
+    let testingFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0]; 
+    // apply the filter function on SVG strings then assert
+    expect(filterFullTreeSVGString(testingFullTreeSVGString)).toEqual(filterFullTreeSVGString(initialFullTreeSVGString)); 
+  });
+
+  test('Undo node drag', async() => {
+    let initialFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0];
+    
+    // simulate user action
+    await page.mouse.move(450,302.5);
+    await page.mouse.down();
+    await page.mouse.move(295,302.5);
+    await page.mouse.up();
+    // note that the styling is changed when we undo (dimension, opacity, stroke, ...)
+    await page.keyboard.down('Meta');
+    await page.keyboard.down('z');
+
+    let testingFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0]; 
+    // apply the filter function on SVG strings then assert
+    expect(filterFullTreeSVGString(testingFullTreeSVGString)).toEqual(filterFullTreeSVGString(initialFullTreeSVGString));
+  });
+
+  test('Redo morphology add', async() => {
+    // simulate user action
+    await page.$eval('#editbtn', el => el.click());
+    await page.click('#morphologyAddLeft8'); 
+
+    let expectedFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0];
+    
+    // undo
+    await page.keyboard.down('Meta');
+    await page.keyboard.down('z');
+    await page.keyboard.up('Meta');
+    await page.keyboard.up('z');
+
+    // redo
+    await page.keyboard.down('Meta');
+    await page.keyboard.down('Shift');
+    await page.keyboard.down('z');
+
+    let testingFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0]; 
+    // apply the filter function on SVG strings then assert
+    expect(filterFullTreeSVGString(testingFullTreeSVGString)).toEqual(filterFullTreeSVGString(expectedFullTreeSVGString)); 
+  });
+
+  test('Redo morphology delete', async() => {
+    // simulate user action
+    await page.$eval('#editbtn', el => el.click());
+    await page.click('#morphologyDelete8'); 
+
+    let expectedFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0];
+    
+    // undo
+    await page.keyboard.down('Meta');
+    await page.keyboard.down('z');
+    await page.keyboard.up('Meta');
+    await page.keyboard.up('z');
+
+    // redo
+    await page.keyboard.down('Meta');
+    await page.keyboard.down('Shift');
+    await page.keyboard.down('z');
+
+    let testingFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0]; 
+    // apply the filter function on SVG strings then assert
+    expect(filterFullTreeSVGString(testingFullTreeSVGString)).toEqual(filterFullTreeSVGString(expectedFullTreeSVGString)); 
+  });
+
+  test('Redo POS Tags edit', async() => {
+    // simulate user action
+    await page.$eval('#editbtn', el => el.click());
+    await page.click('[value="tags"]');
+    await page.click('text[id="linkLabel1"]');
+    await page.click('button[value="PROPN"]'); 
+
+    let expectedFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0];
+    
+    // undo
+    await page.keyboard.down('Meta');
+    await page.keyboard.down('z');
+    await page.keyboard.up('Meta');
+    await page.keyboard.up('z');
+
+    // redo
+    await page.keyboard.down('Meta');
+    await page.keyboard.down('Shift');
+    await page.keyboard.down('z');
+
+    let testingFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0]; 
+    // apply the filter function on SVG strings then assert
+    expect(filterFullTreeSVGString(testingFullTreeSVGString)).toEqual(filterFullTreeSVGString(expectedFullTreeSVGString)); 
+  });
+
+  test('Redo save morphology', async() => {
+    // simulate user action
+    await page.click('text[id="morphology8"]');
+    await page.click('text[id="linkLabel1"]');
+    await page.$eval('input[id="morphologyName"]', el => el.value = "test");
+    await ((await page.$$('section[id="morphology"] > p > button'))[0].click());
+
+    let expectedFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0];
+    
+    // undo
+    await page.keyboard.down('Meta');
+    await page.keyboard.down('z');
+    await page.keyboard.up('Meta');
+    await page.keyboard.up('z');
+
+    // redo
+    await page.keyboard.down('Meta');
+    await page.keyboard.down('Shift');
+    await page.keyboard.down('z');
+
+    let testingFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0]; 
+    // apply the filter function on SVG strings then assert
+    expect(filterFullTreeSVGString(testingFullTreeSVGString)).toEqual(filterFullTreeSVGString(expectedFullTreeSVGString)); 
+  });
+
+  test('Redo node drag', async() => {    
+    // simulate user action
+    await page.mouse.move(450,302.5);
+    await page.mouse.down();
+    await page.mouse.move(295,302.5);
+    await page.mouse.up();
+
+    let expectedFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0];
+    
+    // undo
+    await page.keyboard.down('Meta');
+    await page.keyboard.down('z');
+    await page.keyboard.up('Meta');
+    await page.keyboard.up('z');
+
+    // redo
+    await page.keyboard.down('Meta');
+    await page.keyboard.down('Shift');
+    await page.keyboard.down('z');
+
+    let testingFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0]; 
+    // apply the filter function on SVG strings then assert
+    expect(filterFullTreeSVGString(testingFullTreeSVGString)).toEqual(filterFullTreeSVGString(expectedFullTreeSVGString));
+  });
+
+  test('User cannot undo more than ten steps', async () => {
+    let expectedFullTreeSVGString;
+    
+    // simulate user action
+    await page.$eval('#editbtn', el => el.click());
+    // add 11 new nodes to the end
+    for (let i = 0; i < 11; i++) {
+      if (i == 1) expectedFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0];
+      await page.click(`#morphologyAddEnd${(8+i*2).toString()}`); 
+    };
+    // undo 10 times
+    for (let i = 0; i < 10; i++) {
+      await page.keyboard.down('Meta');
+      await page.keyboard.down('z');
+      await page.keyboard.up('Meta');
+      await page.keyboard.up('z');
+    }
+
+    let testingFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0]; 
+    // apply the filter function on SVG strings then assert
+    // the tree must now be the same as it was after adding the first node
+    expect(filterFullTreeSVGString(testingFullTreeSVGString)).toEqual(filterFullTreeSVGString(expectedFullTreeSVGString)); 
+  })
+})
+
