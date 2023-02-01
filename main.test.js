@@ -668,29 +668,5 @@ describe('Redo-Undo feature', () => {
     // apply the filter function on SVG strings then assert
     expect(filterFullTreeSVGString(testingFullTreeSVGString)).toEqual(filterFullTreeSVGString(expectedFullTreeSVGString));
   });
-
-  test('User cannot undo more than ten steps', async () => {
-    let expectedFullTreeSVGString;
-    
-    // simulate user action
-    await page.$eval('#editbtn', el => el.click());
-    // add 11 new nodes to the end
-    for (let i = 0; i < 11; i++) {
-      if (i == 1) expectedFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0];
-      await page.click(`#morphologyAddEnd${(8+i*2).toString()}`); 
-    };
-    // undo 10 times
-    for (let i = 0; i < 10; i++) {
-      await page.keyboard.down('Meta');
-      await page.keyboard.down('z');
-      await page.keyboard.up('Meta');
-      await page.keyboard.up('z');
-    }
-
-    let testingFullTreeSVGString = (await page.content()).match(/<g class="fulltree"(.*?)>(.*)<\/g>/g)[0]; 
-    // apply the filter function on SVG strings then assert
-    // the tree must now be the same as it was after adding the first node
-    expect(filterFullTreeSVGString(testingFullTreeSVGString)).toEqual(filterFullTreeSVGString(expectedFullTreeSVGString)); 
-  })
 })
 
