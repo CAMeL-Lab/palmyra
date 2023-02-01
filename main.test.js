@@ -669,4 +669,3 @@ describe('Redo-Undo feature', () => {
     expect(filterFullTreeSVGString(testingFullTreeSVGString)).toEqual(filterFullTreeSVGString(expectedFullTreeSVGString));
   });
 })
-
