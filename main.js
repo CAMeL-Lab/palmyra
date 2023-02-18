@@ -56,6 +56,8 @@ var focusWindow = "";
 var alreadyReadConfigFiles = [];
 configRead = false;
 
+// const GCP_CLIENT_ID = '872006556701-id30aupvkt32jgbqbe3gtqvbqq7oa914.apps.googleusercontent.com';
+// const GCP_API_KEY = 'AIzaSyBphS90C05DkTg3INkMSv1iMQrvh0pcIGA';
 var settings = [
   ["customwidth", 0.25],
   ["customdepth", 100],
@@ -1352,43 +1354,84 @@ var updateSentenceText = function (node) {
   }
 };
 
+function saveTreeRemote() {
+  saveTree();
+  var filename = $("#filename").val();
+  if (sessionStorage.treeData !== "undefined") {
+    var blob = convertTreesArrayToBlob();
+    // make API request to Google Drive to store file
+    saveTreeRemoteHelper();
+  } else {
+    alert("Tree not found.");
+  }
+  hideAllWindows();
+}
+
+function saveTreeRemoteHelper() {
+  gapi.load('client:auth2', {
+    callback: function() {
+      // Initialize the API client and the auth2 library
+      gapi.client.init({
+        apiKey: GCP_API_KEY,
+        clientId: GCP_CLIENT_ID,
+        scope: 'https://www.googleapis.com/auth/drive.file'
+      }).then(function() {
+        // Sign in the user and obtain an access token
+        gapi.auth2.getAuthInstance().signIn().then(function() {
+          const accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
+          // Use the access token to make API calls
+          console.log(accessToken);
+        });
+      });
+    },
+    onerror: function() {
+      // Handle errors loading the libraries
+    }
+  });
+}
+
+function convertTreesArrayToBlob() {
+  var output = "";
+  for (var i = 0; i < treesArray.length; i++) {
+    meta_keys = Object.keys(treesArray[i].meta);
+
+    for (var key_index = 0; key_index < meta_keys.length; key_index++) {
+      if (meta_keys[key_index] === "sentenceText") {
+        //clone the treeArray to use that to generate the complete sentenceText comment
+        let clone = JSON.parse(JSON.stringify(JSON.decycle(treesArray[i])));
+        output =
+          output +
+          "# " +
+          meta_keys[key_index] +
+          " = " +
+          updateSentenceText(clone) +
+          "\n";
+      } else {
+        output =
+          output +
+          "# " +
+          meta_keys[key_index] +
+          " = " +
+          treesArray[i].meta[meta_keys[key_index]] +
+          "\n";
+      }
+    }
+
+    // clone treeArray and remove cycles through nested parents.
+    let clone = JSON.parse(JSON.stringify(JSON.decycle(treesArray[i])));
+    output = output + convertJSONToCONLL(clone) + "\n\n";
+  }
+  // uses Blob and FileSaver libraries
+  var blob = new Blob([output], { type: "text/plain;charset=utf-8" });
+  return blob;
+}
+
 // output CONLL files for the tree
 var downloadTree = function () {
   saveTree();
   var filename = $("#filename").val();
-  var output = "";
   if (sessionStorage.treeData !== "undefined") {
-    for (var i = 0; i < treesArray.length; i++) {
-      meta_keys = Object.keys(treesArray[i].meta);
-
-      for (var key_index = 0; key_index < meta_keys.length; key_index++) {
-        if (meta_keys[key_index] === "sentenceText") {
-          //clone the treeArray to use that to generate the complete sentenceText comment
-          let clone = JSON.parse(JSON.stringify(JSON.decycle(treesArray[i])));
-          output =
-            output +
-            "# " +
-            meta_keys[key_index] +
-            " = " +
-            updateSentenceText(clone) +
-            "\n";
-        } else {
-          output =
-            output +
-            "# " +
-            meta_keys[key_index] +
-            " = " +
-            treesArray[i].meta[meta_keys[key_index]] +
-            "\n";
-        }
-      }
-
-      // clone treeArray and remove cycles through nested parents.
-      let clone = JSON.parse(JSON.stringify(JSON.decycle(treesArray[i])));
-      output = output + convertJSONToCONLL(clone) + "\n\n";
-    }
-    // uses Blob and FileSaver libraries
-    var blob = new Blob([output], { type: "text/plain;charset=utf-8" });
+    var blob = convertTreesArrayToBlob();
     saveAs(blob, filename + ".conllx");
   } else {
     alert("Tree not found.");
@@ -1458,7 +1501,7 @@ var search = function () {
 
 // return all settings to defaults
 var hideAllWindows = function () {
-  view([$("#download"), $("#morphology")], hideComponents);
+  view([$("#saveremote"), $("#download"), $("#morphology")], hideComponents);
   d3.selectAll(".morphology").style("stroke", "");
 
   if (
@@ -1498,6 +1541,16 @@ var downloadToggle = function () {
     hideAllWindows();
     $("#download").show();
     focusWindow = "download";
+  } else {
+    hideAllWindows();
+  }
+};
+
+var saveremoteToggle = function () {
+  if (focusWindow !== "saveremote") {
+    hideAllWindows();
+    $("#saveremote").show();
+    focusWindow = "save_remote";
   } else {
     hideAllWindows();
   }
