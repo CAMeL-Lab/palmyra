@@ -48,6 +48,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                 <input type="button" tabindex="-1" value="- Tree" onClick="deleteCurrentTree()"/>
                 <input type="button" tabindex="-1" id="editbtn" value="edit" onClick="editToggle()"/>
                 <input type="button" tabindex="-1" value="download" onClick="downloadToggle()"/>
+                <input type="button" tabindex="-1" value="save remote" onClick="saveremoteToggle()"/>
                 <input type="button" tabindex="-1" value="direction" onClick="directionToggle()"/>
                 <input type="button" tabindex="-1" value="tags" onClick="tagsToggle()" />
                 <input type="button" tabindex="-1" value="listing" onClick="search()" id = "listingBtn"/>
@@ -86,6 +87,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                 <input type="text" id="filename"/>
             </form>
             <input type="button" id="dwnbtn" value="Download" onClick="downloadTree()"/>
+            <button onClick="hideAllWindows()">Close</button>
+        </section>
+
+        <section id="saveremote">
+            <form id="saveremote">
+                <p>Please select a filename:</p>
+                <input type="text" id="filename_remote"/>
+            </form>
+            <input type="button" id="saveremotebtn" value="Save Remote" onClick="saveTreeRemote()"/>
             <button onClick="hideAllWindows()">Close</button>
         </section>
 
@@ -150,6 +160,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
     <script src="scripts/saveSvgAsPng.js"></script>
     <script src="scripts/underscore-min.js"></script>
     <script src="scripts/cycle.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+
+    <script>
+        const GCP_CLIENT_ID = '872006556701-id30aupvkt32jgbqbe3gtqvbqq7oa914.apps.googleusercontent.com';
+        const GCP_API_KEY = 'AIzaSyBphS90C05DkTg3INkMSv1iMQrvh0pcIGA';
+        // need to use most up-to-date documentation from Google Drive API
+
+      </script>
+
     <script src="main.js"></script>
 
     <script>
