@@ -325,7 +325,7 @@ body.viewtree {
 /* toolbar buttons */
 .toolbar { 
     display: inline-block; 
- } 
+} 
 
 .toolbar input {
     background: linear-gradient(to bottom, #fff 25%, #c8c8c8 100%);
@@ -450,7 +450,7 @@ section textarea {
     resize: none;
 }
 
-.upload input {
+.upload input, .upload select {
     float: left;
     margin: 3px 0px 2px 30px;
 }

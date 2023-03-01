@@ -48,7 +48,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                 <input type="button" tabindex="-1" value="- Tree" onClick="deleteCurrentTree()"/>
                 <input type="button" tabindex="-1" id="editbtn" value="edit" onClick="editToggle()"/>
                 <input type="button" tabindex="-1" value="download" onClick="downloadToggle()"/>
-                <input type="button" tabindex="-1" value="save remote" onClick="saveremoteToggle()"/>
+                <input type="button" tabindex="-1" value="saveremote" id = "save_remote_toggle" onClick="saveremoteToggle()"/>
+                <input type="button" tabindex="-1" value = "Authenticate with Google Drive" id ="auth_btn" onClick="authenticate()"/>
                 <input type="button" tabindex="-1" value="direction" onClick="directionToggle()"/>
                 <input type="button" tabindex="-1" value="tags" onClick="tagsToggle()" />
                 <input type="button" tabindex="-1" value="listing" onClick="search()" id = "listingBtn"/>
@@ -66,8 +67,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         <section id="upload" class="upload">
             <p>Select CoNLL-U File:</p>
             <input style="float:left"  type="file" id="inputFile" name="treefiles[]"/><br>
-            <input style="float:right" type="button" id="treebtn" value="Upload" onClick="setupTreePage()" />
+            <input style="float:right" type="button" id="treebtn" value="Upload" onClick="setupTreePage(LocalFileInputChecker)" />
             <!-- <input style="float:right" type="button" id="treebtn" value="Upload" onClick="setJSONtreeData()" /> -->
+        </section>
+        </div>
+
+        <div class="container" style="width:100%">
+        <section id="upload1" class="upload" >
+            <p>MyDrive CoNLL-U files</p>
+            <input style="float:right" type="button" id="treebtn" value="Upload" onClick="setupTreePage(RemoteFileInputChecker)" />
         </section>
         </div>
          
@@ -160,14 +168,153 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
     <script src="scripts/saveSvgAsPng.js"></script>
     <script src="scripts/underscore-min.js"></script>
     <script src="scripts/cycle.js"></script>
-    <script src="https://apis.google.com/js/api.js"></script>
 
     <script>
+        // load needed GCP client libraries
         const GCP_CLIENT_ID = '872006556701-id30aupvkt32jgbqbe3gtqvbqq7oa914.apps.googleusercontent.com';
         const GCP_API_KEY = 'AIzaSyBphS90C05DkTg3INkMSv1iMQrvh0pcIGA';
+        // Discovery doc URL for APIs used by the quickstart
+        const GCP_DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
+
+        const GCP_API_SCOPES = 'https://www.googleapis.com/auth/drive.metadata.readonly';
+
+        let tokenClient;
+        let gapiInited = false;
+        let gisInited = false;
+        let files = [];
+
         // need to use most up-to-date documentation from Google Drive API
 
-      </script>
+        /**
+         * Callback after api.js is loaded.
+         */
+        function gapiLoaded() {
+            gapi.load('client', initializeGapiClient);
+        }
+
+        /**
+         * Callback after the API client is loaded.
+         */
+        async function initializeGapiClient() {
+            await gapi.client.init({
+                apiKey: GCP_API_KEY,
+                discoveryDocs: [GCP_DISCOVERY_DOC],
+            });
+            gapiInited = true;
+            maybeEnableButton($(".toolbar [id='auth_btn']"));
+        }
+
+        /**
+         * Callback after Google Identity Services are loaded.
+         */
+        function gisLoaded() {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: GCP_CLIENT_ID,
+                scope: GCP_API_SCOPES,
+                callback: '', // defined later
+            });
+            gisInited = true;
+            maybeEnableButton($(".toolbar [id='auth_btn']"));
+        }
+
+        function authenticate() {
+            // callbackafter access token is retrieved
+            tokenClient.callback = async (resp) => {
+                if (resp.error !== undefined) {
+                    throw (resp);
+                }
+                gapi.client.setToken({access_token: gapi.client.getToken().access_token});
+                alert("Authenticated with Google Drive successfully!");
+                // query files stored in MyDrive
+                queryFiles().then(rsp => {
+                    files = rsp;
+                    createFileDropDown(rsp);
+                }).catch(err => console.log(err));
+            };
+
+            // need to add a check for when the token expires
+            if (gapi.client.getToken() === null) {
+                // Prompt the user to select a Google Account and ask for consent to share their data
+                // when establishing a new session.
+                console.log("No token found, need to set token");
+                tokenClient.requestAccessToken({prompt: 'consent'});
+                
+            }
+            // if authenticated successfully, hide authenication button
+            $(".toolbar [id='auth_btn']").hide();
+        }
+
+        function createFileDropDown(files) {
+            let selectList = document.createElement("select");
+            selectList.id = "fileSelector";
+            let option;
+            option = document.createElement("option");
+            option.text = "Choose File";
+            selectList.appendChild(option);
+            for (let file of files) {
+                option = document.createElement("option");
+                option.text = file.name;
+                selectList.appendChild(option);
+            };
+            // set the default value to the first option
+            selectList.selectedIndex = 0;
+            document.getElementById("upload1").appendChild(selectList);
+            document.getElementById("upload1").style.display = "inline-block";
+        }
+
+        function queryFiles() {
+            return new Promise((resolve, reject) => {
+                let fileObjects = [];
+                let url, xhr, rsp;
+                url = 'https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent("appProperties has { key='parser' and value='PALMYRA' }");
+                sendRequest('GET', url, 'Authorization', 'Bearer ' + gapi.client.getToken().access_token).then(async rsp => {
+                    let files = JSON.parse(rsp).files;
+                    for (let file of files) {
+                        url = 'https://www.googleapis.com/drive/v3/files/' + file.id + '?alt=media';
+                        rsp = await sendRequest('GET', url, 'Authorization', 'Bearer ' + gapi.client.getToken().access_token);
+                        let fileNameParts = file.name.split('.');
+                        let fileName = fileNameParts.slice(0, fileNameParts.length).join('.') + '.conllu';
+                        let fileObject = new File([rsp], fileName, {type: file.type});
+                        fileObjects.push(fileObject);
+                    }
+                    resolve(fileObjects);
+                }).catch(err => {
+                    reject(err);
+                });
+            })
+
+        }
+
+        function sendRequest(method, url, headerName, headerValue) {
+            return new Promise((resolve, reject) => {
+                let xhr = new XMLHttpRequest();
+                xhr.open(method, url);
+                xhr.setRequestHeader(headerName, headerValue);
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        resolve(xhr.responseText);
+                    }
+                    else {
+                        reject(xhr.statusText);
+                    }
+                };
+                xhr.send();
+            });
+        }
+
+        /**
+         * Enables user interaction after all libraries are loaded.
+         */
+        function maybeEnableButton(e) {
+            if (gapiInited && gisInited) {
+                e.show();
+            }
+        }
+
+    </script>
+    
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 
     <script src="main.js"></script>
 

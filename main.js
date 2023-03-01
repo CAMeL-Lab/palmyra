@@ -116,7 +116,7 @@ $(window).resize(function () {
   saveTree();
   d3.select("body").select("svg").remove();
   getTree(treesArray[currentTreeIndex]);
-  update(root);
+  // update(root);
 });
 
 // Add listener to textbox when downloading a file. When the enter key is pressed, the file will be downloaded
@@ -729,17 +729,31 @@ function addFilenameToHtmlElements(original_filename) {
   output_file_name_elem.value = filename;
 }
 
-function setupTreePage() {
-  // get uploaded file to read
-  var x = document.getElementById("inputFile");
+function LocalFileInputChecker() {
+  let x = document.getElementById("inputFile");
   if (("files" in x) && (x.files.length == 0)) {
     alert(
       "Please select a ConllU/X file, or use use the Upload button in the sentence uploader section."
     );
-    return;
+    return null;
   }
+  return x.files[0];
+}
 
-  var file = x.files[0];
+function RemoteFileInputChecker() {
+  let x = document.getElementById("fileSelector");
+  if ((!x) || (x && x.selectedIndex == 0)) {
+    alert(
+      "Please select a ConllU/X file, or use use the Upload button in the sentence uploader section."
+    );
+    return null;
+  }
+  return files[x.selectedIndex-1];
+}
+
+function setupTreePage(FileInputChecker) {
+  let file = FileInputChecker();
+  if (!file) return;
   if (!isValidExtension(file.name)) {return;}
 
   addFilenameToHtmlElements(file.name);
@@ -803,6 +817,7 @@ var readSentenceTreeData = function () {
     } catch (e) {
       // alert user if error occurs
       alert("Text upload error!");
+      throw(e);
     }
   } else {
     view([$(".upload")], hideComponents)
@@ -1356,41 +1371,77 @@ var updateSentenceText = function (node) {
 
 function saveTreeRemote() {
   saveTree();
-  var filename = $("#filename").val();
+  var filename = $("#filename_remote").val();
   if (sessionStorage.treeData !== "undefined") {
-    var blob = convertTreesArrayToBlob();
+    var fileData = convertTreesArrayToString();
     // make API request to Google Drive to store file
-    saveTreeRemoteHelper();
+    saveTreeRemoteHelper(fileData, filename);
   } else {
     alert("Tree not found.");
   }
   hideAllWindows();
 }
 
-function saveTreeRemoteHelper() {
-  gapi.load('client:auth2', {
-    callback: function() {
-      // Initialize the API client and the auth2 library
-      gapi.client.init({
-        apiKey: GCP_API_KEY,
-        clientId: GCP_CLIENT_ID,
-        scope: 'https://www.googleapis.com/auth/drive.file'
-      }).then(function() {
-        // Sign in the user and obtain an access token
-        gapi.auth2.getAuthInstance().signIn().then(function() {
-          const accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
-          // Use the access token to make API calls
-          console.log(accessToken);
-        });
-      });
-    },
-    onerror: function() {
-      // Handle errors loading the libraries
+
+// multipart upload only works for file < 5 MB
+// need to construct request body with specification from Drive API
+// how to update an existing file: use PATCH? No access control origin set on request resource
+// https://developers.google.com/drive/api/v3/reference/files/update
+// we can also store the id of the current file being edited
+async function uploadFile(fileData, fileName) {
+  let accessToken = gapi.client.getToken().access_token;
+  let xhr = new XMLHttpRequest();
+	xhr.open('post', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', true);
+	xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+  xhr.setRequestHeader('Content-Type', 'multipart/related; boundary="boundary"');
+  // xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
+	let requestBody =
+    '--boundary\r\n' +
+    'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+    JSON.stringify({
+      name: fileName,
+      appProperties: {
+        'parser': 'PALMYRA'
+      }
+    }) +
+    '\r\n\r\n' +
+    '--boundary\r\n' +
+    'Content-Type: ' + 'text/plain;charset=utf-8' + '\r\n\r\n' + 
+    fileData + '\r\n--boundary--';
+
+  xhr.onload = () => {
+		if (xhr.status === 200) {
+      let response = JSON.parse(xhr.responseText);
+      alert("File saved to MyDrive sucessfully!");
+    } else {
+      console.log('Error uploading file:', xhr.statusText);
+      alert("Failed to save file to MyDrive!")
     }
-  });
+	};
+
+  xhr.send(requestBody);
+};
+
+function saveTreeRemoteHelper(fileData, fileName) {
+  tokenClient.callback = async (resp) => {
+    if (resp.error !== undefined) {
+      throw (resp);
+    }
+    await uploadFile(fileData, fileName);
+  };
+
+  if (gapi.client.getToken() === null) {
+    // Prompt the user to select a Google Account and ask for consent to share their data
+    // when establishing a new session.
+    tokenClient.requestAccessToken({prompt: 'consent'});
+  }
+  else {
+    // Skip display of account chooser and consent dialog for an existing session.
+    tokenClient.requestAccessToken({prompt: ''});
+  }
 }
 
-function convertTreesArrayToBlob() {
+function convertTreesArrayToString() {
   var output = "";
   for (var i = 0; i < treesArray.length; i++) {
     meta_keys = Object.keys(treesArray[i].meta);
@@ -1421,9 +1472,7 @@ function convertTreesArrayToBlob() {
     let clone = JSON.parse(JSON.stringify(JSON.decycle(treesArray[i])));
     output = output + convertJSONToCONLL(clone) + "\n\n";
   }
-  // uses Blob and FileSaver libraries
-  var blob = new Blob([output], { type: "text/plain;charset=utf-8" });
-  return blob;
+  return output
 }
 
 // output CONLL files for the tree
@@ -1550,7 +1599,7 @@ var saveremoteToggle = function () {
   if (focusWindow !== "saveremote") {
     hideAllWindows();
     $("#saveremote").show();
-    focusWindow = "save_remote";
+    focusWindow = "saveremote";
   } else {
     hideAllWindows();
   }
@@ -2789,8 +2838,11 @@ var getTree = function (treeData) {
     // adds English bdi tags to numbers
     fullSen.innerHTML = addEngBdiToNum(fullSen.innerHTML);
 
+    // $("#auth_btn").hide();
     $("#sents").show();
-    $(".toolbar input").show();
+    $(".toolbar input[id!='save_remote_toggle']").show();
+    maybeEnableButton($("#save_remote_toggle"));
+    view([$("#auth_btn")], hideComponents); 
 
     // force full tree redraw to update dynamic changes like doubleclick etc.
     fullTree.selectAll(".node").remove();
@@ -3273,11 +3325,4 @@ var getTree = function (treeData) {
 
   // lay out the initial tree
   update(root);
-};
-
-module.exports = {
-  readSentenceTreeData: readSentenceTreeData,
-  search: search,
-  hideAllWindows: hideAllWindows,
-  listingBtn: document.getElementById("listingBtn")
 };
