@@ -75,6 +75,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         <div class="container" style="width:100%">
         <section id="upload1" class="upload" >
             <p>MyDrive CoNLL-U files</p>
+            <input style="float: left; display: none" type="button" id="browse_btn" value="Browse MyDrive" />
+            <p id = "picked_filename" style = "float: left"></p>
             <input style="float:right" type="button" id="treebtn" value="Upload" onClick="setupTreePage(RemoteFileInputChecker)" />
         </section>
         </div>
@@ -173,23 +175,24 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         // load needed GCP client libraries
         const GCP_CLIENT_ID = '872006556701-id30aupvkt32jgbqbe3gtqvbqq7oa914.apps.googleusercontent.com';
         const GCP_API_KEY = 'AIzaSyBphS90C05DkTg3INkMSv1iMQrvh0pcIGA';
-        // Discovery doc URL for APIs used by the quickstart
         const GCP_DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
-
         const GCP_API_SCOPES = 'https://www.googleapis.com/auth/drive.metadata.readonly';
 
         let tokenClient;
-        let gapiInited = false;
+        let gapiClientInited = false;
+        let gapiPickerInited = false;
         let gisInited = false;
-        let files = [];
-
-        // need to use most up-to-date documentation from Google Drive API
+        let pickedFile;
 
         /**
          * Callback after api.js is loaded.
          */
-        function gapiLoaded() {
-            gapi.load('client', initializeGapiClient);
+        function gapiLoaded(libraryName, callback) {
+            gapi.load(libraryName, callback);
+        }
+
+        function initializeGapiPicker() {
+            gapiPickerInited = true;
         }
 
         /**
@@ -200,7 +203,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                 apiKey: GCP_API_KEY,
                 discoveryDocs: [GCP_DISCOVERY_DOC],
             });
-            gapiInited = true;
+            gapiClientInited = true;
             maybeEnableButton($(".toolbar [id='auth_btn']"));
         }
 
@@ -225,6 +228,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                 }
                 gapi.client.setToken({access_token: gapi.client.getToken().access_token});
                 alert("Authenticated with Google Drive successfully!");
+                // enable browse button
+                enableBrowseButton();
                 // query files stored in MyDrive
                 queryFiles().then(rsp => {
                     files = rsp;
@@ -238,51 +243,54 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                 // when establishing a new session.
                 console.log("No token found, need to set token");
                 tokenClient.requestAccessToken({prompt: 'consent'});
-                
             }
             // if authenticated successfully, hide authenication button
             $(".toolbar [id='auth_btn']").hide();
         }
 
-        function createFileDropDown(files) {
-            let selectList = document.createElement("select");
-            selectList.id = "fileSelector";
-            let option;
-            option = document.createElement("option");
-            option.text = "Choose File";
-            selectList.appendChild(option);
-            for (let file of files) {
-                option = document.createElement("option");
-                option.text = file.name;
-                selectList.appendChild(option);
+        function enableBrowseButton() {
+            let browseBtn = document.getElementById("browse_btn");
+            browseBtn.style.display = "inline-block";
+            browseBtn.onclick = () => {
+                showPicker(gapi.client.getToken().access_token, pickerCallback);
             };
-            // set the default value to the first option
-            selectList.selectedIndex = 0;
-            document.getElementById("upload1").appendChild(selectList);
-            document.getElementById("upload1").style.display = "inline-block";
         }
 
-        function queryFiles() {
-            return new Promise((resolve, reject) => {
-                let fileObjects = [];
-                let url, xhr, rsp;
-                url = 'https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent("appProperties has { key='parser' and value='PALMYRA' }");
-                sendRequest('GET', url, 'Authorization', 'Bearer ' + gapi.client.getToken().access_token).then(async rsp => {
-                    let files = JSON.parse(rsp).files;
-                    for (let file of files) {
-                        url = 'https://www.googleapis.com/drive/v3/files/' + file.id + '?alt=media';
-                        rsp = await sendRequest('GET', url, 'Authorization', 'Bearer ' + gapi.client.getToken().access_token);
-                        let fileNameParts = file.name.split('.');
-                        let fileName = fileNameParts.slice(0, fileNameParts.length).join('.') + '.conllu';
-                        let fileObject = new File([rsp], fileName, {type: file.type});
-                        fileObjects.push(fileObject);
-                    }
-                    resolve(fileObjects);
-                }).catch(err => {
-                    reject(err);
-                });
-            })
+        function showPicker(accessToken, callback) {
+            let picker = new google.picker.PickerBuilder()
+            .addView(google.picker.ViewId.DOCS)
+            .setOAuthToken(accessToken)
+            .setDeveloperKey(GCP_API_KEY)
+            .setCallback(callback)
+            .build();
+            picker.setVisible(true);
+        }
 
+        // need to retrieve the content of the picked file
+        function pickerCallback(data) {
+            // if the user picked a file
+            // need to check if the file is a conllu file
+            if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
+                let doc = data[google.picker.Response.DOCUMENTS][0];
+                let fileNameParts = doc.name.split('.');
+                if (fileNameParts[fileNameParts.length - 1] !== 'conllu' && fileNameParts[fileNameParts.length - 1] !== 'conllx') {
+                    alert(
+                        "File does not end with the .conllu/conllx extension, please upload a ConllU/X file."
+                    );
+                    return;
+                }
+                // need to add extension for conllx files as well
+                let url = 'https://www.googleapis.com/drive/v3/files/' + doc.id + '?alt=media';
+                sendRequest('GET', url, 'Authorization', 'Bearer ' + gapi.client.getToken().access_token).then(rsp => {
+                    // show name of picked file
+                    // set global pickedFile variable
+                    document.getElementById("picked_filename").innerHTML = doc.name;
+                    pickedFile = new File([rsp], doc.name, {type: doc.mimeType});
+                }).catch(err => {
+                    console.log(err);
+                    alert("Failed to retrieve file!");
+                });
+            }
         }
 
         function sendRequest(method, url, headerName, headerValue) {
@@ -306,14 +314,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
          * Enables user interaction after all libraries are loaded.
          */
         function maybeEnableButton(e) {
-            if (gapiInited && gisInited) {
+            if (gapiClientInited && gapiPickerInited && gisInited) {
                 e.show();
             }
         }
 
     </script>
     
-    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded('client', initializeGapiClient)"></script>
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded('picker', initializeGapiPicker)"></script>
     <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 
     <script src="main.js"></script>

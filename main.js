@@ -741,14 +741,14 @@ function LocalFileInputChecker() {
 }
 
 function RemoteFileInputChecker() {
-  let x = document.getElementById("fileSelector");
-  if ((!x) || (x && x.selectedIndex == 0)) {
+  // check if there is a picked file
+  // return the File object
+  if (!document.getElementById("picked_filename").innerHTML) {
     alert(
       "Please select a ConllU/X file, or use use the Upload button in the sentence uploader section."
     );
-    return null;
   }
-  return files[x.selectedIndex-1];
+  return pickedFile;
 }
 
 function setupTreePage(FileInputChecker) {
@@ -1371,11 +1371,14 @@ var updateSentenceText = function (node) {
 
 function saveTreeRemote() {
   saveTree();
-  var filename = $("#filename_remote").val();
+  let fileName = $("#filename_remote").val();
+  let fileNameParts = fileName.split('.');
+  // need to add extension for conllx files as well
+  fileName = fileNameParts.slice(0, fileNameParts.length).join('.') + '.conllu';
   if (sessionStorage.treeData !== "undefined") {
     var fileData = convertTreesArrayToString();
     // make API request to Google Drive to store file
-    saveTreeRemoteHelper(fileData, filename);
+    saveTreeRemoteHelper(fileData, fileName);
   } else {
     alert("Tree not found.");
   }
