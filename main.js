@@ -54,7 +54,7 @@ var lastClickedNodeId = 0;
 var focusWindow = "";
 
 var alreadyReadConfigFiles = [];
-configRead = false;
+var configRead = false;
 
 // const GCP_CLIENT_ID = '872006556701-id30aupvkt32jgbqbe3gtqvbqq7oa914.apps.googleusercontent.com';
 // const GCP_API_KEY = 'AIzaSyBphS90C05DkTg3INkMSv1iMQrvh0pcIGA';
@@ -66,6 +66,68 @@ var settings = [
   ["ysep", 10],
   ["currentFont", "standard"],
 ];
+
+var undo_stack = new Array();
+var redo_stack = new Array();
+
+function undo() {
+  if (undo_stack.length > 1 && redo_stack.length < 10) {
+    redo_stack.push(undo_stack.pop());
+    // display tree
+    sessionStorage.removeItem("treeData");
+    saveTree();
+    d3.select("body").select("svg").remove();
+    getTree(undo_stack[undo_stack.length-1]);
+    update(root);
+    selectRoot();
+    showSelection();
+    // reset focusWindow
+    focusWindow = "";
+  }
+}
+
+function redo() {
+  if (redo_stack.length > 0) {
+    undo_stack.push(redo_stack.pop());
+    // display tree
+    sessionStorage.removeItem("treeData");
+    saveTree();
+    d3.select("body").select("svg").remove();
+    getTree(undo_stack[undo_stack.length-1]);
+    update(root);
+    selectRoot();
+    showSelection();
+    // reset focusWindow
+    focusWindow = "";
+  }
+}
+
+// update redo stack and undo stack when a tree is updated
+function UndoRedoHelperOnTreeUpdate() {
+  if (undo_stack.length > 0) {
+    // limit undo steps to 10
+    if (undo_stack.length == 10) undo_stack.shift();
+    cur_version = undo_stack.pop();
+    undo_stack.push(JSON.parse(JSON.stringify(JSON.decycle(cur_version)))); // push deep copy of current version to stack
+    undo_stack.push(cur_version); // then push current version to stack for modification
+    redo_stack = new Array();
+  }
+}
+
+// update redo stack and undo stack when moving to a new tree
+function UndoRedoHelperOnMoveToTree(treeIndex) {
+  undo_stack = new Array(treesArray[treeIndex]);
+  redo_stack = new Array();
+}
+
+function UndoRedoHelperOnTreePageSetUp() {
+  undo_stack = new Array(treesArray[0]);
+}
+
+window.addEventListener('keydown', function(event) {
+  if ((event.metaKey || event.ctrlKey) && !event.shiftKey && (event.key === 'z' || event.key === 'Z')) undo();
+  if ((event.metaKey || event.ctrlKey) && event.shiftKey && ( event.key === 'z' || event.key === 'Z')) redo();
+});
 
 // if custom setting not saved, initialize with default
 for (var k = 0; k < settings.length; k++) {
@@ -131,13 +193,26 @@ download_form.addEventListener("keydown", function (event) {
     document.getElementById("dwnbtn").click();
     /* download_button.click(); */
     /* document.querySelector('form').submit(); */
-  }
+  };
 });
 
-//Read the config file
-var readConfigFile = function () {
-  configRead = false;
+function loadFile(file) {
+  return new Promise((resolve, reject) => {
+    var reader = new FileReader();
+    reader.onload = function () {
+      parseConfig(reader.result);
+      configRead = true;
+      resolve();
+    };
+    reader.onerror = function (error) {
+      reject(error);
+    }
+    reader.readAsText(file);
+  })
+}
 
+//Read the config file
+var readConfigFile = async function () {
   var x = document.getElementById("configFile");
   var input = "";
 
@@ -150,26 +225,18 @@ var readConfigFile = function () {
       var file = x.files[0];
       if (!alreadyReadConfigFiles.includes(file)) {
         alreadyReadConfigFiles.push(file);
-        var reader = new FileReader();
-        reader.onload = function (e) {
-          parseConfig(reader.result);
-          configRead = true;
-        };
-        reader.readAsText(file);
+        await loadFile(file);
       }
     }
   }
-
   return;
 };
 
 //Read the config file that is called when using the sentence uploader which will continue to call
 //the readSentenceTreeData when the FileReader finishes loading the file.
-var readConfigFileForSentence = function () {
-  readConfigFile();
-  if ("files" in document.getElementById("configFile")) {
-    readSentenceTreeData();
-  }
+var readConfigFileForSentence = async function () {
+  await readConfigFile();
+  readSentenceTreeData();
 };
 
 var parseConfig = function (content) {
@@ -751,14 +818,14 @@ function RemoteFileInputChecker() {
   return pickedFile;
 }
 
-function setupTreePage(FileInputChecker) {
+async function setupTreePage(FileInputChecker) {
   let file = FileInputChecker();
   if (!file) return;
   if (!isValidExtension(file.name)) {return;}
 
   addFilenameToHtmlElements(file.name);
+  await readConfigFile();
   parseConllFile(file);
-  readConfigFile();
 }
 
 var parseConllFile = function (file) {
@@ -767,7 +834,7 @@ var parseConllFile = function (file) {
   reader.onload = function (e) {
     treesArray = convertToJSON(reader.result);
     currentTreeIndex = 0;
-
+    UndoRedoHelperOnTreePageSetUp();
     // hide upload window
     view([$(".upload")], hideComponents);
     try {
@@ -813,7 +880,8 @@ var readSentenceTreeData = function () {
       // try to store tree data and display tree
       treesArray = convertToJSON(treeDataArray.join("\n"));
       getTree(treesArray[0]);
-      view([$(".upload")], hideComponents)
+      view([$(".upload")], hideComponents);
+      UndoRedoHelperOnTreePageSetUp();
     } catch (e) {
       // alert user if error occurs
       alert("Text upload error!");
@@ -873,6 +941,8 @@ var addNewTree = function () {
   numberOfNodesArray.push(0);
   getTree(treesArray[currentTreeIndex]);
   update(root);
+
+  UndoRedoHelperOnMoveToTree(currentTreeIndex);
   //$('.morphologyMerge').show();
 };
 
@@ -896,6 +966,7 @@ var deleteCurrentTree = function () {
       }
       getTree(treesArray[currentTreeIndex]);
       update(root);
+      UndoRedoHelperOnMoveToTree(currentTreeIndex);
     }
   } else {
     //if there is only one tree
@@ -909,6 +980,9 @@ var deleteCurrentTree = function () {
 };
 
 function moveToTreeHelper(treeIndex) {
+  if (treeIndex != currentTreeIndex) {
+    UndoRedoHelperOnMoveToTree(treeIndex);  
+  }
   sessionStorage.removeItem("treeData");
   saveTree();
   currentTreeIndex = treeIndex;
@@ -988,6 +1062,7 @@ var directionToggle = function () {
 
 // edit the relation labels through keystrokes
 var editLabel = function (labelText) {
+  UndoRedoHelperOnTreeUpdate();
   d3.select("text#linkLabel" + selectedNodeLink.id).text(labelText);
   selectedNodeLink.link = labelText;
   //nodeSingleClick(selectedNodeLink);
@@ -998,6 +1073,7 @@ var editLabel = function (labelText) {
 // edit the relation labels through button clicks
 var editLabelByButton = function (inputSource) {
   if (selectedNodeLink) {
+    UndoRedoHelperOnTreeUpdate();
     labelText = inputSource.currentTarget.value;
     d3.select("text#linkLabel" + selectedNodeLink.id).text(labelText);
     selectedNodeLink.link = labelText;
@@ -1020,6 +1096,7 @@ var editLabelByButton = function (inputSource) {
 
 // edit the POS tags through keystrokes
 var editPOS = function (posText) {
+  UndoRedoHelperOnTreeUpdate();
   d3.select("text#nodePOS" + selectedNodeLink.id).text(posText);
   selectedNodeLink.pos = posText;
   //nodeSingleClick(selectedNodeLink);
@@ -1030,9 +1107,10 @@ var editPOS = function (posText) {
 // edit the POS tags through button clicks
 var editPOSByButton = function (inputSource) {
   if (selectedNodeLink) {
+    UndoRedoHelperOnTreeUpdate();
     posText = inputSource.currentTarget.value;
     d3.select("text#nodePOS" + selectedNodeLink.id).text(posText);
-    selectedNodeLink.pos = posText;
+    selectedNodeLink.pos = posText; 
 
     // d3.select('.links').selectAll('path').style('stroke', '#b3b3b3');
     // d3.select('.links').selectAll('text').style('stroke', 'white');
@@ -1058,6 +1136,7 @@ var cancelMorphology = function () {
 
 // reset the morphology changes
 var saveMorphology = function () {
+  UndoRedoHelperOnTreeUpdate();
   var morphologyArray = document
     .getElementById("morphologyName")
     .value.split(" ");
@@ -1174,7 +1253,7 @@ function toggleChildrenOut(d) {
 var selectRoot = function () {
   if (selectedNodeLink === undefined) {
     selectedNodeLink = root;
-    nodeSingleClick(root);
+    // nodeSingleClick(root);
     showSelection();
   } else {
     switchNodeSelection(selectedNodeLink, root);
@@ -1492,7 +1571,7 @@ var downloadTree = function () {
 };
 
 // the function that gets called from the listing button
-var search = function () {
+var search = function (treesArray) {
   if (
     window.getComputedStyle(document.getElementById("listing")).display ===
     "none"
@@ -1504,7 +1583,7 @@ var search = function () {
     } else {
       list.setAttribute("dir", "ltr");
     }
-
+    
     for (var i = 0; i < treesArray.length; i++) {
       var x = document.createElement("LI");
       x.setAttribute("id", i);
@@ -2503,48 +2582,53 @@ var getTree = function (treeData) {
       node.attr("transform", "translate(" + d.x0 + "," + d.y0 + ")");
       updateTempConnector();
     })
-    .on("dragend", function (d) {
+    .on("dragend", function (d) { 
+      // check that this is a dragend event on a node
       if (d === root) {
         return;
       }
       domNode = this;
-      if (selectedNode) {
-        // Make sure that the node being added to is expanded so user can see added node is correctly moved
-        expand(selectedNode);
-        // now remove the element from the parent, and insert it into the new elements children
-        var index = draggingNode.parent.children.indexOf(draggingNode);
-        if (index > -1) {
-          draggingNode.parent.children.splice(index, 1);
-        }
-        // Make sure it works whether children are expanded or not!
-        if (
-          typeof selectedNode.children !== "undefined" ||
-          typeof selectedNode._children !== "undefined"
-        ) {
-          if (typeof selectedNode.children !== "undefined") {
-            selectedNode.children.push(draggingNode);
-            // sort nodes to maintain original word order!
-            selectedNode.children = selectedNode.children.sort(function (a, b) {
-              return b.id - a.id;
-            });
-          } else {
-            // sort nodes to maintain original word order!
-            selectedNode._children.push(draggingNode);
-            selectedNode._children = selectedNode.children.sort(function (
-              a,
-              b
-            ) {
-              return a.id - b.id;
-            });
+      if (selectedNode) { // if the node is dropped into another node
+        if (d3.event.sourceEvent.srcElement.nodeName == 'circle' && d3.event.sourceEvent.srcElement.className.baseVal == 'ghostCircle show') { // the actual node-drop-into-node action
+          UndoRedoHelperOnTreeUpdate(); // update the undo stack before the top element (which is also the current state of the tree) is updated
+          // Make sure that the node being added to is expanded so user can see added node is correctly moved
+          expand(selectedNode);
+          // now remove the element from the parent, and insert it into the new elements children
+          var index = draggingNode.parent.children.indexOf(draggingNode);
+          if (index > -1) {
+            draggingNode.parent.children.splice(index, 1);
           }
-        } else {
-          selectedNode.children = [];
-          selectedNode.children.push(draggingNode);
+          // Make sure it works whether children are expanded or not!
+          if (
+            typeof selectedNode.children !== "undefined" ||
+            typeof selectedNode._children !== "undefined"
+          ) {
+            if (typeof selectedNode.children !== "undefined") {
+              selectedNode.children.push(draggingNode);
+              // sort nodes to maintain original word order!
+              selectedNode.children = selectedNode.children.sort(function (a, b) {
+                return b.id - a.id;
+              });
+            } else {
+              // sort nodes to maintain original word order!
+              selectedNode._children.push(draggingNode);
+              selectedNode._children = selectedNode.children.sort(function (
+                a,
+                b
+              ) {
+                return a.id - b.id;
+              });
+            }
+          } else {
+            selectedNode.children = [];
+            selectedNode.children.push(draggingNode);
+          }
+          endDrag();
+          selectRoot();
+          showSelection();
         }
-        endDrag();
-        selectRoot();
-        showSelection();
-      } else {
+      } 
+      else { 
         endDrag();
         selectRoot();
         showSelection();
@@ -3055,7 +3139,7 @@ var getTree = function (treeData) {
         .text(function (d) {
           return d.name;
         })
-        .on("click", morphologyClick);
+        .on("click", (d) => morphologyClick(d));
 
       // add Left Merge icon to morphology
       if (orientation == "r-to-l") {
@@ -3075,7 +3159,10 @@ var getTree = function (treeData) {
           .attr("dy", "2.6em")
           .attr("text-anchor", "end")
           .text("\u25B6")
-          .on("click", morphologyLeftMerge);
+          .on("click", (d) => {
+            UndoRedoHelperOnTreeUpdate();
+            morphologyLeftMerge(d);
+          });
       } else {
         nodeEnter
           .filter(function (d, i) {
@@ -3093,7 +3180,10 @@ var getTree = function (treeData) {
           .attr("dy", "2.6em")
           .attr("text-anchor", "start")
           .text("\u25C0")
-          .on("click", morphologyLeftMerge);
+          .on("click", (d) => {
+            UndoRedoHelperOnTreeUpdate();
+            morphologyLeftMerge(d);
+          });
       }
 
       // add Right Merge icon to morphology
@@ -3114,7 +3204,10 @@ var getTree = function (treeData) {
           .attr("dy", "2.6em")
           .attr("text-anchor", "start")
           .text("\u25C0")
-          .on("click", morphologyRightMerge);
+          .on("click", (d) => {
+            UndoRedoHelperOnTreeUpdate();
+            morphologyRightMerge(d);
+          });
       } else {
         nodeEnter
           .filter(function (d, i) {
@@ -3132,7 +3225,10 @@ var getTree = function (treeData) {
           .attr("dy", "2.6em")
           .attr("text-anchor", "end")
           .text("\u25B6")
-          .on("click", morphologyRightMerge);
+          .on("click", (d) => {
+            UndoRedoHelperOnTreeUpdate();
+            morphologyRightMerge(d);
+          });
       }
 
       // add Delete icon to morphology
@@ -3153,7 +3249,10 @@ var getTree = function (treeData) {
         .attr("text-anchor", "middle")
         .style("fill", "red")
         .text("\u2716")
-        .on("click", deleteNode);
+        .on("click", (d) => {
+          UndoRedoHelperOnTreeUpdate();
+          deleteNode(d);
+        });
 
       // add new node icon to morphology
       nodeEnter
@@ -3182,6 +3281,7 @@ var getTree = function (treeData) {
         .style("fill", "light-blue")
         .text("\uFF0B")
         .on("click", function (d) {
+          UndoRedoHelperOnTreeUpdate();
           addNode(d, "left");
         });
 
@@ -3207,6 +3307,7 @@ var getTree = function (treeData) {
         .style("fill", "light-blue")
         .text("\uFF0B")
         .on("click", function (d) {
+          UndoRedoHelperOnTreeUpdate();
           addNode(d, "end");
         });
     } else {
@@ -3229,6 +3330,7 @@ var getTree = function (treeData) {
         .style("fill", "light-blue")
         .text("\uFF0B")
         .on("click", function (d) {
+          UndoRedoHelperOnTreeUpdate();
           addNode(d, "root");
         });
     }
@@ -3318,7 +3420,7 @@ var getTree = function (treeData) {
     });
 
     for (var i = 0; i < tempTree.length; i++) {
-      if (!tempTree[i].duplicate && tempTree[i].children.length > 1) {
+      if (!tempTree[i].duplicate && tempTree[i].children && tempTree[i].children.length > 1) {
         tempTree[i].children.sort(function (a, b) {
           return parseFloat(a.id) - parseFloat(b.id);
         });
