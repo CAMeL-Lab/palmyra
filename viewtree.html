@@ -182,6 +182,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         let gapiClientInited = false;
         let gapiPickerInited = false;
         let gisInited = false;
+        let isAuthenticated = false;
         let pickedFile;
 
         /**
@@ -204,7 +205,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                 discoveryDocs: [GCP_DISCOVERY_DOC],
             });
             gapiClientInited = true;
-            maybeEnableButton($(".toolbar [id='auth_btn']"));
+            maybeEnableAuthButton();
         }
 
         /**
@@ -217,7 +218,18 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                 callback: '', // defined later
             });
             gisInited = true;
-            maybeEnableButton($(".toolbar [id='auth_btn']"));
+            maybeEnableAuthButton();
+        }
+
+        function onAuthenticated() {
+            // set access token in gapi client for future requests
+            gapi.client.setToken({access_token: getTokenFromSessionStorage()});
+            isAuthenticated = true;
+            alert("Authenticated with Google Drive successfully!");
+            // enable browse button
+            enableBrowseButton();
+            // if authenticated successfully, hide authenication button
+            $(".toolbar [id='auth_btn']").hide();
         }
 
         function authenticate() {
@@ -226,17 +238,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                 if (resp.error !== undefined) {
                     throw (resp);
                 }
-                gapi.client.setToken({access_token: gapi.client.getToken().access_token});
-                alert("Authenticated with Google Drive successfully!");
-                // enable browse button
-                enableBrowseButton();
-                // query files stored in MyDrive
-                queryFiles().then(rsp => {
-                    files = rsp;
-                    createFileDropDown(rsp);
-                }).catch(err => console.log(err));
+                setTokenInSessionStorage(gapi.client.getToken().access_token);
+                onAuthenticated();
             };
-
             // need to add a check for when the token expires
             if (gapi.client.getToken() === null) {
                 // Prompt the user to select a Google Account and ask for consent to share their data
@@ -244,8 +248,14 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                 console.log("No token found, need to set token");
                 tokenClient.requestAccessToken({prompt: 'consent'});
             }
-            // if authenticated successfully, hide authenication button
-            $(".toolbar [id='auth_btn']").hide();
+        }
+
+        function setTokenInSessionStorage(token) {
+            sessionStorage.setItem('GCP_access_token', token);
+        }
+
+        function getTokenFromSessionStorage() {
+            return sessionStorage.getItem('GCP_access_token');
         }
 
         function enableBrowseButton() {
@@ -313,11 +323,24 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         /**
          * Enables user interaction after all libraries are loaded.
          */
-        function maybeEnableButton(e) {
-            if (gapiClientInited && gapiPickerInited && gisInited) {
-                e.show();
+        function maybeEnableAuthButton() {
+            if (gapiClientInited && gapiPickerInited && gisInited && !isAuthenticated) {
+                $(".toolbar [id='auth_btn']").show();
             }
         }
+
+        function maybeEnableSaveRemoteButton() {
+            if (gapiClientInited && gisInited) {
+                $("#save_remote_toggle").show();
+            }
+        }
+
+        // retrieve access token from session storage when page is loaded
+        window.onload = function() {
+            if (getTokenFromSessionStorage()) {
+                onAuthenticated();
+            }
+        };
 
     </script>
     

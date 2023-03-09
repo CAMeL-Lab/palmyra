@@ -841,6 +841,7 @@ var parseConllFile = function (file) {
       getTree(treesArray[0]);
     } catch (e) {
       // alert user if error occurs
+      console.log(e)
       alert("File upload error!");
     }
   };
@@ -1470,7 +1471,7 @@ function saveTreeRemote() {
 // how to update an existing file: use PATCH? No access control origin set on request resource
 // https://developers.google.com/drive/api/v3/reference/files/update
 // we can also store the id of the current file being edited
-async function uploadFile(fileData, fileName) {
+function uploadFile(fileData, fileName) {
   let accessToken = gapi.client.getToken().access_token;
   let xhr = new XMLHttpRequest();
 	xhr.open('post', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', true);
@@ -1505,11 +1506,13 @@ async function uploadFile(fileData, fileName) {
 };
 
 function saveTreeRemoteHelper(fileData, fileName) {
-  tokenClient.callback = async (resp) => {
+  tokenClient.callback = (resp) => {
     if (resp.error !== undefined) {
       throw (resp);
     }
-    await uploadFile(fileData, fileName);
+    setTokenInSessionStorage(gapi.client.getToken().access_token);
+    onAuthenticated();
+    uploadFile(fileData, fileName);
   };
 
   if (gapi.client.getToken() === null) {
@@ -1519,7 +1522,8 @@ function saveTreeRemoteHelper(fileData, fileName) {
   }
   else {
     // Skip display of account chooser and consent dialog for an existing session.
-    tokenClient.requestAccessToken({prompt: ''});
+    // tokenClient.requestAccessToken({prompt: ''});
+    uploadFile(fileData, fileName);
   }
 }
 
@@ -2925,10 +2929,9 @@ var getTree = function (treeData) {
     // adds English bdi tags to numbers
     fullSen.innerHTML = addEngBdiToNum(fullSen.innerHTML);
 
-    // $("#auth_btn").hide();
     $("#sents").show();
     $(".toolbar input[id!='save_remote_toggle']").show();
-    maybeEnableButton($("#save_remote_toggle"));
+    maybeEnableSaveRemoteButton();
     view([$("#auth_btn")], hideComponents); 
 
     // force full tree redraw to update dynamic changes like doubleclick etc.
