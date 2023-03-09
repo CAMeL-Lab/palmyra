@@ -406,7 +406,6 @@ var parseConfig = function (content) {
 
         lexicalFeats.append(titleParagraph);
         lexicalFeats.appendChild(lexDiv);
-        console.log();
       }
     }
 
@@ -803,7 +802,8 @@ function LocalFileInputChecker() {
       "Please select a ConllU/X file, or use use the Upload button in the sentence uploader section."
     );
     return null;
-  }
+  };
+  newRemoteFile = true;
   return x.files[0];
 }
 
@@ -1451,34 +1451,30 @@ var updateSentenceText = function (node) {
 
 function saveTreeRemote() {
   saveTree();
-  let fileName = $("#filename_remote").val();
-  let fileNameParts = fileName.split('.');
-  // need to add extension for conllx files as well
-  fileName = fileNameParts.slice(0, fileNameParts.length).join('.') + '.conllu';
   if (sessionStorage.treeData !== "undefined") {
     var fileData = convertTreesArrayToString();
     // make API request to Google Drive to store file
-    saveTreeRemoteHelper(fileData, fileName);
+    saveTreeRemoteHelper(fileData);
   } else {
     alert("Tree not found.");
   }
   hideAllWindows();
 }
 
-
 // multipart upload only works for file < 5 MB
-// need to construct request body with specification from Drive API
-// how to update an existing file: use PATCH? No access control origin set on request resource
-// https://developers.google.com/drive/api/v3/reference/files/update
-// we can also store the id of the current file being edited
-function uploadFile(fileData, fileName) {
+// need to construct request body with specification from Drive API: https://developers.google.com/drive/api/guides/manage-uploads#multipart
+function uploadFile(fileData) {
   let accessToken = gapi.client.getToken().access_token;
   let xhr = new XMLHttpRequest();
-	xhr.open('post', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', true);
-	xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-  xhr.setRequestHeader('Content-Type', 'multipart/related; boundary="boundary"');
-  // xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
-	let requestBody =
+  let fileName;
+  let requestBody;
+  if (!fileId) { // upload a new file
+    fileName = $("#filename").val();
+    let fileNameParts = fileName.split('.');
+    // need to add extension for conllx files as well
+    fileName = fileNameParts.slice(0, fileNameParts.length).join('.') + '.conllu';
+    xhr.open('POST', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', true);
+    requestBody =
     '--boundary\r\n' +
     'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
     JSON.stringify({
@@ -1491,39 +1487,45 @@ function uploadFile(fileData, fileName) {
     '--boundary\r\n' +
     'Content-Type: ' + 'text/plain;charset=utf-8' + '\r\n\r\n' + 
     fileData + '\r\n--boundary--';
-
+    xhr.setRequestHeader('Content-Type', 'multipart/related; boundary="boundary"');
+  }
+  else { // update an existing file
+    xhr.open('PATCH', 'https://www.googleapis.com/upload/drive/v3/files/'+fileId+'?uploadType=media', true);
+    requestBody = fileData;
+  }
+	xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+  
   xhr.onload = () => {
 		if (xhr.status === 200) {
       let response = JSON.parse(xhr.responseText);
+      fileId = response.id;
       alert("File saved to MyDrive sucessfully!");
     } else {
       console.log('Error uploading file:', xhr.statusText);
       alert("Failed to save file to MyDrive!")
     }
 	};
-
   xhr.send(requestBody);
 };
 
-function saveTreeRemoteHelper(fileData, fileName) {
+function saveTreeRemoteHelper(fileData) {
   tokenClient.callback = (resp) => {
     if (resp.error !== undefined) {
       throw (resp);
     }
     setTokenInSessionStorage(gapi.client.getToken().access_token);
     onAuthenticated();
-    uploadFile(fileData, fileName);
+    uploadFile(fileData);
   };
 
   if (gapi.client.getToken() === null) {
     // Prompt the user to select a Google Account and ask for consent to share their data
-    // when establishing a new session.
+    // when establishing a new session
     tokenClient.requestAccessToken({prompt: 'consent'});
   }
   else {
     // Skip display of account chooser and consent dialog for an existing session.
-    // tokenClient.requestAccessToken({prompt: ''});
-    uploadFile(fileData, fileName);
+    uploadFile(fileData);
   }
 }
 
@@ -1676,16 +1678,6 @@ var downloadToggle = function () {
     hideAllWindows();
     $("#download").show();
     focusWindow = "download";
-  } else {
-    hideAllWindows();
-  }
-};
-
-var saveremoteToggle = function () {
-  if (focusWindow !== "saveremote") {
-    hideAllWindows();
-    $("#saveremote").show();
-    focusWindow = "saveremote";
   } else {
     hideAllWindows();
   }
