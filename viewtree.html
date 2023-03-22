@@ -274,6 +274,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         function showPicker(accessToken, callback) {
             let view = new google.picker.DocsView(google.picker.ViewId.DOCS);
             view.setMimeTypes('text/plain');
+            view.setMode(google.picker.DocsViewMode.LIST);
             let picker = new google.picker.PickerBuilder()
             .addView(view)
             .setOAuthToken(accessToken)
