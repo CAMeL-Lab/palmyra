@@ -50,6 +50,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                 <input type="button" tabindex="-1" value="download" onClick="downloadToggle()"/>
                 <input type="button" tabindex="-1" value="saveremote" id = "save_remote_toggle" onClick="saveTreeRemote()"/>
                 <input type="button" tabindex="-1" value = "Authenticate with Google Drive" id ="auth_btn" onClick="authenticate()"/>
+                <input type="button" tabindex="-1" value = "Logout" id ="logout_btn" onClick="logout()"/>
                 <input type="button" tabindex="-1" value="direction" onClick="directionToggle()"/>
                 <input type="button" tabindex="-1" value="tags" onClick="tagsToggle()" />
                 <input type="button" tabindex="-1" value="listing" onClick="search()" id = "listingBtn"/>
@@ -213,15 +214,28 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
             maybeEnableAuthButton();
         }
 
+        function logout() {
+            // remove access token from session storage
+            sessionStorage.removeItem('GCP_access_token');
+            // remove access token from gapi client
+            gapi.client.setToken({access_token: ''});
+            // disable browse button
+            $("#browse_btn").hide();
+            // if logged out successfully, hide logout button && show authentication button
+            $(".toolbar [id='logout_btn']").hide();
+            $(".toolbar [id='auth_btn']").show();
+        }
+
         function onAuthenticated() {
             // set access token in gapi client for future requests
             gapi.client.setToken({access_token: getTokenFromSessionStorage()});
             isAuthenticated = true;
-            alert("Authenticated with Google Drive successfully!");
+            // alert("Authenticated with Google Drive successfully!");
             // enable browse button
             enableBrowseButton();
-            // if authenticated successfully, hide authenication button
+            // if authenticated successfully, hide authentication button && show logout button
             $(".toolbar [id='auth_btn']").hide();
+            $(".toolbar [id='logout_btn']").show();
         }
 
         function authenticate() {
@@ -260,6 +274,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         function showPicker(accessToken, callback) {
             let picker = new google.picker.PickerBuilder()
             .addView(google.picker.ViewId.DOCS)
+            
             .setOAuthToken(accessToken)
             .setDeveloperKey(GCP_API_KEY)
             .setCallback(callback)
