@@ -1568,7 +1568,7 @@ var downloadTree = function () {
   saveTree();
   var filename = $("#filename").val();
   if (sessionStorage.treeData !== "undefined") {
-    var blob = convertTreesArrayToBlob();
+    var blob = new Blob([convertTreesArrayToString()], { type: "text/plain;charset=utf-8" });
     saveAs(blob, filename + ".conllx");
   } else {
     alert("Tree not found.");
