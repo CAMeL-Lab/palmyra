@@ -272,9 +272,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         }
 
         function showPicker(accessToken, callback) {
+            let view = new google.picker.DocsView(google.picker.ViewId.DOCS);
+            view.setMimeTypes('text/plain');
             let picker = new google.picker.PickerBuilder()
-            .addView(google.picker.ViewId.DOCS)
-            
+            .addView(view)
             .setOAuthToken(accessToken)
             .setDeveloperKey(GCP_API_KEY)
             .setCallback(callback)
