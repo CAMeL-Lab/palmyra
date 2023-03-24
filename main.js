@@ -53,6 +53,8 @@ var lastClickedNodeId = 0;
 
 var focusWindow = "";
 
+var isConlluLocal;
+
 var alreadyReadConfigFiles = [];
 var configRead = false;
 
@@ -786,13 +788,11 @@ function addFilenameToHtmlElements(original_filename) {
   
   // get 2 elements to display the file name on the page
   var file_name_elem = document.getElementById("conlluFileName");
-  var output_file_name_elem = document.getElementById("filename");
 
   var filename = "";
   filename = original_filename.replace(/.conll[ux]$/, "");
 
   file_name_elem.innerHTML = filename;
-  output_file_name_elem.value = filename;
 }
 
 function LocalFileInputChecker() {
@@ -803,7 +803,7 @@ function LocalFileInputChecker() {
     );
     return null;
   };
-  newRemoteFile = true;
+  isConlluLocal = true;
   return x.files[0];
 }
 
@@ -815,6 +815,7 @@ function RemoteFileInputChecker() {
       "Please select a ConllU/X file, or use use the Upload button in the sentence uploader section."
     );
   }
+  isConlluLocal = false;
   return pickedFile;
 }
 
@@ -1461,20 +1462,30 @@ function saveTreeRemote() {
   hideAllWindows();
 }
 
+function addFileExtension(fileName, extension) {
+  let fileNameParts = fileName.split('.');
+  // need to add extension for conllx files as well
+  if (fileNameParts.length > 1) fileNameParts = fileNameParts.slice(0, fileNameParts.length-1);
+  fileName = fileNameParts.join('.') + extension;
+  return fileName;
+}
+
 // multipart upload only works for file < 5 MB
 // need to construct request body with specification from Drive API: https://developers.google.com/drive/api/guides/manage-uploads#multipart
 function uploadFile(fileData) {
   let accessToken = gapi.client.getToken().access_token;
   let xhr = new XMLHttpRequest();
-  let fileName;
+  let fileName = document.getElementById("filename_remote").value == "" ? document.getElementById("conlluFileName").innerHTML : document.getElementById("filename_remote").value;
   let requestBody;
-  if (!fileId) { // upload a new file
-    fileName = $("#filename").val();
-    let fileNameParts = fileName.split('.');
-    // need to add extension for conllx files as well
-    fileName = fileNameParts.slice(0, fileNameParts.length).join('.') + '.conllu';
+
+  if (isConlluLocal) { // upload local file
     xhr.open('POST', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', true);
-    requestBody =
+  }
+  else { // update an existing file
+    xhr.open('PATCH', 'https://www.googleapis.com/upload/drive/v3/files/'+fileId+'?uploadType=multipart', true);
+  }
+  fileName = addFileExtension(fileName, '.conllu');
+  requestBody =
     '--boundary\r\n' +
     'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
     JSON.stringify({
@@ -1487,18 +1498,14 @@ function uploadFile(fileData) {
     '--boundary\r\n' +
     'Content-Type: ' + 'text/plain;charset=utf-8' + '\r\n\r\n' + 
     fileData + '\r\n--boundary--';
-    xhr.setRequestHeader('Content-Type', 'multipart/related; boundary="boundary"');
-  }
-  else { // update an existing file
-    xhr.open('PATCH', 'https://www.googleapis.com/upload/drive/v3/files/'+fileId+'?uploadType=media', true);
-    requestBody = fileData;
-  }
+  xhr.setRequestHeader('Content-Type', 'multipart/related; boundary="boundary"');
 	xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
   
   xhr.onload = () => {
 		if (xhr.status === 200) {
       let response = JSON.parse(xhr.responseText);
       fileId = response.id;
+      isConlluLocal = false;
       alert("File saved to MyDrive sucessfully!");
     } else {
       console.log('Error uploading file:', xhr.statusText);
@@ -1638,7 +1645,7 @@ var search = function (treesArray) {
 
 // return all settings to defaults
 var hideAllWindows = function () {
-  view([$("#saveremote"), $("#download"), $("#morphology")], hideComponents);
+  view([$("#save_as"), $("#download"), $("#morphology")], hideComponents);
   d3.selectAll(".morphology").style("stroke", "");
 
   if (
@@ -1701,6 +1708,17 @@ var goToTreeToggle = function () {
     hideAllWindows();
     $("#gototree").show();
     focusWindow = "goToTree";
+  } else {
+    hideAllWindows();
+  }
+};
+
+var saveAsToggle = function () {
+  if (focusWindow !== "saveas") {
+    hideAllWindows();
+    $("#save_as").show();
+    focusWindow = "saveas";
+    $("#filename_remote").val(addFileExtension(document.getElementById("conlluFileName").innerHTML, ".conllu"));
   } else {
     hideAllWindows();
   }
@@ -2922,7 +2940,7 @@ var getTree = function (treeData) {
     fullSen.innerHTML = addEngBdiToNum(fullSen.innerHTML);
 
     $("#sents").show();
-    $(".toolbar input[id!='save_remote_toggle']").show();
+    $(".toolbar input[id!='save_remote']").show();
     maybeEnableSaveRemoteButton();
     view([$("#auth_btn"), $("#logout_btn")], hideComponents); 
 

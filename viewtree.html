@@ -48,7 +48,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                 <input type="button" tabindex="-1" value="- Tree" onClick="deleteCurrentTree()"/>
                 <input type="button" tabindex="-1" id="editbtn" value="edit" onClick="editToggle()"/>
                 <input type="button" tabindex="-1" value="download" onClick="downloadToggle()"/>
-                <input type="button" tabindex="-1" value="saveremote" id = "save_remote_toggle" onClick="saveTreeRemote()"/>
+                <input type="button" tabindex="-1" value="save" id = "save_remote" onClick="saveTreeRemote()"/>
+                <input type="button" tabindex="-1" value="saveas" id = "save_as_toggle" onClick="saveAsToggle()"/>
                 <input type="button" tabindex="-1" value = "Authenticate with Google Drive" id ="auth_btn" onClick="authenticate()"/>
                 <input type="button" tabindex="-1" value = "Logout" id ="logout_btn" onClick="logout()"/>
                 <input type="button" tabindex="-1" value="direction" onClick="directionToggle()"/>
@@ -94,10 +95,19 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         
         <section id="download">
             <form id="download">
-                <p>Please select a filename:</p>
+                <p>File Name</p>
                 <input type="text" id="filename"/>
             </form>
             <input type="button" id="dwnbtn" value="Download" onClick="downloadTree()"/>
+            <button onClick="hideAllWindows()">Close</button>
+        </section>
+
+        <section id="save_as">
+            <form id="save_as">
+                <p>File Name</p>
+                <input type="text" id="filename_remote"/>
+            </form>
+            <input type="button" id="save_as_btn" value="Save" onClick="saveTreeRemote();hideAllWindows()"/>
             <button onClick="hideAllWindows()">Close</button>
         </section>
 
@@ -218,7 +228,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
             // remove access token from session storage
             sessionStorage.removeItem('GCP_access_token');
             // remove access token from gapi client
-            gapi.client.setToken({access_token: ''});
+            gapi.client.setToken(null);
             // disable browse button
             $("#browse_btn").hide();
             // if logged out successfully, hide logout button && show authentication button
@@ -340,7 +350,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 
         function maybeEnableSaveRemoteButton() {
             if (gapiClientInited && gisInited) {
-                $("#save_remote_toggle").show();
+                $("#save_remote").show();
             }
         }
 
