@@ -61,7 +61,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         <div class="container" style="width:100%">
         <section id="upload3" class="upload" >
             <p>Optional Config File:</p>
-            <input style="float:left"   type="file" value="catib.config" name="configFile" id="configFile"/>
+            <select id="config_file_selector">
+                <option>Choose File</option>
+                <option>Upload your config file</option>
+            </select>
+            <input style="float:left; display:none" type="file" name="configFile" id="configFile"/>
         </section>
         </div>
 
@@ -187,6 +191,55 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         let isAuthenticated = false;
         let fileId;
         let pickedFile;
+        var defaultConfigFiles = [];
+
+        function populateConfigFileSelectorHelper(files) {
+            let option;
+            let selectList = document.getElementById("config_file_selector");
+            let lastOption = selectList.lastElementChild;
+            // pop last child element of selectList
+            selectList.removeChild(lastOption);
+            for (let file of files) {
+                option = document.createElement("option");
+                option.text = file.name;
+                selectList.appendChild(option);
+            };
+            selectList.appendChild(lastOption);
+            // set the default value to the first option
+            selectList.selectedIndex = 0;
+        }
+
+        function retrieveConfigFiles() {
+            return new Promise((resolve, reject) => {
+                let fileObjects = [];
+                let rsp;
+                sendRequest('GET', 'https://api.github.com/repos/CAMeL-Lab/palmyra/contents/palmyraSampleFiles/config').then(async rsp => {
+                    let files = JSON.parse(rsp);
+                    for (let file of files) {
+                        rsp = await sendRequest('GET', file.download_url);
+                        let fileObject = new File([rsp], file.name, {type: "text/plain"});
+                        fileObjects.push(fileObject);
+                    }
+                    resolve(fileObjects);
+                }).catch(err => {
+                    reject(err);
+                });
+            })
+        }
+
+        function populateConfigFileSelector() {
+            let selectList = document.getElementById("config_file_selector");
+            selectList.onchange = () => {
+                if (selectList.selectedIndex == selectList.options.length - 1) document.getElementById("configFile").style.display = "block";
+                else document.getElementById("configFile").style.display = "none"
+            }
+            retrieveConfigFiles().then(files => {
+                defaultConfigFiles = files;
+                populateConfigFileSelectorHelper(files);
+            }).catch(err => {
+                console.log(err);
+            });
+        }
 
         /**
          * Callback after api.js is loaded.
@@ -322,11 +375,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
             }
         }
 
-        function sendRequest(method, url, headerName, headerValue) {
+        function sendRequest(method, url, headerName="", headerValue="") {
             return new Promise((resolve, reject) => {
                 let xhr = new XMLHttpRequest();
                 xhr.open(method, url);
-                xhr.setRequestHeader(headerName, headerValue);
+                if (headerName !== "" && headerValue !== "") xhr.setRequestHeader(headerName, headerValue);
                 xhr.onload = () => {
                     if (xhr.status === 200) {
                         resolve(xhr.responseText);
