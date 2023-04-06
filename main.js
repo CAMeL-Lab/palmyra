@@ -140,6 +140,7 @@ var main = function () {
   view([$("#download"), $("#linktext"), $("#listing")], hideComponents);
   findStorage();
   $(".upload").show();
+  populateConfigFileSelector();
 };
 
 function hideComponents(ComponentsList) {
@@ -211,21 +212,31 @@ function loadFile(file) {
 
 //Read the config file
 var readConfigFile = async function () {
-  var x = document.getElementById("configFile");
-  var input = "";
-
-  if ("files" in x) {
-    if (x.files.length == 0) {
-      var morphoLabel = document.getElementById("labelspMorphoFeats");
-      morphoLabel.style.visibility = "hidden";
-      txt = "Select config file.";
-    } else {
-      var file = x.files[0];
-      if (!alreadyReadConfigFiles.includes(file)) {
-        alreadyReadConfigFiles.push(file);
-        await loadFile(file);
+  var selectList = document.getElementById("config_file_selector");
+  var file;
+  // default config file
+  if (selectList.selectedIndex > 0 && selectList.selectedIndex < selectList.options.length - 1) {
+    file = defaultConfigFiles[selectList.selectedIndex-1];
+  }
+  else if (selectList.selectedIndex == selectList.options.length - 1){ // user uploaded config file
+    var x = document.getElementById("configFile");
+    var input = "";
+    if ("files" in x) {
+      if (x.files.length == 0) {
+        var morphoLabel = document.getElementById("labelspMorphoFeats");
+        morphoLabel.style.visibility = "hidden";
+        txt = "Select config file.";
+        return;
+      } else {
+        file = x.files[0];
       }
     }
+  }
+  else return; // no config file selected
+  
+  if (!alreadyReadConfigFiles.includes(file)) {
+    alreadyReadConfigFiles.push(file);
+    await loadFile(file);
   }
   return;
 };
