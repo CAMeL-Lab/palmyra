@@ -1,6 +1,7 @@
 var alreadyReadConfigFiles = [];
 var defaultConfigFiles = [];
 
+// helper function to populate the config file selector with file names, given an array of file objects
 function populateConfigFileSelectorHelper(files) {
   let option;
   let selectList = document.getElementById("config_file_selector");
@@ -17,6 +18,7 @@ function populateConfigFileSelectorHelper(files) {
   selectList.selectedIndex = 0;
 }
 
+// retrieve the config files from github using the github api
 function retrieveConfigFiles() {
   return new Promise((resolve, reject) => {
     let fileObjects = [];
@@ -40,12 +42,13 @@ function retrieveConfigFiles() {
   });
 }
 
+// populate the selector with the default config files retrieved from github
 function populateConfigFileSelector() {
   let selectList = document.getElementById("config_file_selector");
-  selectList.onchange = () => {
-    if (selectList.selectedIndex == selectList.options.length - 1)
-      document.getElementById("configFile").style.display = "block";
-    else document.getElementById("configFile").style.display = "none";
+  selectList.onchange = () => { // set the onchange event handler for the selector
+    if (selectList.selectedIndex == selectList.options.length - 1) // user upload their own file option
+      document.getElementById("configFile").style.display = "block"; // display the file input
+    else document.getElementById("configFile").style.display = "none"; // hide the file input
   };
   retrieveConfigFiles()
     .then((files) => {
