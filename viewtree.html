@@ -57,7 +57,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         <div class="container" style="width:100%">
         <section id="upload3" class="upload" >
             <p>Optional Config File:</p>
-            <input style="float:left"   type="file" value="catib.config" name="configFile" id="configFile"/>
+            <select id="configFileSelector">
+                <option>Choose File</option>
+                <option>Upload your config file</option>
+            </select>
+            <input style="float:left; display:none" type="file" name="configFile" id="configFile"/>
         </section>
         </div>
 
@@ -150,6 +154,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
     <script src="scripts/saveSvgAsPng.js"></script>
     <script src="scripts/underscore-min.js"></script>
     <script src="scripts/cycle.js"></script>
+    <script src="sendRequestHandler.js"></script>
+    <script src="configFileHandler.js"></script>
     <script src="main.js"></script>
 
     <script>
