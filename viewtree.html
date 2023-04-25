@@ -15,18 +15,19 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 -->
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" type="text/css" href="main.css">
-        <title>Palmyra v2.4</title>
-    </head>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <title>Palmyra v2.4</title>
+</head>
 
 <body class="viewtree">
-      
+
     <div class="navbar">
         <div class="container">
-            <a href="index.html"><img src="fonts/logo.png" alt="palmyra" id='logo'/></a>
+            <a href="index.html"><img src="fonts/logo.png" alt="palmyra" id='logo' /></a>
             <div class="toolbar btn-initial" align="left">
                 <input type="button" tabindex="-1" value="clear" onClick="clearTree()" />
             </div>
@@ -37,107 +38,112 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                 <p id="currentTreeNumber" onClick="goToTreeToggle()"></p>
             </div>
             <div class="toolbar btn-nav" align="center">
-                <input type="button" tabindex="-1" value="&#x21E4" onClick="firstTree()"/>
-                <input type="button" tabindex="-1" value="&#x2190" onClick="prevTree()"/>
-                <input type="button" tabindex="-1" value="&#x2192" onClick="nextTree()"/>
-                <input type="button" tabindex="-1" value="&#x21E5" onClick="lastTree()"/>
+                <input type="button" tabindex="-1" value="&#x21E4" onClick="firstTree()" />
+                <input type="button" tabindex="-1" value="&#x2190" onClick="prevTree()" />
+                <input type="button" tabindex="-1" value="&#x2192" onClick="nextTree()" />
+                <input type="button" tabindex="-1" value="&#x21E5" onClick="lastTree()" />
             </div>
-            
+
             <div class="toolbar btn-options" align="right">
-                <input type="button" tabindex="-1" value="+ Tree" onClick="addNewTree()"/>
-                <input type="button" tabindex="-1" value="- Tree" onClick="deleteCurrentTree()"/>
-                <input type="button" tabindex="-1" id="editbtn" value="edit" onClick="editToggle()"/>
-                <input type="button" tabindex="-1" value="download" onClick="downloadToggle()"/>
-                <input type="button" tabindex="-1" value="save" id = "save_remote" onClick="saveTreeRemote()"/>
-                <input type="button" tabindex="-1" value="saveas" id = "save_as_toggle" onClick="saveAsToggle()"/>
-                <input type="button" tabindex="-1" value = "Authenticate with Google Drive" id ="auth_btn" onClick="authenticate()"/>
-                <input type="button" tabindex="-1" value = "Logout" id ="logout_btn" onClick="logout()"/>
-                <input type="button" tabindex="-1" value="direction" onClick="directionToggle()"/>
+                <input type="button" tabindex="-1" value="+ Tree" onClick="addNewTree()" />
+                <input type="button" tabindex="-1" value="- Tree" onClick="deleteCurrentTree()" />
+                <input type="button" tabindex="-1" id="editbtn" value="edit" onClick="editToggle()" />
+                <input type="button" tabindex="-1" value="download" onClick="downloadToggle()" />
+                <input type="button" tabindex="-1" value="save" id="save_remote" onClick="saveTreeRemote()" />
+                <input type="button" tabindex="-1" value="saveas" id="save_as_toggle" onClick="saveAsToggle()" />
+                <input type="button" tabindex="-1" value="Authenticate with Google Drive" id="auth_btn"
+                    onClick="authenticate()" />
+                <input type="button" tabindex="-1" value="Logout" id="logout_btn" onClick="logout()" />
+                <input type="button" tabindex="-1" value="direction" onClick="directionToggle()" />
                 <input type="button" tabindex="-1" value="tags" onClick="tagsToggle()" />
-                <input type="button" tabindex="-1" value="listing" onClick="search(treesArray)" id = "listingBtn"/>
+                <input type="button" tabindex="-1" value="listing" onClick="search(treesArray)" id="listingBtn" />
             </div>
         </div>
 
         <div class="container" style="width:100%">
-        <section id="upload3" class="upload" >
-            <p>Optional Config File:</p>
-            <select id="config_file_selector">
-                <option>Choose File</option>
-                <option>Upload your config file</option>
-            </select>
-            <input style="float:left; display:none" type="file" name="configFile" id="configFile"/>
-        </section>
+            <section id="upload3" class="upload">
+                <p>Optional Config File:</p>
+                <select id="config_file_selector">
+                    <option>Choose File</option>
+                    <option>Upload your config file</option>
+                </select>
+                <input style="float:left; display:none" type="file" name="configFile" id="configFile" />
+            </section>
         </div>
 
         <div class="container" style="width:100%">
-        <section id="upload" class="upload">
-            <p>Select CoNLL-U File:</p>
-            <input style="float:left"  type="file" id="inputFile" name="treefiles[]"/><br>
-            <input style="float:right" type="button" id="treebtn" value="Upload" onClick="setupTreePage(LocalFileInputChecker)" />
-            <!-- <input style="float:right" type="button" id="treebtn" value="Upload" onClick="setJSONtreeData()" /> -->
-        </section>
+            <section id="upload" class="upload">
+                <p>Select CoNLL-U File:</p>
+                <input style="float:left" type="file" id="inputFile" name="treefiles[]" /><br>
+                <input style="float:right" type="button" id="treebtn" value="Upload"
+                    onClick="setupTreePage(LocalFileInputChecker)" />
+                <!-- <input style="float:right" type="button" id="treebtn" value="Upload" onClick="setJSONtreeData()" /> -->
+            </section>
         </div>
 
         <div class="container" style="width:100%">
-        <section id="upload1" class="upload" >
-            <p>MyDrive CoNLL-U files</p>
-            <input style="float: left; display: none" type="button" id="browse_btn" value="Browse MyDrive" />
-            <p id = "picked_filename" style = "float: left"></p>
-            <input style="float:right" type="button" id="treebtn" value="Upload" onClick="setupTreePage(RemoteFileInputChecker)" />
-        </section>
+            <section id="upload1" class="upload">
+                <p>MyDrive CoNLL-U files</p>
+                <input style="float: left; display: none" type="button" id="browse_btn" value="Browse MyDrive" />
+                <p id="picked_filename" style="float: left"></p>
+                <input style="float:right" type="button" id="treebtn" value="Upload"
+                    onClick="setupTreePage(RemoteFileInputChecker)" />
+            </section>
         </div>
-         
+
         <div class="container" style="width:100%">
-        <section id="upload2" class="upload">
-            <form id="upload2">
-                <p>Or Enter Text:</i></p><br>
-                <textarea id="treedata2" rows="5" placeholder="Each line of text will become a seperate tree."></textarea>
-            </form>
-            <input style="float:right" type="button" id="treebtn2" value="Upload" onClick="setSentenceTreeData()" />
-        </section>
+            <section id="upload2" class="upload">
+                <form id="upload2">
+                    <p>Or Enter Text:</i></p><br>
+                    <textarea id="treedata2" rows="5"
+                        placeholder="Each line of text will become a seperate tree."></textarea>
+                </form>
+                <input style="float:right" type="button" id="treebtn2" value="Upload" onClick="setSentenceTreeData()" />
+            </section>
         </div>
-        
+
         <section id="download">
             <form id="download">
                 <p>File Name</p>
-                <input type="text" id="filename"/>
+                <input type="text" id="filename" />
             </form>
-            <input type="button" id="dwnbtn" value="Download" onClick="downloadTree()"/>
+            <input type="button" id="dwnbtn" value="Download" onClick="downloadTree()" />
             <button onClick="hideAllWindows()">Close</button>
         </section>
 
         <section id="save_as">
             <form id="save_as">
                 <p>File Name</p>
-                <input type="text" id="filename_remote"/>
+                <input type="text" id="filename_remote" />
             </form>
-            <input type="button" id="save_as_btn" value="Save" onClick="saveTreeRemote();hideAllWindows()"/>
+            <input type="button" id="save_as_btn" value="Save" onClick="saveTreeRemote();hideAllWindows()" />
             <button onClick="hideAllWindows()">Close</button>
         </section>
 
         <section id="gototree">
             <form id="gototree">
                 <p>Please select tree number:</p>
-                <input type="number" id="treeNumberInput" min="1" max="1" style="width: 3em" onkeypress="return goToKeyPress(event);">
+                <input type="number" id="treeNumberInput" min="1" max="1" style="width: 3em"
+                    onkeypress="return goToKeyPress(event);">
             </form><br>
-            <input type="button" id="goTreebtn" value="Go" onClick="goToTree()"/>
+            <input type="button" id="goTreebtn" value="Go" onClick="goToTree()" />
             <button onClick="hideAllWindows()">Close</button>
         </section>
-        
+
         <section id='labels'>
             <label class='labelsp'>Relation Labels</label>
-            
-        </section>
-        
-        <section id='postags'>
-            <label class='labelsp'>POS Tags</label>
-            
+
         </section>
 
-         <div id="listing" class="scroll" style="width:50%;height:400px;" >
-            <section id="search" style="display:block; width: 90%;"/>
+        <section id='postags'>
+            <label class='labelsp'>POS Tags</label>
+
+        </section>
+
+        <div id="listing" class="scroll" style="width:50%;height:400px;">
+            <section id="search" style="display:block; width: 90%;" />
         </div>
-        
+
 
         <section id='morphology'>
             <p class='labelsp'>Token:</p>
@@ -178,11 +184,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
     <script src="scripts/cycle.js"></script>
 
     <script>
-        // load needed GCP client libraries
-        const GCP_CLIENT_ID = '872006556701-id30aupvkt32jgbqbe3gtqvbqq7oa914.apps.googleusercontent.com';
-        const GCP_API_KEY = 'AIzaSyBphS90C05DkTg3INkMSv1iMQrvh0pcIGA';
-        const GCP_DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
-        const GCP_API_SCOPES = 'https://www.googleapis.com/auth/drive.metadata.readonly';
+        // set this to the right server origin when pushed to Github
+        const SERVER_ORIGIN = 'https://server.com';
 
         let tokenClient;
         let gapiClientInited = false;
@@ -217,7 +220,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                     let files = JSON.parse(rsp);
                     for (let file of files) {
                         rsp = await sendRequest('GET', file.download_url);
-                        let fileObject = new File([rsp], file.name, {type: "text/plain"});
+                        let fileObject = new File([rsp], file.name, { type: "text/plain" });
                         fileObjects.push(fileObject);
                     }
                     resolve(fileObjects);
@@ -242,7 +245,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         }
 
         /**
-         * Callback after api.js is loaded.
+         * Callback after api script is loaded.
          */
         function gapiLoaded(libraryName, callback) {
             gapi.load(libraryName, callback);
@@ -255,26 +258,39 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         /**
          * Callback after the API client is loaded.
          */
-        async function initializeGapiClient() {
-            await gapi.client.init({
-                apiKey: GCP_API_KEY,
-                discoveryDocs: [GCP_DISCOVERY_DOC],
-            });
-            gapiClientInited = true;
-            maybeEnableAuthButton();
+        function initializeGapiClient() {
+            sendRequest('GET', `${SERVER_ORIGIN}/gapi_credentials`).then(rsp => {
+                let credentials = JSON.parse(rsp);
+                gapi.client.init({
+                    apiKey: credentials.apiKey,
+                    discoveryDocs: credentials.discoveryDocs,
+                }).then(() => {
+                    gapiClientInited = true;
+                    maybeEnableAuthButton();
+                }).catch(err => {
+                    console.log(err);
+                })
+            }).catch(err => {
+                console.log(err);
+            })
         }
 
         /**
          * Callback after Google Identity Services are loaded.
          */
         function gisLoaded() {
-            tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: GCP_CLIENT_ID,
-                scope: GCP_API_SCOPES,
-                callback: '', // defined later
-            });
-            gisInited = true;
-            maybeEnableAuthButton();
+            sendRequest('GET', `${SERVER_ORIGIN}/gis_credentials`).then(rsp => {
+                let credentials = JSON.parse(rsp);
+                tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: credentials.client_id,
+                    scope: credentials.scope,
+                    callback: '', // defined later
+                });
+                gisInited = true;
+                maybeEnableAuthButton();
+            }).catch(err => {
+                console.log(err);
+            })
         }
 
         function logout() {
@@ -291,7 +307,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 
         function onAuthenticated() {
             // set access token in gapi client for future requests
-            gapi.client.setToken({access_token: getTokenFromSessionStorage()});
+            gapi.client.setToken({ access_token: getTokenFromSessionStorage() });
             isAuthenticated = true;
             // alert("Authenticated with Google Drive successfully!");
             // enable browse button
@@ -314,7 +330,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
             if (gapi.client.getToken() === null) {
                 // Prompt the user to select a Google Account and ask for consent to share their data
                 // when establishing a new session.
-                tokenClient.requestAccessToken({prompt: 'consent'});
+                tokenClient.requestAccessToken({ prompt: 'consent' });
             }
         }
 
@@ -335,16 +351,21 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         }
 
         function showPicker(accessToken, callback) {
-            let view = new google.picker.DocsView(google.picker.ViewId.DOCS);
-            view.setMimeTypes('text/plain');
-            view.setMode(google.picker.DocsViewMode.LIST);
-            let picker = new google.picker.PickerBuilder()
-            .addView(view)
-            .setOAuthToken(accessToken)
-            .setDeveloperKey(GCP_API_KEY)
-            .setCallback(callback)
-            .build();
-            picker.setVisible(true);
+            sendRequest('GET', `${SERVER_ORIGIN}/gapi_credentials`).then(rsp => {
+                let credentials = JSON.parse(rsp);
+                let view = new google.picker.DocsView(google.picker.ViewId.DOCS);
+                view.setMimeTypes('text/plain');
+                view.setMode(google.picker.DocsViewMode.LIST);
+                let picker = new google.picker.PickerBuilder()
+                    .addView(view)
+                    .setOAuthToken(accessToken)
+                    .setDeveloperKey(credentials.apiKey)
+                    .setCallback(callback)
+                    .build();
+                picker.setVisible(true);
+            }).catch(err => {
+                console.log(err);
+            })
         }
 
         // need to retrieve the content of the picked file
@@ -366,7 +387,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                     // show name of picked file
                     // set global pickedFile variable
                     document.getElementById("picked_filename").innerHTML = doc.name;
-                    pickedFile = new File([rsp], doc.name, {type: doc.mimeType});
+                    pickedFile = new File([rsp], doc.name, { type: doc.mimeType });
                     fileId = doc.id;
                 }).catch(err => {
                     console.log(err);
@@ -375,7 +396,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
             }
         }
 
-        function sendRequest(method, url, headerName="", headerValue="") {
+        function sendRequest(method, url, headerName = "", headerValue = "") {
             return new Promise((resolve, reject) => {
                 let xhr = new XMLHttpRequest();
                 xhr.open(method, url);
@@ -408,27 +429,27 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         }
 
         // retrieve access token from session storage when page is loaded
-        window.onload = function() {
+        window.onload = function () {
             if (getTokenFromSessionStorage()) {
                 onAuthenticated();
             }
         };
 
     </script>
-    
-    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded('client', initializeGapiClient)"></script>
-    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded('picker', initializeGapiPicker)"></script>
+
+    <script async defer src="https://apis.google.com/js/api.js"
+        onload="gapiLoaded('client', initializeGapiClient)"></script>
+    <script async defer src="https://apis.google.com/js/api.js"
+        onload="gapiLoaded('picker', initializeGapiPicker)"></script>
     <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 
     <script src="main.js"></script>
 
     <script>
-        function goToKeyPress(e)
-        {
+        function goToKeyPress(e) {
             // look for window.event in case event isn't passed in
             e = e || window.event;
-            if (e.keyCode == 13)
-            {
+            if (e.keyCode == 13) {
                 document.getElementById('goTreebtn').click();
                 return false;
             }
@@ -437,4 +458,5 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
     </script>
 
 </body>
+
 </html>
