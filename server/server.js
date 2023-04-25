@@ -6,16 +6,17 @@ dotenv.config();
 const app = express();
 const port = 3000;
 
+var clientOrigin;
 if (process.env.NODE_ENV === "development") {
-  const CLIENT_ORIGIN = "http://localhost:1234"; 
+  clientOrigin = "http://localhost:1234"; 
 }
 else {
-  const CLIENT_ORIGIN = "https://camel-lab.github.io/"; 
+  clientOrigin = "https://camel-lab.github.io/"; 
 }
 
 // enable CORS for client origin
 app.use(cors({
-    origin: process.env.CLIENT_ORIGIN,
+    origin: clientOrigin,
 }));
 
 app.get("/gapi_credentials", (req, res) => {
