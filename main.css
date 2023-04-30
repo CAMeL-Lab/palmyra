@@ -193,24 +193,17 @@ li #faq {
     vertical-align:middle;
 }
 
-/* navigation menu logo */
-.navbar #currentTreeNumber {
-    color: #fff;
-    font-family: 'bebas';
-    font-size: 18px;
-    margin: 20px 15px 0px 40px;
-    display: inline-block; 
-    vertical-align:middle;
-    cursor:pointer;
-}
 #conlluFileNameDiv {
-    margin: 10px 15px 10px 4px;
+    margin-top: 6px;
+    margin-left: 6px;
+    height: 65px;
+    color: white;
 }
 
-#conlluFileName {
+#conlluFileName #currentTreeNumber{
     color: #fff;
     font-family: 'bebas';
-    font-size: 0.8vw;
+    font-size: 0.9vw;
     width: 200%;
 }
 
@@ -341,6 +334,39 @@ body.viewtree {
     display: none;
 }
 
+.dropdown {
+    font-size: 15px;
+    color: white;
+    cursor: pointer;
+    display: none;
+}
+.dropdown .dropbtn {
+    font-size: 1.2vw;
+    border: none;
+    outline: none;
+    color: white;
+    /* padding: 14px 16px; */
+    background-color: inherit;
+    font-family: inherit; /* Important for vertical align on mobile phones */
+    margin: 0; /* Important for vertical align on mobile phones */
+}
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+.dropdown p {
+    padding-left: 6px;
+    color: #000;
+    font-size: 1.2vw;
+}
+
 /* toolbar buttons (when hovered) */
 .toolbar input:hover {
     background: #fff;
@@ -428,10 +454,9 @@ section textarea {
 #sents hr {
     display: block;
     height: 1px;
-    width: 90%;
+    width: 100%;
     border: 0;
     border-top: 1px solid #ccc;
-    margin: 1em 20;
     padding: 0px 0px;
 }
 
