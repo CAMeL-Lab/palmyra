@@ -50,7 +50,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                 <input type="button" tabindex="-1" id="editbtn" value="edit" onClick="editToggle()" />
                 <input type="button" tabindex="-1" value="download" onClick="downloadToggle()" />
                 <input type="button" tabindex="-1" value="save" id="save_remote" onClick="saveTreeRemote()" />
-                <input type="button" tabindex="-1" value="saveas" id="save_as_toggle" onClick="saveAsToggle()" />
+                <input type="button" tabindex="-1" value="rename" id="rename_toggle" onClick="renameToggle()" />
                 <input type="button" tabindex="-1" value="Authenticate with Google Drive" id="auth_btn"
                     onClick="authenticate()" />
                 <input type="button" tabindex="-1" value="Logout" id="logout_btn" onClick="logout()" />
@@ -111,12 +111,12 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
             <button onClick="hideAllWindows()">Close</button>
         </section>
 
-        <section id="save_as">
-            <form id="save_as">
+        <section id="rename">
+            <form id="rename">
                 <p>File Name</p>
                 <input type="text" id="filename_remote" />
             </form>
-            <input type="button" id="save_as_btn" value="Save" onClick="saveTreeRemote();hideAllWindows()" />
+            <input type="button" id="rename_btn" value="Save" onClick="saveTreeRemote();hideAllWindows()" />
             <button onClick="hideAllWindows()">Close</button>
         </section>
 
@@ -185,7 +185,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 
     <script>
         // set this to the right server origin when pushed to Github
-        const SERVER_ORIGIN = 'https://server.com';
+        const SERVER_ORIGIN = 'http';
 
         let tokenClient;
         let gapiClientInited = false;
