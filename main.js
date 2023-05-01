@@ -796,14 +796,7 @@ function isValidExtension(original_filename) {
 
 function addFilenameToHtmlElements(original_filename) {
   // display filename on page and when downloading files
-  
-  // get 2 elements to display the file name on the page
-  var file_name_elem = document.getElementById("conlluFileName");
-
-  var filename = "";
-  filename = original_filename.replace(/.conll[ux]$/, "");
-
-  file_name_elem.innerHTML = filename;
+  document.getElementById("conlluFileName").innerHTML = original_filename;
 }
 
 function LocalFileInputChecker() {
@@ -1517,6 +1510,7 @@ function uploadFile(fileData) {
       let response = JSON.parse(xhr.responseText);
       fileId = response.id;
       isConlluLocal = false;
+      document.getElementById("conlluFileName").innerHTML = fileName;
       alert("File saved to MyDrive sucessfully!");
     } else {
       console.log('Error uploading file:', xhr.statusText);

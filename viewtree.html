@@ -391,7 +391,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                     // show name of picked file
                     // set global pickedFile variable
                     document.getElementById("picked_filename").innerHTML = doc.name;
-                    pickedFile = new File([rsp], doc.name, { type: doc.mimeType });
+                    pickedFile = new File([rsp.data], doc.name, { type: doc.mimeType });
                     fileId = doc.id;
                 }).catch(err => {
                     console.log(err);
