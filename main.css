@@ -194,16 +194,17 @@ li #faq {
 }
 
 #conlluFileNameDiv {
+    padding-top: 1vh;
     margin-top: 6px;
     margin-left: 6px;
     height: 65px;
     color: white;
+    font-size: 1.2em;
+    font-family: 'bebas';
 }
 
 #conlluFileName #currentTreeNumber{
     color: #fff;
-    font-family: 'bebas';
-    font-size: 0.9vw;
     width: 200%;
 }
 
@@ -335,19 +336,19 @@ body.viewtree {
 }
 
 .dropdown {
-    font-size: 15px;
+    /* font-size: 15px; */
     color: white;
     cursor: pointer;
     display: none;
 }
 .dropdown .dropbtn {
-    font-size: 1.2vw;
+    font-size: 0.9em;
     border: none;
     outline: none;
     color: white;
     /* padding: 14px 16px; */
     background-color: inherit;
-    font-family: inherit; /* Important for vertical align on mobile phones */
+    font-family: 'bebas';
     margin: 0; /* Important for vertical align on mobile phones */
 }
 .dropdown-content {
@@ -357,6 +358,7 @@ body.viewtree {
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
+    font-size: 0.9em;
 }
 .dropdown:hover .dropdown-content {
     display: block;
@@ -364,7 +366,6 @@ body.viewtree {
 .dropdown p {
     padding-left: 6px;
     color: #000;
-    font-size: 1.2vw;
 }
 
 /* toolbar buttons (when hovered) */
