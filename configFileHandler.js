@@ -4,7 +4,7 @@ var defaultConfigFiles = [];
 // helper function to populate the config file selector with file names, given an array of file objects
 function populateConfigFileSelectorHelper(files) {
   let option;
-  let selectList = document.getElementById("config_file_selector");
+  let selectList = document.getElementById("configFileSelector");
   let lastOption = selectList.lastElementChild;
   // pop last child element of selectList
   selectList.removeChild(lastOption);
@@ -44,11 +44,11 @@ function retrieveConfigFiles() {
 
 // populate the selector with the default config files retrieved from github
 function populateConfigFileSelector() {
-  let selectList = document.getElementById("config_file_selector");
-  selectList.onchange = () => {
-    if (selectList.selectedIndex == selectList.options.length - 1)
-      document.getElementById("configFile").style.display = "block";
-    else document.getElementById("configFile").style.display = "none";
+  let selectList = document.getElementById("configFileSelector");
+  selectList.onchange = () => { // set the onchange event handler for the selector
+    if (selectList.selectedIndex == selectList.options.length - 1) // user upload their own file option
+      document.getElementById("configFile").style.display = "block"; // display the file input
+    else document.getElementById("configFile").style.display = "none"; // hide the file input
   };
   retrieveConfigFiles()
     .then((files) => {
@@ -286,7 +286,7 @@ function loadFile(file) {
 
 //Read the config file
 var readConfigFile = async function () {
-  var selectList = document.getElementById("config_file_selector");
+  var selectList = document.getElementById("configFileSelector");
   var file;
   // default config file
   if (
