@@ -25,32 +25,67 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 <body class="viewtree">
       
     <div class="navbar">
-        <div class="container">
-            <a href="index.html"><img src="fonts/logo.png" alt="palmyra" id='logo'/></a>
-            <div class="toolbar btn-initial" align="left">
-                <input type="button" tabindex="-1" value="clear" onClick="clearTree()" />
+        <div class="container" style="display: flex; flex-direction: row; justify-content: flex-start; height: 65px">
+            <div class="logo" style="float: left">
+                <a href="index.html"><img src="fonts/logo.png" alt="palmyra" id='logo'/></a>
             </div>
-            <div id="conlluFileNameDiv">
-                <p id="conlluFileName"></p>
-            </div>
-            <div style="width:50px">
-                <p id="currentTreeNumber" onClick="goToTreeToggle()"></p>
-            </div>
-            <div class="toolbar btn-nav" align="center">
-                <input type="button" tabindex="-1" value="&#x21E4" onClick="firstTree()"/>
-                <input type="button" tabindex="-1" value="&#x2190" onClick="prevTree()"/>
-                <input type="button" tabindex="-1" value="&#x2192" onClick="nextTree()"/>
-                <input type="button" tabindex="-1" value="&#x21E5" onClick="lastTree()"/>
-            </div>
-            
-            <div class="toolbar btn-options" align="right">
-                <input type="button" tabindex="-1" value="+ Tree" onClick="addNewTree()"/>
-                <input type="button" tabindex="-1" value="- Tree" onClick="deleteCurrentTree()"/>
-                <input type="button" tabindex="-1" id="editbtn" value="edit" onClick="editToggle()"/>
-                <input type="button" tabindex="-1" value="download" onClick="downloadToggle()"/>
-                <input type="button" tabindex="-1" value="direction" onClick="directionToggle()"/>
-                <input type="button" tabindex="-1" value="tags" onClick="tagsToggle()" />
-                <input type="button" tabindex="-1" value="listing" onClick="search(treesArray)" id = "listingBtn"/>
+            <div class="toolbar" style="display: flex;flex-direction: column;margin-left: 20px;height: 65px">
+                <div id="conlluFileNameDiv">
+                    <span id="conlluFileName"></span>
+                    <span id="currentTreeNumber"></span>
+                </div>
+                <div class="toolbar btn-options" align="left" style="display: flex;justify-content: flex-start;align-items: center;">
+                    <div class="dropdown">
+                        <button class="dropbtn">File
+                          <i class="fa fa-caret-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                          <p>Save<p>
+                          <p>Save As</p>
+                          <p onClick="downloadToggle()">Download</p>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="dropbtn">Edit
+                          <i class="fa fa-caret-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                          <p onClick="editToggle()">Edit Morphology<p>
+                          <p onClick="tagsToggle()">Edit Tags</p>
+                          <p onClick="addNewTree()">Add New Tree</p>
+                          <p onClick="deleteCurrentTree()">Delete Current Tree</p>
+                          <p onClick="clearTree()">Clear</p>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="dropbtn">View
+                          <i class="fa fa-caret-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                          <p onClick="directionToggle()">Change Direction<p>
+                          <p onClick="search(treesArray)">Listing</p>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="dropbtn">Go
+                          <i class="fa fa-caret-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                          <p onClick="firstTree()">First Tree<p>
+                          <p onClick="prevTree()">Previous Tree</p>
+                          <p onClick="nextTree()">Next Tree</p>
+                          <p onClick="lastTree()">Last Tree</p>
+                          <p onClick="goToTreeToggle()">Use Tree Number</p>
+                        </div>
+                    </div>
+                    <!-- <div class="dropdown">
+                        <button class="dropbtn">Help
+                          <i class="fa fa-caret-down"></i>
+                        </button>
+                        <div class="dropdown-content">
+                        </div>
+                    </div> -->
+                </div>
             </div>
         </div>
 

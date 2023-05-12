@@ -2574,7 +2574,7 @@ var getTree = function (treeData) {
     fullSen.innerHTML = addEngBdiToNum(fullSen.innerHTML);
 
     $("#sents").show();
-    $(".toolbar input").show();
+    $(".toolbar .dropdown").show();
 
     // force full tree redraw to update dynamic changes like doubleclick etc.
     fullTree.selectAll(".node").remove();
