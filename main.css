@@ -193,24 +193,18 @@ li #faq {
     vertical-align:middle;
 }
 
-/* navigation menu logo */
-.navbar #currentTreeNumber {
-    color: #fff;
-    font-family: 'bebas';
-    font-size: 18px;
-    margin: 20px 15px 0px 40px;
-    display: inline-block; 
-    vertical-align:middle;
-    cursor:pointer;
-}
 #conlluFileNameDiv {
-    margin: 10px 15px 10px 4px;
+    padding-top: 1vh;
+    margin-top: 6px;
+    margin-left: 6px;
+    height: 65px;
+    color: white;
+    font-size: 1.2em;
+    font-family: 'bebas';
 }
 
-#conlluFileName {
+#conlluFileName #currentTreeNumber{
     color: #fff;
-    font-family: 'bebas';
-    font-size: 0.8vw;
     width: 200%;
 }
 
@@ -324,7 +318,7 @@ body.viewtree {
 */
 /* toolbar buttons */
 .toolbar { 
-    display: inline-block; 
+    /* display: inline-block;  */
 } 
 
 .toolbar input {
@@ -339,6 +333,39 @@ body.viewtree {
     margin-top: 18px;
     cursor: pointer;
     display: none;
+}
+
+.dropdown {
+    /* font-size: 15px; */
+    color: white;
+    cursor: pointer;
+    display: none;
+}
+.dropdown .dropbtn {
+    font-size: 0.9em;
+    border: none;
+    outline: none;
+    color: white;
+    /* padding: 14px 16px; */
+    background-color: inherit;
+    font-family: 'bebas';
+    margin: 0; /* Important for vertical align on mobile phones */
+}
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    font-size: 0.9em;
+}
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+.dropdown p {
+    padding-left: 6px;
+    color: #000;
 }
 
 /* toolbar buttons (when hovered) */
@@ -428,10 +455,9 @@ section textarea {
 #sents hr {
     display: block;
     height: 1px;
-    width: 90%;
+    width: 100%;
     border: 0;
     border-top: 1px solid #ccc;
-    margin: 1em 20;
     padding: 0px 0px;
 }
 

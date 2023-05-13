@@ -2689,7 +2689,8 @@ var getTree = function (treeData) {
     fullSen.innerHTML = addEngBdiToNum(fullSen.innerHTML);
 
     $("#sents").show();
-    $(".toolbar input[id!='save_remote']").show();
+    $(".toolbar").show();
+    view([$("#save_remote")], hideComponents); 
     maybeEnableSaveRemoteButton();
     view([$("#auth_btn"), $("#logout_btn")], hideComponents); 
 
