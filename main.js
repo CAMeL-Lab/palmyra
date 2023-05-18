@@ -2690,6 +2690,8 @@ var getTree = function (treeData) {
 
     $("#sents").show();
     $(".toolbar").show();
+    $(".dropdown").show();
+    $("#conlluFileNameDiv").show();
     view([$("#save_remote")], hideComponents); 
     maybeEnableSaveRemoteButton();
     view([$("#auth_btn"), $("#logout_btn")], hideComponents); 
