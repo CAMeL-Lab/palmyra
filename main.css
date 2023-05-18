@@ -201,6 +201,7 @@ li #faq {
     color: white;
     font-size: 1.2em;
     font-family: 'bebas';
+    display: none;
 }
 
 #conlluFileName #currentTreeNumber{
@@ -322,7 +323,9 @@ body.viewtree {
 } 
 
 .toolbar input {
-    background: linear-gradient(to bottom, #fff 25%, #c8c8c8 100%);
+    /* background: linear-gradient(to bottom, #fff 25%, #c8c8c8 100%); */
+    color: white;
+    background-color: #57068c;
     border: none;
     border-radius: 2px;
     text-decoration: none;
