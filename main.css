@@ -370,11 +370,6 @@ body.viewtree {
     color: #000;
 }
 
-/* toolbar buttons (when hovered) */
-.toolbar input:hover {
-    background: purple;
-}
-
 /* toolbar buttons (when pressed) */
 .toolbar input:active {
     box-shadow: inset 0 0 0 1px #545454,inset 0 5px 30px #545454;
@@ -621,9 +616,3 @@ section textarea {
 div.scroll {
   overflow: scroll;
 }
-
-/* #auth_btn {
-    color: white;
-    background-color: #57068c;
-} */
-
