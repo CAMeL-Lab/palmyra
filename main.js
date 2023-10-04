@@ -575,6 +575,7 @@ async function setupTreePage(FileInputChecker) {
   addFilenameToHtmlElements(file.name);
   await readConfigFile();
   parseConllFile(file);
+  addParseButton();
 }
 
 var parseConllFile = function (file) {
@@ -3196,3 +3197,16 @@ var getTree = function (treeData) {
   // lay out the initial tree
   update(root);
 };
+
+// parser functionality
+
+// used in setupTreePage
+function addParseButton() {
+  parseButton = document.createElement('button');
+  parseButton.textContent = 'parse';
+  parseButton.addEventListener('click', () => {
+    let fileData = convertTreesArrayToString();
+    parseFile(fileData);
+  });
+  document.getElementById('parseButton').append(parseButton);
+}
