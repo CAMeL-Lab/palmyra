@@ -88,6 +88,17 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                     </div> -->
                 </div>
             </div>
+            <!-- <div class="btn btn-open" id="parseButton"> -->
+            <div id="parseButton">
+                <!-- <button class="btn btn-open">Open Modal</button> -->
+            </div>
+            <section id="parse-modal" class="modal hidden">
+                <div>
+                    <p>Parsing trees, this will take a moment.</p>
+                </div>
+                <button id="parse-close-btn" class="btn"></button>
+            </section>
+            <div id="parse-overlay" class="parse-overlay-class hidden"></div>
         </div>
 
         <div class="container" style="width:100%">
@@ -223,6 +234,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
     <script src="configFileHandler.js"></script>
     <script src="gapiLoader.js"></script>
     <script src="authenticator.js"></script>
+    <script src="parsing.js"></script>
 
     <script async defer src="https://apis.google.com/js/api.js"
         onload="gapiLoaded('client', initializeGapiClient)"></script>
