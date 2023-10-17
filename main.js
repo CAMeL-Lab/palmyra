@@ -524,7 +524,7 @@ var convertToJSON = function (inputData) {
     }
     inputArray[i] = rootNode;
   }
-
+  
   return inputArray;
 };
 
@@ -575,7 +575,6 @@ async function setupTreePage(FileInputChecker) {
   addFilenameToHtmlElements(file.name);
   await readConfigFile();
   parseConllFile(file);
-  addParseButton();
 }
 
 var parseConllFile = function (file) {
@@ -3198,15 +3197,27 @@ var getTree = function (treeData) {
   update(root);
 };
 
-// parser functionality
+/*************************************************************************************************/
+/* parser functionality */
+/*************************************************************************************************/
+// remaining functions are in parsing.js
 
 // used in setupTreePage
 function addParseButton() {
-  parseButton = document.createElement('button');
-  parseButton.textContent = 'parse';
+  // parseButton = document.createElement('button');
+  // parseButton.textContent = 'parse';
+  parseButton = document.createElement('input');
+  parseButton.value = 'Parse';
+  parseButton.type = 'button';
+  parseButton.style = 'float:right';
   parseButton.addEventListener('click', () => {
-    let fileData = convertTreesArrayToString();
-    parseFile(fileData);
+    let textSentences = $("#treedata2").val();
+    parseFile(textSentences);
   });
-  document.getElementById('parseButton').append(parseButton);
+  // document.getElementById('parseButton').append(parseButton);
+  document.getElementById('upload2').append(parseButton);
 }
+
+/*************************************************************************************************/
+/* parser functionality */
+/*************************************************************************************************/
