@@ -200,7 +200,7 @@ li #faq {
     height: 65px;
     color: white;
     font-size: 1.2em;
-    font-family: 'bebas';
+    font-family: 'arial';
     display: none;
 }
 
@@ -350,7 +350,7 @@ body.viewtree {
     color: white;
     /* padding: 14px 16px; */
     background-color: inherit;
-    font-family: 'bebas';
+    font-family: 'arial';
     margin: 0; /* Important for vertical align on mobile phones */
 }
 .dropdown-content {
@@ -361,6 +361,7 @@ body.viewtree {
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
     font-size: 0.9em;
+    font-family: 'arial';
 }
 .dropdown:hover .dropdown-content {
     display: block;
@@ -704,3 +705,7 @@ display: none;
 /****************************************************************/
 /* End of server button classes */
 /****************************************************************/
+
+.tab { margin-left: 40px; } /* adding tab in html text */
+.parens::before { content: '('}
+.parens::after { content: ')'}
