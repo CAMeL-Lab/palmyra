@@ -125,6 +125,7 @@ function UndoRedoHelperOnTreePageSetUp() {
   undo_stack = new Array(treesArray[0]);
 }
 
+// TODO: move to keyboardShortcuts.js
 window.addEventListener('keydown', function(event) {
   if ((event.metaKey || event.ctrlKey) && !event.shiftKey && (event.key === 'z' || event.key === 'Z')) undo();
   if ((event.metaKey || event.ctrlKey) && event.shiftKey && ( event.key === 'z' || event.key === 'Z')) redo();
@@ -184,8 +185,8 @@ $(window).resize(function () {
 });
 
 // Add listener to textbox when downloading a file. When the enter key is pressed, the file will be downloaded
+// TODO: move to keyboardShortcuts.js
 var download_form = document.getElementById("filename");
-
 download_form.addEventListener("keydown", function (event) {
   // Number 13 is the "Enter" key on the keyboard
   if (event.keyCode === 13) {
