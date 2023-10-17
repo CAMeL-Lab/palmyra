@@ -1,26 +1,68 @@
 
-function initCloseModalButton() {
+function initParseModalButton() {
+    document.getElementById('parse-modal').classList.remove("hidden");
+    document.getElementById('parse-overlay').classList.remove("hidden");
+
     closeButton = document.getElementById("parse-close-btn");
     closeButton.textContent = 'Close';
     closeButton.addEventListener('click', () => {
       document.getElementById('parse-modal').classList.add("hidden");
       document.getElementById('parse-overlay').classList.add("hidden");
     });
-  }
+}
 
-function parseFile(fileData) {
-    console.log(fileData);
-    fetch("http://localhost:8000/camel_tools_parser/", {method: 'POST', body: fileData})
-    .then(res => {
-        x = res.json()
-        console.log(x)
+function initGetParsedModalButton(parse_data_id) {
+    // hides the parse-modal
+    document.getElementById('parse-modal').classList.add("hidden");
+    document.getElementById('parse-overlay').classList.add("hidden");
+
+    // show the update tree modal
+    document.getElementById('get-parsed-modal').classList.remove("hidden");
+    document.getElementById('get-parsed-overlay').classList.remove("hidden");
+
+    // set up button that sends a request to the backend to get the new trees
+    closeButton = document.getElementById("get-parsed-btn");
+    closeButton.textContent = 'Update';
+    closeButton.addEventListener('click', () => {
+      document.getElementById('get-parsed-modal').classList.add("hidden");
+      document.getElementById('get-parsed-overlay').classList.add("hidden");
+      getParsedData(parse_data_id)
     });
+}
 
-    document.getElementById('parse-modal').classList.remove("hidden");
-    document.getElementById('parse-overlay').classList.remove("hidden");
-    initCloseModalButton();
-        // .then(res => res.json())
-        // .then(data => {
-        //     console.log(data);
-        // });
+function parseFile(textSentences) {
+    fetch("http://localhost:8000/parser/", {method: 'POST', body: textSentences})
+    .then(res => res.json())
+    .then(data => {
+        console.log(data);
+        initGetParsedModalButton(data[0]['parsed_conll_file_id'])
+    });
+    initParseModalButton();
+}
+
+function getParsedData(parse_data_id) {
+    fetch(`http://localhost:8000/parser/?parsed_conll_file_id=${parse_data_id}`, {method: 'GET'})
+    .then(res => res.json())
+    .then(data => {
+        file_data = data[0]['parsed_data'];
+        treesArray = convertToJSON(file_data);
+        // reinitialize trees
+        // setupPageZero(file_data);
+        // UndoRedoHelperOnTreePageSetUp();
+    // hide upload window
+        view([$(".upload")], hideComponents);
+        getTree(treesArray[0]);
+
+        
+        // sessionStorage.removeItem("treeData");
+        // saveTree();
+        // d3.select("body").select("svg").remove();
+        // getTree(json_data);
+        // update(root);
+        // selectRoot();
+        // showSelection();
+        // // reset focusWindow
+        // focusWindow = "";
+    });
+    // initParseModalButton();
 }
