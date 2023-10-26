@@ -4,7 +4,8 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 const app = express();
-const port = 3000;
+const PORT = 3000;
+const HOST = '0.0.0.0';
 
 var clientOrigin;
 if (process.env.NODE_ENV === "development") {
@@ -33,6 +34,16 @@ app.get("/gis_credentials", (req, res) => {
   });
 })
 
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+app.get("/status", (req, res) => {
+  const status = {
+     "Status": "Running"
+  };
+  console.log("server at sattus/");
+  res.send(status);
 });
+
+app.listen(PORT, () => {
+  // console.log(`Server listening on port ${PORT}`);
+  console.log(`Running on http://${HOST}:${PORT}`);
+});
+
