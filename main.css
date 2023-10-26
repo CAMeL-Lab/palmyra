@@ -621,14 +621,23 @@ div.scroll {
 /****************************************************************/
 /* Server button classes */
 /****************************************************************/
+.modal_parent {
+    display: flex;
+    /* flex-direction: column; */
+    justify-content: center;
+    align-items: center;
+    /* height: 100%; */
+}
+
 .modal {
 display: flex;
 flex-direction: column;
 justify-content: center;
+align-items: center;
 gap: 0.4rem;
-width: 450px;
+width: 350px;
 padding: 1.3rem;
-min-height: 250px;
+min-height: 200px;
 position: absolute;
 z-index: 2;
 top: 20%;

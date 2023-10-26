@@ -64,7 +64,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                         </button>
                         <div class="dropdown-content">
                           <p onClick="directionToggle()">Change Direction<p>
-                          <p onClick="search(treesArray)">Listing</p>
+                          <p onClick="search(treesArray)">Listing (⌘ + shift + l)</p>
                         </div>
                     </div>
                     <div class="dropdown">
@@ -72,11 +72,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                           <i class="fa fa-caret-down"></i>
                         </button>
                         <div class="dropdown-content">
-                          <p onClick="firstTree()">First Tree (Cmd + Up arrow key)<p>
-                          <p onClick="prevTree()">Previous Tree (Cmd + Left arrow key)</p>
-                          <p onClick="nextTree()">Next Tree (Cmd + Right arrow key)</p>
-                          <p onClick="lastTree()">Last Tree (Cmd + Down arrow key)</p>
-                          <p onClick="goToTreeToggle()">Use Tree Number</p>
+                          <p onClick="firstTree()">First tree (⌘ + shift + Up arrow key)<p>
+                          <p onClick="prevTree()">Previous tree (⌘ + shift + Left arrow key)</p>
+                          <p onClick="nextTree()">Next tree (⌘ + shift + Right arrow key)</p>
+                          <p onClick="lastTree()">Last tree (⌘ + shift + Down arrow key)</p>
+                          <p onClick="goToTreeToggle()">Search by tree number</p>
                         </div>
                     </div>
                     <!-- <div class="dropdown">
@@ -131,20 +131,22 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                 </form>
                 <input style="float:right" type="button" id="treebtn2" value="Upload" onClick="setSentenceTreeData()" />
                 <!-- <div id="parseButton"></div> -->
-                <section id="parse-modal" class="modal hidden">
-                    <div>
-                        <p>Parsing sentences, this will take a moment.</p>
-                    </div>
-                    <button id="parse-close-btn" class="btn"></button>
-                </section>
-                <div id="parse-overlay" class="parse-overlay-class hidden"></div>
-                <section id="get-parsed-modal" class="modal hidden">
-                    <div>
-                        <p>Sentences parsed. Click here to get updated data.</p>
-                    </div>
-                    <button id="get-parsed-btn" class="btn"></button>
-                </section>
-                <div id="get-parsed-overlay" class="parse-overlay-class hidden"></div>
+                <div class="modal_parent">
+                    <section id="parse-modal" class="modal hidden">
+                        <div>
+                            <p>Parsing sentences, this will take a moment.</p>
+                        </div>
+                        <button id="parse-close-btn" class="btn"></button>
+                    </section>
+                    <div id="parse-overlay" class="parse-overlay-class hidden"></div>
+                    <section id="get-parsed-modal" class="modal hidden">
+                        <div>
+                            <p>Sentences parsed. Click here to get updated data.</p>
+                        </div>
+                        <button id="get-parsed-btn" class="btn"></button>
+                    </section>
+                    <div id="get-parsed-overlay" class="parse-overlay-class hidden"></div>
+                </div>
             </section>
         </div>
 
