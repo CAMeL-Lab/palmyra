@@ -34,7 +34,6 @@ function parseFile(textSentences) {
     fetch("http://localhost:8000/parser/", {method: 'POST', body: textSentences})
     .then(res => res.json())
     .then(data => {
-        console.log(data);
         initGetParsedModalButton(data[0]['parsed_conll_file_id'])
     });
     initParseModalButton();
