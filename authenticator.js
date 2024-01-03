@@ -1,6 +1,7 @@
 let isAuthenticated = false;
 
 function logout() {
+  console.log('logout');
   // remove access token from session storage
   sessionStorage.removeItem("GCP_access_token");
   // remove access token from gapi client
@@ -13,6 +14,7 @@ function logout() {
 }
 
 function onAuthenticated() {
+  console.log('onAuthenticated');
   // set access token in gapi client for future requests
   gapi.client.setToken({ access_token: getTokenFromSessionStorage() });
   isAuthenticated = true;
@@ -25,6 +27,7 @@ function onAuthenticated() {
 }
 
 function authenticate() {
+  console.log('authenticate');
   // callbackafter access token is retrieved
   // tokenClient.callback = async (resp) => {
   //   if (resp.error !== undefined) {
@@ -51,10 +54,12 @@ function authenticate() {
 }
 
 function setTokenInSessionStorage(token) {
+  console.log('setTokenInSessionStorage');
   sessionStorage.setItem("GCP_access_token", token);
 }
 
 function getTokenFromSessionStorage() {
+  console.log('getTokenFromSessionStorage');
   return sessionStorage.getItem("GCP_access_token");
 }
 
