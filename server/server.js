@@ -6,6 +6,8 @@ dotenv.config();
 const app = express();
 const port = 3000;
 
+CLIENT_TOKEN = process.env.CLIENT_TOKEN
+
 var clientOrigin;
 if (process.env.NODE_ENV === "development") {
   clientOrigin = "http://localhost:1234"; 
@@ -32,6 +34,12 @@ app.get("/gis_credentials", (req, res) => {
     scope: process.env.GCP_API_SCOPES,
   });
 })
+
+app.get("/get_client_token", (req, res) => {
+  res.json({
+    client_token: CLIENT_TOKEN
+  });
+});
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
