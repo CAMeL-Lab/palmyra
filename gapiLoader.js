@@ -2,7 +2,7 @@ let gapiClientInited = false;
 let gapiPickerInited = false;
 let gisInited = false;
 // set this to the right server origin when pushed to Github
-const SERVER_ORIGIN = "http://localhost:3000";
+const SERVER_ORIGIN = "http://localhost:5000";
 let tokenClient;
 let pickedFile;
 let fileId;
@@ -11,6 +11,7 @@ let fileId;
  * Callback after api script is loaded.
  */
 function gapiLoaded(libraryName, callback) {
+  console.log('gapiLoaded');
   gapi.load(libraryName, callback);
 }
 
@@ -18,6 +19,7 @@ function gapiLoaded(libraryName, callback) {
  * Callback after Google Identity Services are loaded.
  */
 function gisLoaded() {
+  console.log('gisLoaded');
   axios
     .get(`${SERVER_ORIGIN}/gis_credentials`)
     .then((rsp) => {
@@ -39,6 +41,7 @@ function gisLoaded() {
  * Callback after the API client is loaded.
  */
 function initializeGapiClient() {
+  console.log('initializeGapiClient');
   axios
     .get(`${SERVER_ORIGIN}/gapi_credentials`)
     .then((rsp) => {
@@ -62,10 +65,12 @@ function initializeGapiClient() {
 }
 
 function initializeGapiPicker() {
+  console.log('initializeGapiPicker');
   gapiPickerInited = true;
 }
 
 function showPicker(accessToken, callback) {
+  console.log('showPicker');
   axios
     .get(`${SERVER_ORIGIN}/gapi_credentials`)
     .then((rsp) => {
@@ -87,6 +92,7 @@ function showPicker(accessToken, callback) {
 }
 
 function pickerCallback(data) {
+  console.log('pickerCallback');
   // if the user picked a file
   // need to check if the file is a conllu file
   if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
@@ -125,6 +131,7 @@ function pickerCallback(data) {
 }
 
 function enableBrowseButton() {
+  console.log('enableBrowseButton');
   let browseBtn = document.getElementById("browse_btn");
   browseBtn.style.display = "inline-block";
   browseBtn.onclick = () => {
@@ -136,12 +143,14 @@ function enableBrowseButton() {
  * Enables user interaction after all libraries are loaded.
  */
 function maybeEnableAuthButton() {
+  console.log('maybeEnableAuthButton');
   if (gapiClientInited && gapiPickerInited && gisInited && !isAuthenticated) {
     $(".toolbar [id='auth_btn']").show();
   }
 }
 
 function maybeEnableSaveRemoteButton() {
+  console.log('maybeEnableSaveRemoteButton');
   if (gapiClientInited && gisInited) {
     $("#save_remote").show();
   }
