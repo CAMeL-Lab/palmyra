@@ -924,10 +924,8 @@ var saveMorphology = function () {
     if (selectedIndex != -1) {
       featureDisplay = document
         .getElementById("morphoFeats")
-        .getElementsByClassName("morphoFeat")
-        [i].getElementsByClassName("inputArray")[0].options[
-        selectedIndex
-      ].value;
+        .getElementsByClassName("morphoFeat")[i]
+        .getElementsByClassName("inputArray")[0].options[selectedIndex].value;
       featureValue = "";
 
       for (var j = 0; j < featureValues[feature].length; j++) {
@@ -936,8 +934,11 @@ var saveMorphology = function () {
         }
       }
 
-      if (feature in selectedMorphology.parent.feats) {
+      // if a valid feature was selected, update node feature
+      if (featureValue !== "u") {
         selectedMorphology.parent.feats[feature] = featureValue;
+      } else { // if unspecified was selected, remove feature from node
+        delete selectedMorphology.parent.feats[feature]
       }
     }
   }
@@ -1397,6 +1398,7 @@ function addEngBdiToNum(tempFullSen) {
   return tempNewFullSen;
 }
 
+
 // ************** Generate the tree diagram  *****************
 var getTree = function (treeData) {
   if (numberOfNodesArray.length == 0) {
@@ -1836,6 +1838,7 @@ var getTree = function (treeData) {
 
   // toggle morphology info window
   function morphologyClick(d) {
+    console.log("morphologyClick");
     // when nodes are collapsed, token IDs were not being updated. So nodes are uncollapsed before token splits are made.
     uncollapseAllNodes(treesArray[currentTreeIndex]);
 
@@ -1855,82 +1858,56 @@ var getTree = function (treeData) {
         document.getElementById("lemma").value = d.parent.lemma;
       }
 
-      for (var i = 0; i < lexicalFeatsList.length; i++) {
-        document.getElementById(lexicalFeatsList[i]).value =
-          d.parent.feats[lexicalFeatsList[i]];
+      // for (var i = 0; i < lexicalFeatsList.length; i++) {
+      //   document.getElementById(lexicalFeatsList[i]).value =
+      //     d.parent.feats[lexicalFeatsList[i]];
+      // }
+
+      // iterate over existing morpho features (i.e. Gender, Number, etc..)
+      for (var i = 0; i < document.getElementById("morphoFeats").getElementsByClassName("morphoFeat").length;i++
+      ) {
+        // for each morpho feat (i.e. Gender), there are choices (i.e. Masculine)
+        // these are within the select element. They are enabled by setting disabled to false.
+        document.getElementById("morphoFeats").getElementsByClassName("morphoFeat")[i].getElementsByClassName("inputArray")[0].disabled = false;
       }
 
-      for (
-        var i = 0;
-        i <
-        document
-          .getElementById("morphoFeats")
-          .getElementsByClassName("morphoFeat").length;
-        i++
-      ) {
-        document
-          .getElementById("morphoFeats")
-          .getElementsByClassName("morphoFeat")
-          [i].getElementsByClassName("inputArray")[0].disabled = false;
-      }
 
-      for (
-        var i = 0;
-        i <
-        document
-          .getElementById("morphoFeats")
-          .getElementsByClassName("morphoFeat").length;
-        i++
-      ) {
-        featName = document
-          .getElementById("morphoFeats")
-          .getElementsByClassName("morphoFeat")[i].id;
+      morphoFeats = document.getElementById("morphoFeats").getElementsByClassName("morphoFeat")
+      for (var i = 0;i <morphoFeats.length;i++) {
+        // get feature name from all features (i.e. Gender)
+        featName = morphoFeats[i].id;
 
+        // if the current node (token) contains a valid pos,
+        // and it also contains a valid feature value
         if (
-          d.parent.pos.toUpperCase() in defaultFeatValues &&
-          featName in defaultFeatValues[d.parent.pos.toUpperCase()]
+          d.parent.pos.toLowerCase() in defaultFeatValues &&
+          featName in defaultFeatValues[d.parent.pos.toLowerCase()]
         ) {
+          // disable features that are invalid (i.e. case for verbs)
           if (
-            defaultFeatValues[d.parent.pos.toUpperCase()][featName] === "N/A"
+            defaultFeatValues[d.parent.pos.toLowerCase()][featName] === "N/A"
           ) {
-            document
-              .getElementById("morphoFeats")
-              .getElementsByClassName("morphoFeat")
-              [i].getElementsByClassName("inputArray")[0].value = "N/A";
-            document
-              .getElementById("morphoFeats")
-              .getElementsByClassName("morphoFeat")
-              [i].getElementsByClassName("inputArray")[0].disabled = true;
-          } else {
+            morphoFeats[i].getElementsByClassName("inputArray")[0].value = "N/A";
+            morphoFeats[i].getElementsByClassName("inputArray")[0].disabled = true;
+          } else { // assign the dropdown the value
             if (featName in selectedMorphology.parent.feats) {
               for (var j = 0; j < featureValues[featName].length; j++) {
                 if (
                   featureValues[featName][j]["value"] ===
                   selectedMorphology.parent.feats[featName]
                 ) {
-                  document
-                    .getElementById("morphoFeats")
-                    .getElementsByClassName("morphoFeat")
-                    [i].getElementsByClassName("inputArray")[0].value =
+                  morphoFeats[i].getElementsByClassName("inputArray")[0].value =
                     featureValues[featName][j]["display"];
                 }
               }
-            } else {
-              document
-                .getElementById("morphoFeats")
-                .getElementsByClassName("morphoFeat")
-                [i].getElementsByClassName("inputArray")[0].value =
-                defaultFeatValues[d.parent.pos][featName];
+            } else { // assign the dropdown value "unspecified"
+              morphoFeats[i].getElementsByClassName("inputArray")[0].value = 
+              morphoFeats[i].getElementsByClassName("inputArray")[0][0].value;
             }
           }
-        } else {
-          document
-            .getElementById("morphoFeats")
-            .getElementsByClassName("morphoFeat")
-            [i].getElementsByClassName("inputArray")[0].value = document
-            .getElementById("morphoFeats")
-            .getElementsByClassName("morphoFeat")
-            [i].getElementsByClassName("inputArray")[0][0].value;
+        } else { // if pos not valid, or if feature not in default values
+          morphoFeats[i].getElementsByClassName("inputArray")[0].value = 
+            morphoFeats[i].getElementsByClassName("inputArray")[0][0].value;
         }
       }
     }
