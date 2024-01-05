@@ -934,11 +934,12 @@ var saveMorphology = function () {
         }
       }
 
-      // if (feature in selectedMorphology.parent.feats) {
+      // if a valid feature was selected, update node feature
       if (featureValue !== "u") {
         selectedMorphology.parent.feats[feature] = featureValue;
+      } else { // if unspecified was selected, remove feature from node
+        delete selectedMorphology.parent.feats[feature]
       }
-      // }
     }
   }
 
@@ -1397,16 +1398,6 @@ function addEngBdiToNum(tempFullSen) {
   return tempNewFullSen;
 }
 
-function getLexicalFeats(featIds) {
-  for (var i = 0; i < featIds.length; i++) {
-    // check if the feature exists in the config file.
-    // If it doesn't then it's a user-defined one and not part of the config.
-    // Example: in UD, Aspect, Mood, and Number exist, but Tense and VerbForm do not.
-    if (document.getElementById(featIds[i]) !== null) {
-      document.getElementById(featIds[i]).selected = "selected";
-    }
-  }
-}
 
 // ************** Generate the tree diagram  *****************
 var getTree = function (treeData) {
@@ -1880,60 +1871,45 @@ var getTree = function (treeData) {
         document.getElementById("morphoFeats").getElementsByClassName("morphoFeat")[i].getElementsByClassName("inputArray")[0].disabled = false;
       }
 
-      getLexicalFeats(Object.values(d.parent.feats));
 
-      // for (var i = 0;i <document.getElementById("morphoFeats").getElementsByClassName("morphoFeat").length;i++) {
-      //   // get feature name from all features (i.e. Gender)
-      //   featName = document.getElementById("morphoFeats").getElementsByClassName("morphoFeat")[i].id;
+      morphoFeats = document.getElementById("morphoFeats").getElementsByClassName("morphoFeat")
+      for (var i = 0;i <morphoFeats.length;i++) {
+        // get feature name from all features (i.e. Gender)
+        featName = morphoFeats[i].id;
 
-      //   if (
-      //     d.parent.pos.toUpperCase() in defaultFeatValues &&
-      //     featName in defaultFeatValues[d.parent.pos.toUpperCase()]
-      //   ) {
-      //     // disable features that are invalid (possibly case for verbs)
-      //     if (
-      //       defaultFeatValues[d.parent.pos.toUpperCase()][featName] === "N/A"
-      //     ) {
-      //       document
-      //         .getElementById("morphoFeats")
-      //         .getElementsByClassName("morphoFeat")
-      //         [i].getElementsByClassName("inputArray")[0].value = "N/A";
-      //       document
-      //         .getElementById("morphoFeats")
-      //         .getElementsByClassName("morphoFeat")
-      //         [i].getElementsByClassName("inputArray")[0].disabled = true;
-      //     } else {
-      //       if (featName in selectedMorphology.parent.feats) {
-      //         for (var j = 0; j < featureValues[featName].length; j++) {
-      //           if (
-      //             featureValues[featName][j]["value"] ===
-      //             selectedMorphology.parent.feats[featName]
-      //           ) {
-      //             document
-      //               .getElementById("morphoFeats")
-      //               .getElementsByClassName("morphoFeat")
-      //               [i].getElementsByClassName("inputArray")[0].value =
-      //               featureValues[featName][j]["display"];
-      //           }
-      //         }
-      //       } else {
-      //         document
-      //           .getElementById("morphoFeats")
-      //           .getElementsByClassName("morphoFeat")
-      //           [i].getElementsByClassName("inputArray")[0].value =
-      //           defaultFeatValues[d.parent.pos][featName];
-      //       }
-      //     }
-      //   } else {
-      //     document
-      //       .getElementById("morphoFeats")
-      //       .getElementsByClassName("morphoFeat")
-      //       [i].getElementsByClassName("inputArray")[0].value = document
-      //       .getElementById("morphoFeats")
-      //       .getElementsByClassName("morphoFeat")
-      //       [i].getElementsByClassName("inputArray")[0][0].value;
-      //   }
-      // }
+        // if the current node (token) contains a valid pos,
+        // and it also contains a valid feature value
+        if (
+          d.parent.pos.toLowerCase() in defaultFeatValues &&
+          featName in defaultFeatValues[d.parent.pos.toLowerCase()]
+        ) {
+          // disable features that are invalid (i.e. case for verbs)
+          if (
+            defaultFeatValues[d.parent.pos.toLowerCase()][featName] === "N/A"
+          ) {
+            morphoFeats[i].getElementsByClassName("inputArray")[0].value = "N/A";
+            morphoFeats[i].getElementsByClassName("inputArray")[0].disabled = true;
+          } else { // assign the dropdown the value
+            if (featName in selectedMorphology.parent.feats) {
+              for (var j = 0; j < featureValues[featName].length; j++) {
+                if (
+                  featureValues[featName][j]["value"] ===
+                  selectedMorphology.parent.feats[featName]
+                ) {
+                  morphoFeats[i].getElementsByClassName("inputArray")[0].value =
+                    featureValues[featName][j]["display"];
+                }
+              }
+            } else { // assign the dropdown value "unspecified"
+              morphoFeats[i].getElementsByClassName("inputArray")[0].value = 
+              morphoFeats[i].getElementsByClassName("inputArray")[0][0].value;
+            }
+          }
+        } else { // if pos not valid, or if feature not in default values
+          morphoFeats[i].getElementsByClassName("inputArray")[0].value = 
+            morphoFeats[i].getElementsByClassName("inputArray")[0][0].value;
+        }
+      }
     }
   }
 
