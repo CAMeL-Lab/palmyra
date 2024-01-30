@@ -34,13 +34,13 @@ function authenticate() {
   //     throw resp;
   //   }
   // get client token from backend
-  axios({method: 'get', url:`${SERVER_ORIGIN}/authenticate_user`, withCredentials: true})
+  axios({method: 'get', url:`${SERVER_ORIGIN}/authenticate_user`})
   .then((rsp) => {
     let credentials = rsp.data;
     console.log("credentials");
     console.log(credentials);
-    // setTokenInSessionStorage(credentials.client_token);
-    // onAuthenticated();
+    setTokenInSessionStorage(credentials.client_token);
+    onAuthenticated();
   });
   // setTokenInSessionStorage(gapi.client.getToken().access_token);
   // onAuthenticated();
