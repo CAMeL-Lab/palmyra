@@ -2,7 +2,8 @@ let gapiClientInited = false;
 let gapiPickerInited = false;
 let gisInited = false;
 // set this to the right server origin when pushed to Github
-const SERVER_ORIGIN = "http://localhost:5000";
+// const SERVER_ORIGIN = "http://localhost:5000";
+const SERVER_ORIGIN = "https://mra9407.pythonanywhere.com";
 let tokenClient;
 let pickedFile;
 let fileId;
