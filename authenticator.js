@@ -15,30 +15,34 @@ function logout() {
 function onAuthenticated() {
   // set access token in gapi client for future requests
   gapi.client.setToken({ access_token: getTokenFromSessionStorage() });
-  isAuthenticated = true;
-  // alert("Authenticated with Google Drive successfully!");
-  // enable browse button
-  enableBrowseButton();
-  // if authenticated successfully, hide authentication button && show logout button
-  $(".toolbar [id='auth_btn']").hide();
-  $(".toolbar [id='logout_btn']").show();
+  const accessToken = getTokenFromSessionStorage();
+  if (accessToken) {
+    isAuthenticated = true;
+    // alert("Authenticated with Google Drive successfully!");
+    // enable browse button
+    enableBrowseButton(accessToken);
+    // if authenticated successfully, hide authentication button && show logout button
+    $(".toolbar [id='auth_btn']").hide();
+    $(".toolbar [id='logout_btn']").show();
+  }
 }
 
 function authenticate() {
-  // callbackafter access token is retrieved
-  tokenClient.callback = async (resp) => {
-    if (resp.error !== undefined) {
-      throw resp;
-    }
-    setTokenInSessionStorage(gapi.client.getToken().access_token);
-    onAuthenticated();
-  };
-  // need to add a check for when the token expires
-  if (gapi.client.getToken() === null) {
-    // Prompt the user to select a Google Account and ask for consent to share their data
-    // when establishing a new session.
-    tokenClient.requestAccessToken({ prompt: "consent" });
-  }
+  window.open("https://mra9407.pythonanywhere.com/authorize", "_self", "popup");
+  // // callbackafter access token is retrieved
+  // tokenClient.callback = async (resp) => {
+  //   if (resp.error !== undefined) {
+  //     throw resp;
+  //   }
+  //   setTokenInSessionStorage(gapi.client.getToken().access_token);
+  //   onAuthenticated();
+  // };
+  // // need to add a check for when the token expires
+  // if (gapi.client.getToken() === null) {
+  //   // Prompt the user to select a Google Account and ask for consent to share their data
+  //   // when establishing a new session.
+  //   tokenClient.requestAccessToken({ prompt: "consent" });
+  // }
 }
 
 function setTokenInSessionStorage(token) {
@@ -51,6 +55,13 @@ function getTokenFromSessionStorage() {
 
 // retrieve access token from session storage when page is loaded
 window.onload = function () {
+  const urlParams = new URLSearchParams(window.location.search);
+
+  const sessionToken = urlParams.get('token');
+  if (sessionToken) {
+    setTokenInSessionStorage(sessionToken);
+  }
+  
   if (getTokenFromSessionStorage()) {
     onAuthenticated();
   }
