@@ -135,12 +135,6 @@ function enableBrowseButton(accessToken) {
 /**
  * Enables user interaction after all libraries are loaded.
  */
-function maybeEnableAuthButton() {
-  if (gapiPickerInited && !isAuthenticated) {
-    $(".toolbar [id='auth_btn']").show();
-  }
-}
-
 function maybeEnableSaveRemoteButton() {
   $("#save_remote").show();
 }

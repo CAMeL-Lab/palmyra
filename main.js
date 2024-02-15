@@ -2670,7 +2670,7 @@ var getTree = function (treeData) {
     $("#conlluFileNameDiv").show();
     view([$("#save_remote")], hideComponents); 
     maybeEnableSaveRemoteButton();
-    view([$("#auth_btn"), $("#logout_btn")], hideComponents); 
+    view([$("#logout_btn")], hideComponents); 
 
     // force full tree redraw to update dynamic changes like doubleclick etc.
     fullTree.selectAll(".node").remove();
