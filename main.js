@@ -172,6 +172,7 @@ var findStorage = function () {
 
 // wait to call 'main' until the page has finished loading
 $(document).ready(main);
+$("#auth_btn").show();
 
 $(window).resize(function () {
   sessionStorage.removeItem("treeData");
@@ -2667,11 +2668,10 @@ var getTree = function (treeData) {
     $("#sents").show();
     $(".toolbar").show();
     $(".dropdown").show();
-    $("#auth_btn").show();
     $("#conlluFileNameDiv").show();
     view([$("#save_remote")], hideComponents); 
     maybeEnableSaveRemoteButton();
-    view([$("#logout_btn")], hideComponents); 
+    view([$("#auth_btn", "#logout_btn")], hideComponents); 
 
     // force full tree redraw to update dynamic changes like doubleclick etc.
     fullTree.selectAll(".node").remove();
