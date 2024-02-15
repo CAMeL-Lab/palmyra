@@ -53,6 +53,8 @@ var lastClickedNodeId = 0;
 
 var focusWindow = "";
 
+var isConlluLocal;
+
 var configRead = false;
 
 var settings = [
@@ -176,7 +178,7 @@ $(window).resize(function () {
   saveTree();
   d3.select("body").select("svg").remove();
   getTree(treesArray[currentTreeIndex]);
-  update(root);
+  // update(root);
 });
 
 // Add listener to textbox when downloading a file. When the enter key is pressed, the file will be downloaded
@@ -536,33 +538,42 @@ function isValidExtension(original_filename) {
 
 function addFilenameToHtmlElements(original_filename) {
   // display filename on page and when downloading files
-  
-  // get 2 elements to display the file name on the page
-  var file_name_elem = document.getElementById("conlluFileName");
-  var output_file_name_elem = document.getElementById("filename");
-
-  var filename = "";
-  filename = original_filename.replace(/.conll[ux]$/, "");
-
-  file_name_elem.innerHTML = filename;
-  output_file_name_elem.value = filename;
+  document.getElementById("conlluFileName").innerHTML = original_filename;
 }
 
-async function setupTreePage() {
-  // get uploaded file to read
-  var x = document.getElementById("inputFile");
+function LocalFileInputChecker() {
+  let x = document.getElementById("inputFile");
   if (("files" in x) && (x.files.length == 0)) {
     alert(
       "Please select a ConllU/X file, or use use the Upload button in the sentence uploader section."
     );
-    return;
+    return null;
+  };
+  isConlluLocal = true;
+  return x.files[0];
+}
+
+function RemoteFileInputChecker() {
+  // check if there is a picked file
+  // return the File object
+  if (!document.getElementById("picked_filename").innerHTML) {
+    alert(
+      "Please select a ConllU/X file, or use use the Upload button in the sentence uploader section."
+    );
   }
-  var file = x.files[0];
+  isConlluLocal = false;
+  return pickedFile;
+}
+
+async function setupTreePage(FileInputChecker) {
+  let file = FileInputChecker();
+  if (!file) return;
   if (!isValidExtension(file.name)) {return;}
 
   addFilenameToHtmlElements(file.name);
   await readConfigFile();
   parseConllFile(file);
+  addParseButton();
 }
 
 var parseConllFile = function (file) {
@@ -578,6 +589,7 @@ var parseConllFile = function (file) {
       getTree(treesArray[0]);
     } catch (e) {
       // alert user if error occurs
+      console.log(e)
       alert("File upload error!");
     }
   };
@@ -622,6 +634,7 @@ var readSentenceTreeData = function () {
     } catch (e) {
       // alert user if error occurs
       alert("Text upload error!");
+      throw(e);
     }
   } else {
     view([$(".upload")], hideComponents)
@@ -1185,43 +1198,133 @@ var updateSentenceText = function (node) {
   }
 };
 
+function saveTreeRemote() {
+  saveTree();
+  if (sessionStorage.treeData !== "undefined") {
+    var fileData = convertTreesArrayToString();
+    // make API request to Google Drive to store file
+    saveTreeRemoteHelper(fileData);
+  } else {
+    alert("Tree not found.");
+  }
+  hideAllWindows();
+}
+
+function addFileExtension(fileName, extension) {
+  let fileNameParts = fileName.split('.');
+  // need to add extension for conllx files as well
+  if (fileNameParts.length > 1) fileNameParts = fileNameParts.slice(0, fileNameParts.length-1);
+  fileName = fileNameParts.join('.') + extension;
+  return fileName;
+}
+
+// multipart upload only works for file < 5 MB
+// need to construct request body with specification from Drive API: https://developers.google.com/drive/api/guides/manage-uploads#multipart
+function uploadFile(fileData) {
+  let accessToken = gapi.client.getToken().access_token;
+  let xhr = new XMLHttpRequest();
+  let fileName = document.getElementById("filename_remote").value == "" ? document.getElementById("conlluFileName").innerHTML : document.getElementById("filename_remote").value;
+  let requestBody;
+
+  if (isConlluLocal) { // upload local file
+    xhr.open('POST', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', true);
+  }
+  else { // update an existing file
+    xhr.open('PATCH', 'https://www.googleapis.com/upload/drive/v3/files/'+fileId+'?uploadType=multipart', true);
+  }
+  fileName = addFileExtension(fileName, '.conllu');
+  requestBody =
+    '--boundary\r\n' +
+    'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+    JSON.stringify({
+      name: fileName,
+      appProperties: {
+        'parser': 'PALMYRA'
+      }
+    }) +
+    '\r\n\r\n' +
+    '--boundary\r\n' +
+    'Content-Type: ' + 'text/plain;charset=utf-8' + '\r\n\r\n' + 
+    fileData + '\r\n--boundary--';
+  xhr.setRequestHeader('Content-Type', 'multipart/related; boundary="boundary"');
+	xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+  
+  xhr.onload = () => {
+		if (xhr.status === 200) {
+      let response = JSON.parse(xhr.responseText);
+      fileId = response.id;
+      isConlluLocal = false;
+      document.getElementById("conlluFileName").innerHTML = fileName;
+      alert("File saved to MyDrive sucessfully!");
+    } else {
+      console.log('Error uploading file:', xhr.statusText);
+      alert("Failed to save file to MyDrive!")
+    }
+	};
+  xhr.send(requestBody);
+};
+
+function saveTreeRemoteHelper(fileData) {
+  tokenClient.callback = (resp) => {
+    if (resp.error !== undefined) {
+      throw (resp);
+    }
+    setTokenInSessionStorage(gapi.client.getToken().access_token);
+    onAuthenticated();
+    uploadFile(fileData);
+  };
+
+  if (gapi.client.getToken() === null) {
+    // Prompt the user to select a Google Account and ask for consent to share their data
+    // when establishing a new session
+    tokenClient.requestAccessToken({prompt: 'consent'});
+  }
+  else {
+    // Skip display of account chooser and consent dialog for an existing session.
+    uploadFile(fileData);
+  }
+}
+
+function convertTreesArrayToString() {
+  var output = "";
+  for (var i = 0; i < treesArray.length; i++) {
+    meta_keys = Object.keys(treesArray[i].meta);
+
+    for (var key_index = 0; key_index < meta_keys.length; key_index++) {
+      if (meta_keys[key_index] === "sentenceText") {
+        //clone the treeArray to use that to generate the complete sentenceText comment
+        let clone = JSON.parse(JSON.stringify(JSON.decycle(treesArray[i])));
+        output =
+          output +
+          "# " +
+          meta_keys[key_index] +
+          " = " +
+          updateSentenceText(clone) +
+          "\n";
+      } else {
+        output =
+          output +
+          "# " +
+          meta_keys[key_index] +
+          " = " +
+          treesArray[i].meta[meta_keys[key_index]] +
+          "\n";
+      }
+    }
+
+    // clone treeArray and remove cycles through nested parents.
+    let clone = JSON.parse(JSON.stringify(JSON.decycle(treesArray[i])));
+    output = output + convertJSONToCONLL(clone) + "\n\n";
+  }
+  return output
+}
+
 // output CONLL files for the tree
 var downloadTree = function () {
   saveTree();
   var filename = $("#filename").val();
-  var output = "";
   if (sessionStorage.treeData !== "undefined") {
-    for (var i = 0; i < treesArray.length; i++) {
-      meta_keys = Object.keys(treesArray[i].meta);
-
-      for (var key_index = 0; key_index < meta_keys.length; key_index++) {
-        if (meta_keys[key_index] === "sentenceText") {
-          //clone the treeArray to use that to generate the complete sentenceText comment
-          let clone = JSON.parse(JSON.stringify(JSON.decycle(treesArray[i])));
-          output =
-            output +
-            "# " +
-            meta_keys[key_index] +
-            " = " +
-            updateSentenceText(clone) +
-            "\n";
-        } else {
-          output =
-            output +
-            "# " +
-            meta_keys[key_index] +
-            " = " +
-            treesArray[i].meta[meta_keys[key_index]] +
-            "\n";
-        }
-      }
-
-      // clone treeArray and remove cycles through nested parents.
-      let clone = JSON.parse(JSON.stringify(JSON.decycle(treesArray[i])));
-      output = output + convertJSONToCONLL(clone) + "\n\n";
-    }
-    // uses Blob and FileSaver libraries
-    var blob = new Blob([output], { type: "text/plain;charset=utf-8" });
+    var blob = new Blob([convertTreesArrayToString()], { type: "text/plain;charset=utf-8" });
     saveAs(blob, filename + ".conllx");
   } else {
     alert("Tree not found.");
@@ -1291,7 +1394,7 @@ var search = function (treesArray) {
 
 // return all settings to defaults
 var hideAllWindows = function () {
-  view([$("#download"), $("#morphology")], hideComponents);
+  view([$("#rename"), $("#download"), $("#morphology")], hideComponents);
   d3.selectAll(".morphology").style("stroke", "");
 
   if (
@@ -1354,6 +1457,17 @@ var goToTreeToggle = function () {
     hideAllWindows();
     $("#gototree").show();
     focusWindow = "goToTree";
+  } else {
+    hideAllWindows();
+  }
+};
+
+var renameToggle = function () {
+  if (focusWindow !== "saveas") {
+    hideAllWindows();
+    $("#rename").show();
+    focusWindow = "rename";
+    $("#filename_remote").val(addFileExtension(document.getElementById("conlluFileName").innerHTML, ".conllu"));
   } else {
     hideAllWindows();
   }
@@ -2551,7 +2665,12 @@ var getTree = function (treeData) {
     fullSen.innerHTML = addEngBdiToNum(fullSen.innerHTML);
 
     $("#sents").show();
-    $(".toolbar .dropdown").show();
+    $(".toolbar").show();
+    $(".dropdown").show();
+    $("#conlluFileNameDiv").show();
+    view([$("#save_remote")], hideComponents); 
+    maybeEnableSaveRemoteButton();
+    view([$("#auth_btn"), $("#logout_btn")], hideComponents); 
 
     // force full tree redraw to update dynamic changes like doubleclick etc.
     fullTree.selectAll(".node").remove();
@@ -3053,3 +3172,16 @@ var getTree = function (treeData) {
   // lay out the initial tree
   update(root);
 };
+
+// parser functionality
+
+// used in setupTreePage
+function addParseButton() {
+  parseButton = document.createElement('button');
+  parseButton.textContent = 'parse';
+  parseButton.addEventListener('click', () => {
+    let fileData = convertTreesArrayToString();
+    parseFile(fileData);
+  });
+  document.getElementById('parseButton').append(parseButton);
+}

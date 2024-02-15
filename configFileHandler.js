@@ -23,15 +23,15 @@ function retrieveConfigFiles() {
   return new Promise((resolve, reject) => {
     let fileObjects = [];
     let rsp;
-    sendRequest(
-      "GET",
-      "https://api.github.com/repos/CAMeL-Lab/palmyra/contents/palmyraSampleFiles/config"
-    )
+    axios
+      .get(
+        "https://api.github.com/repos/CAMeL-Lab/palmyra/contents/palmyraSampleFiles/config"
+      )
       .then(async (rsp) => {
-        let files = JSON.parse(rsp);
+        let files = rsp.data;
         for (let file of files) {
-          rsp = await sendRequest("GET", file.download_url);
-          let fileObject = new File([rsp], file.name, { type: "text/plain" });
+          rsp = await axios.get(file.download_url);
+          let fileObject = new File([JSON.stringify(rsp.data)], file.name, { type: "text/plain" });
           fileObjects.push(fileObject);
         }
         resolve(fileObjects);
@@ -227,7 +227,6 @@ var parseConfig = function (content) {
 
         lexicalFeats.append(titleParagraph);
         lexicalFeats.appendChild(lexDiv);
-        console.log();
       }
     }
 

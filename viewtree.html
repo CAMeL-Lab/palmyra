@@ -15,15 +15,16 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 -->
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" type="text/css" href="main.css">
-        <title>Palmyra v2.4</title>
-    </head>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <title>Palmyra v2.4</title>
+</head>
 
 <body class="viewtree">
-      
+
     <div class="navbar">
         <div class="container" style="display: flex; flex-direction: row; justify-content: flex-start; height: 65px">
             <div class="logo" style="float: left">
@@ -40,9 +41,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                           <i class="fa fa-caret-down"></i>
                         </button>
                         <div class="dropdown-content">
-                          <p>Save<p>
-                          <p>Save As</p>
-                          <p onClick="downloadToggle()">Download</p>
+                          <p id="save_remote" onClick="saveTreeRemote()" value="save">Save<p>
+                          <p id="rename_toggle" onClick="renameToggle()" value="rename">Rename</p>
+                          <p onClick="downloadToggle()" value="download">Download</p>
                         </div>
                     </div>
                     <div class="dropdown">
@@ -50,10 +51,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                           <i class="fa fa-caret-down"></i>
                         </button>
                         <div class="dropdown-content">
-                          <p onClick="editToggle()">Edit Morphology<p>
+                          <p onClick="editToggle()" value="edit">Edit Morphology<p>
                           <p onClick="tagsToggle()">Edit Tags</p>
-                          <p onClick="addNewTree()">Add New Tree</p>
-                          <p onClick="deleteCurrentTree()">Delete Current Tree</p>
+                          <p onClick="addNewTree()" value="+ Tree">Add New Tree</p>
+                          <p onClick="deleteCurrentTree()" value="- Tree">Delete Current Tree</p>
                           <p onClick="clearTree()">Clear</p>
                         </div>
                     </div>
@@ -87,6 +88,17 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                     </div> -->
                 </div>
             </div>
+            <!-- <div class="btn btn-open" id="parseButton"> -->
+            <div id="parseButton">
+                <!-- <button class="btn btn-open">Open Modal</button> -->
+            </div>
+            <section id="parse-modal" class="modal hidden">
+                <div>
+                    <p>Parsing trees, this will take a moment.</p>
+                </div>
+                <button id="parse-close-btn" class="btn"></button>
+            </section>
+            <div id="parse-overlay" class="parse-overlay-class hidden"></div>
         </div>
 
         <div class="container" style="width:100%">
@@ -101,56 +113,84 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         </div>
 
         <div class="container" style="width:100%">
-        <section id="upload" class="upload">
-            <p>Select CoNLL-U File:</p>
-            <input style="float:left"  type="file" id="inputFile" name="treefiles[]"/><br>
-            <input style="float:right" type="button" id="treebtn" value="Upload" onClick="setupTreePage()" />
-            <!-- <input style="float:right" type="button" id="treebtn" value="Upload" onClick="setJSONtreeData()" /> -->
-        </section>
+            <section id="upload" class="upload">
+                <p>Select CoNLL-U File:</p>
+                <input style="float:left" type="file" id="inputFile" name="treefiles[]" /><br>
+                <input style="float:right" type="button" id="treebtn" value="Upload"
+                    onClick="setupTreePage(LocalFileInputChecker)" />
+                <!-- <input style="float:right" type="button" id="treebtn" value="Upload" onClick="setJSONtreeData()" /> -->
+            </section>
         </div>
-         
+
         <div class="container" style="width:100%">
-        <section id="upload2" class="upload">
-            <form id="upload2">
-                <p>Or Enter Text:</i></p><br>
-                <textarea id="treedata2" rows="5" placeholder="Each line of text will become a seperate tree."></textarea>
-            </form>
-            <input style="float:right" type="button" id="treebtn2" value="Upload" onClick="setSentenceTreeData()" />
-        </section>
+            <section id="upload1" class="upload">
+                <p>MyDrive CoNLL-U files</p>
+                <input style="float: left; display: none" type="button" id="browse_btn" value="Browse MyDrive" />
+                <p id="picked_filename" style="float: left"></p>
+                <input style="float:right" type="button" id="treebtn" value="Upload"
+                    onClick="setupTreePage(RemoteFileInputChecker)" />
+            </section>
         </div>
-        
+
+        <div class="container" style="width:100%">
+            <section id="upload2" class="upload">
+                <form id="upload2">
+                    <p>Or Enter Text:</i></p><br>
+                    <textarea id="treedata2" rows="5"
+                        placeholder="Each line of text will become a seperate tree."></textarea>
+                </form>
+                <input style="float:right" type="button" id="treebtn2" value="Upload" onClick="setSentenceTreeData()" />
+            </section>
+        </div>
+
+        <div class="toolbar" style="text-align: center;">
+            <input type="button" tabindex="-1" value="Authenticate with Google Drive" id="auth_btn"
+                onClick="authenticate()"/>
+            <input type="button" tabindex="-1" value="Logout" id="logout_btn" onClick="logout()" />
+        </div>
+
         <section id="download">
             <form id="download">
-                <p>Please select a filename:</p>
-                <input type="text" id="filename"/>
+                <p>File Name</p>
+                <input type="text" id="filename" />
             </form>
-            <input type="button" id="dwnbtn" value="Download" onClick="downloadTree()"/>
+            <input type="button" id="dwnbtn" value="Download" onClick="downloadTree()" />
+            <button onClick="hideAllWindows()">Close</button>
+        </section>
+
+        <section id="rename">
+            <form id="rename">
+                <p>File Name</p>
+                <input type="text" id="filename_remote" />
+            </form>
+            <input type="button" id="rename_btn" value="Save" onClick="saveTreeRemote();hideAllWindows()" />
             <button onClick="hideAllWindows()">Close</button>
         </section>
 
         <section id="gototree">
             <form id="gototree">
                 <p>Please select tree number:</p>
-                <input type="number" id="treeNumberInput" min="1" max="1" style="width: 3em" onkeypress="return goToKeyPress(event);">
+                <input type="number" id="treeNumberInput" min="1" max="1" style="width: 3em"
+                    onkeypress="return goToKeyPress(event);">
             </form><br>
-            <input type="button" id="goTreebtn" value="Go" onClick="goToTree()"/>
+            <input type="button" id="goTreebtn" value="Go" onClick="goToTree()" />
             <button onClick="hideAllWindows()">Close</button>
         </section>
-        
+
         <section id='labels'>
             <label class='labelsp'>Relation Labels</label>
-            
-        </section>
-        
-        <section id='postags'>
-            <label class='labelsp'>POS Tags</label>
-            
+
         </section>
 
-         <div id="listing" class="scroll" style="width:50%;height:400px;" >
-            <section id="search" style="display:block; width: 90%;"/>
+        <section id='postags'>
+            <label class='labelsp'>POS Tags</label>
+
+        </section>
+
+        <div id="listing" class="scroll" style="width:50%;height:400px;">
+            <section id="search" style="display:block; width: 90%;" />
         </div>
-        
+
 
         <section id='morphology'>
             <p class='labelsp'>Token:</p>
@@ -189,17 +229,26 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
     <script src="scripts/saveSvgAsPng.js"></script>
     <script src="scripts/underscore-min.js"></script>
     <script src="scripts/cycle.js"></script>
-    <script src="sendRequestHandler.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
     <script src="configFileHandler.js"></script>
+    <script src="gapiLoader.js"></script>
+    <script src="authenticator.js"></script>
+    <script src="parsing.js"></script>
+
+    <!-- <script async defer src="https://apis.google.com/js/api.js"
+        onload="gapiLoaded('client', initializeGapiClient)"></script> -->
+    <script async defer src="https://apis.google.com/js/api.js"
+        onload="gapiLoaded('picker', initializeGapiPicker)"></script>
+    <!-- <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script> -->
+
     <script src="main.js"></script>
 
     <script>
-        function goToKeyPress(e)
-        {
+        function goToKeyPress(e) {
             // look for window.event in case event isn't passed in
             e = e || window.event;
-            if (e.keyCode == 13)
-            {
+            if (e.keyCode == 13) {
                 document.getElementById('goTreebtn').click();
                 return false;
             }
@@ -208,4 +257,5 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
     </script>
 
 </body>
+
 </html>
