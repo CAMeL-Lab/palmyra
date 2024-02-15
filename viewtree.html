@@ -37,13 +37,12 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                 </div>
                 <div class="toolbar btn-options" align="left" style="display: flex;justify-content: flex-start;align-items: center;">
                     <div class="dropdown">
-                        <button class="dropbtn">File
-                          <i class="fa fa-caret-down"></i>
-                        </button>
+                        <button class="dropbtn"><i>File</i></button>
+                          <!-- <i class="fa fa-caret-down"></i> was used with the above button -->
                         <div class="dropdown-content">
-                          <p id="save_remote" onClick="saveTreeRemote()" value="save">Save<p>
-                          <p id="rename_toggle" onClick="renameToggle()" value="rename">Rename</p>
-                          <p onClick="downloadToggle()" value="download">Download</p>
+                          <p id="save_remote" onClick="saveTreeRemote()">Save</p>
+                          <p id="rename_toggle" onClick="renameToggle()">Rename</p>
+                          <p onClick="downloadToggle()">Download</p>
                         </div>
                     </div>
                     <div class="dropdown">
@@ -51,10 +50,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                           <i class="fa fa-caret-down"></i>
                         </button>
                         <div class="dropdown-content">
-                          <p onClick="editToggle()" value="edit">Edit Morphology<p>
+                          <p onClick="editToggle()">Edit Morphology</p>
                           <p onClick="tagsToggle()">Edit Tags</p>
-                          <p onClick="addNewTree()" value="+ Tree">Add New Tree</p>
-                          <p onClick="deleteCurrentTree()" value="- Tree">Delete Current Tree</p>
+                          <p onClick="addNewTree()">Add New Tree</p>
+                          <p onClick="deleteCurrentTree()">Delete Current Tree</p>
                           <p onClick="clearTree()">Clear</p>
                         </div>
                     </div>
@@ -63,7 +62,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                           <i class="fa fa-caret-down"></i>
                         </button>
                         <div class="dropdown-content">
-                          <p onClick="directionToggle()">Change Direction<p>
+                          <p onClick="directionToggle()">Change Direction</p>
                           <p onClick="search(treesArray)">Listing</p>
                         </div>
                     </div>
@@ -72,7 +71,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                           <i class="fa fa-caret-down"></i>
                         </button>
                         <div class="dropdown-content">
-                          <p onClick="firstTree()">First Tree<p>
+                          <p onClick="firstTree()">First Tree</p>
                           <p onClick="prevTree()">Previous Tree</p>
                           <p onClick="nextTree()">Next Tree</p>
                           <p onClick="lastTree()">Last Tree</p>
@@ -112,6 +111,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         </section>
         </div>
 
+        <!-- upload a conll file from device -->
         <div class="container" style="width:100%">
             <section id="upload" class="upload">
                 <p>Select CoNLL-U File:</p>
@@ -122,20 +122,22 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
             </section>
         </div>
 
+        <!-- upload from google drive -->
         <div class="container" style="width:100%">
             <section id="upload1" class="upload">
                 <p>MyDrive CoNLL-U files</p>
                 <input style="float: left; display: none" type="button" id="browse_btn" value="Browse MyDrive" />
                 <p id="picked_filename" style="float: left"></p>
-                <input style="float:right" type="button" id="treebtn" value="Upload"
-                    onClick="setupTreePage" />
+                <input style="float:right" type="button" id="treebtn1" value="Upload"
+                    onClick="setupTreePage()" />
             </section>
         </div>
 
+        <!-- upload text -->
         <div class="container" style="width:100%">
-            <section id="upload2" class="upload">
+            <section class="upload">
                 <form id="upload2">
-                    <p>Or Enter Text:</i></p><br>
+                    <p><i>Or Enter Text:</i></p><br>
                     <textarea id="treedata2" rows="5"
                         placeholder="Each line of text will become a seperate tree."></textarea>
                 </form>
@@ -149,7 +151,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
             <input type="button" tabindex="-1" value="Logout" id="logout_btn" onClick="logout()" />
         </div>
 
-        <section id="download">
+        <section id="download-section">
             <form id="download">
                 <p>File Name</p>
                 <input type="text" id="filename" />
@@ -158,7 +160,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
             <button onClick="hideAllWindows()">Close</button>
         </section>
 
-        <section id="rename">
+        <section id="rename-section">
             <form id="rename">
                 <p>File Name</p>
                 <input type="text" id="filename_remote" />
@@ -167,7 +169,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
             <button onClick="hideAllWindows()">Close</button>
         </section>
 
-        <section id="gototree">
+        <section id="gototree-section">
             <form id="gototree">
                 <p>Please select tree number:</p>
                 <input type="number" id="treeNumberInput" min="1" max="1" style="width: 3em"
@@ -188,7 +190,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         </section>
 
         <div id="listing" class="scroll" style="width:50%;height:400px;">
-            <section id="search" style="display:block; width: 90%;" />
+            <section id="search" style="display:block; width: 90%;"></section>
         </div>
 
 
@@ -224,7 +226,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 
     <script src="scripts/jquery-1.11.3.min.js"></script>
     <script src="scripts/d3.v3.min.js"></script>
-    <script src="scripts/blob.js"></script>
+    <script src="scripts/Blob.js"></script>
     <script src="scripts/FileSaver.min.js"></script>
     <script src="scripts/saveSvgAsPng.js"></script>
     <script src="scripts/underscore-min.js"></script>
