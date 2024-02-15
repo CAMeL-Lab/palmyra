@@ -565,8 +565,8 @@ function RemoteFileInputChecker() {
   return pickedFile;
 }
 
-async function setupTreePage() {
-  let file = RemoteFileInputChecker();
+async function setupTreePage(FileInputChecker) {
+  let file = FileInputChecker();
   if (!file) return;
   if (!isValidExtension(file.name)) {return;}
 
