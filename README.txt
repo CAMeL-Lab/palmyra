@@ -47,6 +47,6 @@ PUBLICATIONS
 [1] Talha Javed, Nizar Habash and Dima Taji. PALMYRA: A Platform Independent Dependency Annotation Tool for Morphologically Rich Languages. 11th edition 
 of the Language Resources and Evaluation Conference (LREC 2018), Miyazaki, Japan. (http://www.lrec-conf.org/proceedings/lrec2018/pdf/333.pdf)
 [2] Dima Taji and Nizar Habash. PALMYRA 2.0: A Configurable Multilingual Platform Independent Tool for Morphology and Syntax Annotation. In Proceedings 
-of Universal Dependencies Workshop (UDW) 2020.
+of Universal Dependencies Workshop (UDW) 2020. (https://aclanthology.org/2020.udw-1.19.pdf)
 
 
