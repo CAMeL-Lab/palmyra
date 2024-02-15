@@ -13,6 +13,7 @@ function logout() {
 }
 
 function onAuthenticated() {
+  console.log("onAuthenticated");
   // set access token in gapi client for future requests
   gapi.client.setToken({ access_token: getTokenFromSessionStorage() });
   const accessToken = getTokenFromSessionStorage();
@@ -24,6 +25,7 @@ function onAuthenticated() {
     // if authenticated successfully, hide authentication button && show logout button
     $(".toolbar [id='auth_btn']").hide();
     $(".toolbar [id='logout_btn']").show();
+    $(".toolbar [id='upload1']").show();
   }
 }
 
