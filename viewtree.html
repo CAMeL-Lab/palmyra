@@ -124,7 +124,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 
         <!-- upload from google drive -->
         <div class="container" style="width:100%">
-            <section id="upload1" class="upload">
+            <section id="upload1" class="upload; display:none">
                 <p>MyDrive CoNLL-U files</p>
                 <input style="float: left; display: none" type="button" id="browse_btn" value="Browse MyDrive" />
                 <p id="picked_filename" style="float: left"></p>
@@ -146,7 +146,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         </div>
 
         <div class="toolbar" style="text-align: center;">
-            <input type="button" tabindex="-1" value="Authenticate with Google Drive" id="auth_btn"
+            <input type="button" value="Authenticate with Google Drive" id="auth_btn"
                 onClick="authenticate()"/>
             <input type="button" tabindex="-1" value="Logout" id="logout_btn" onClick="logout()" />
         </div>
