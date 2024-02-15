@@ -4,7 +4,7 @@ function logout() {
   // remove access token from session storage
   sessionStorage.removeItem("GCP_access_token");
   // remove access token from gapi client
-  gapi.client.setToken(null);
+  // gapi.client.setToken(null);
   // disable browse button
   $("#browse_btn").hide();
   // if logged out successfully, hide logout button && show authentication button
@@ -15,7 +15,7 @@ function logout() {
 function onAuthenticated() {
   console.log("onAuthenticated");
   // set access token in gapi client for future requests
-  gapi.client.setToken({ access_token: getTokenFromSessionStorage() });
+  // gapi.client.setToken({ access_token: getTokenFromSessionStorage() });
   const accessToken = getTokenFromSessionStorage();
   if (accessToken) {
     isAuthenticated = true;
