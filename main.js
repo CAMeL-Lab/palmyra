@@ -173,6 +173,7 @@ var findStorage = function () {
 // wait to call 'main' until the page has finished loading
 $(document).ready(main);
 $("#auth_btn").show();
+$("[id='upload1']").hide();
 
 $(window).resize(function () {
   sessionStorage.removeItem("treeData");
