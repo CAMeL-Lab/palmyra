@@ -30,6 +30,7 @@ function onAuthenticated() {
 }
 
 function authenticate() {
+  window.onbeforeunload = function () {};
   window.open("https://mra9407.pythonanywhere.com/authorize", "_self", "popup");
   // // callbackafter access token is retrieved
   // tokenClient.callback = async (resp) => {
