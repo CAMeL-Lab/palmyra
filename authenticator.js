@@ -6,9 +6,10 @@ function logout() {
   // remove access token from gapi client
   gapi.client.setToken(null);
   // disable browse button
-  $("#browse_btn").hide();
+  // $("#browse_btn").hide();
   // if logged out successfully, hide logout button && show authentication button
   $(".toolbar [id='logout_btn']").hide();
+  $(".toolbar [id='upload1']").hide();
   $(".toolbar [id='auth_btn']").show();
 }
 
@@ -24,6 +25,7 @@ function onAuthenticated() {
     // if authenticated successfully, hide authentication button && show logout button
     $(".toolbar [id='auth_btn']").hide();
     $(".toolbar [id='logout_btn']").show();
+    $(".toolbar [id='upload1']").show();
   }
 }
 
