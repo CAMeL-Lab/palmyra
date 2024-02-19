@@ -1,4 +1,3 @@
-let gapiClientInited = false;
 let gapiPickerInited = false;
 let gisInited = false;
 // set this to the right server origin when pushed to Github
@@ -136,14 +135,6 @@ function enableBrowseButton(accessToken) {
 /**
  * Enables user interaction after all libraries are loaded.
  */
-function maybeEnableAuthButton() {
-  if (gapiClientInited && gapiPickerInited && gisInited && !isAuthenticated) {
-    $(".toolbar [id='auth_btn']").show();
-  }
-}
-
 function maybeEnableSaveRemoteButton() {
-  if (gapiClientInited && gisInited) {
-    $("#save_remote").show();
-  }
+  $("#save_remote").show();
 }
