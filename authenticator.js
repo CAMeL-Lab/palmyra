@@ -9,7 +9,7 @@ function logout() {
   // $("#browse_btn").hide();
   // if logged out successfully, hide logout button && show authentication button
   $(".toolbar [id='logout_btn']").hide();
-  $(".toolbar [id='upload1']").hide();
+  $("[id='upload1']").hide();
   $(".toolbar [id='auth_btn']").show();
 }
 
@@ -26,7 +26,8 @@ function onAuthenticated() {
     // if authenticated successfully, hide authentication button && show logout button
     $(".toolbar [id='auth_btn']").hide();
     $(".toolbar [id='logout_btn']").show();
-    $(".toolbar [id='upload1']").show();
+    $("[id='upload1']").show();
+    
   }
 }
 
