@@ -102,7 +102,7 @@ function pickerCallback(data) {
     }
     // need to add extension for conllx files as well
     let url =
-      "https://www.googleapis.com/drive/v3/files/" + doc.id + "?alt=media";
+      "https://www.googleapis.com/drive/v3/files/" + doc.id + "?alt=media" + `&key=${getAkFromSessionStorage()}`;
     axios
       .get(url, {
         headers: {

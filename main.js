@@ -1271,7 +1271,7 @@ function saveTreeRemoteHelper(fileData) {
     if (resp.error !== undefined) {
       throw (resp);
     }
-    setTokenInSessionStorage(gapi.client.getToken().access_token);
+    // setTokenInSessionStorage(gapi.client.getToken().access_token);
     onAuthenticated();
     uploadFile(fileData);
   };

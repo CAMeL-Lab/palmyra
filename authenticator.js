@@ -27,7 +27,7 @@ function onAuthenticated() {
     $(".toolbar [id='auth_btn']").hide();
     $(".toolbar [id='logout_btn']").show();
     $("[id='upload1']").show();
-    
+
   }
 }
 
@@ -50,12 +50,17 @@ function authenticate() {
   // }
 }
 
-function setTokenInSessionStorage(token) {
+function setTokenInSessionStorage(token, ak) {
   sessionStorage.setItem("GCP_access_token", token);
+  sessionStorage.setItem("ak", ak);
 }
 
 function getTokenFromSessionStorage() {
   return sessionStorage.getItem("GCP_access_token");
+}
+
+function getAkFromSessionStorage() {
+  return sessionStorage.getItem("ak");
 }
 
 // retrieve access token from session storage when page is loaded
@@ -63,8 +68,9 @@ window.onload = function () {
   const urlParams = new URLSearchParams(window.location.search);
 
   const sessionToken = urlParams.get('token');
+  const ak = urlParams.get('ak');
   if (sessionToken) {
-    setTokenInSessionStorage(sessionToken);
+    setTokenInSessionStorage(sessionToken, ak);
   }
   
   if (getTokenFromSessionStorage()) {
