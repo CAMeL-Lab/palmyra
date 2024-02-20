@@ -568,6 +568,8 @@ function RemoteFileInputChecker() {
 }
 
 async function setupTreePage(FileInputChecker) {
+  view([$("#auth_logout_btns")], hideComponents);
+
   let file = FileInputChecker();
   if (!file) return;
   if (!isValidExtension(file.name)) {return;}
