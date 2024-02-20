@@ -75,5 +75,7 @@ window.onload = function () {
   
   if (getTokenFromSessionStorage()) {
     onAuthenticated();
+  } else {
+    logout()
   }
 };
