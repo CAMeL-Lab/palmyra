@@ -648,6 +648,7 @@ var readSentenceTreeData = function () {
 };
 
 var setSentenceTreeData = function () {
+  view([$("#auth_logout_btns")], hideComponents);
   //we conly call the readConfigFileForSentence here to insure that the configuration file is
   //completely read before moving on to the rest of the funcion. The actual reading of the sentence
   //data happens in the readSentenceTreeData function which gets called in the readConfigFileForSentence
