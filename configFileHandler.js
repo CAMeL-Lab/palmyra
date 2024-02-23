@@ -60,6 +60,25 @@ function populateConfigFileSelector() {
     });
 }
 
+function createButton(buttonText, editPOSByButton) {
+  let btn = document.createElement("BUTTON");
+  let text = document.createTextNode(buttonText);
+  btn.appendChild(text);
+  btn.tabindex = -1;
+  btn.value = buttonText;
+  btn.onclick = editPOSByButton;
+
+  return btn
+}
+
+function addButtonToDivGroup(divs, group, btn) {
+  if (!(group in divs)) {
+    divs[group] = document.createElement("div");
+  }
+  divs[group].classList.add('editTagsAndLabels');
+  divs[group].appendChild(btn);
+}
+
 var parseConfig = function (content) {
   var configs = JSON.parse(content);
   orientation = configs.orientation;
@@ -70,40 +89,22 @@ var parseConfig = function (content) {
   var posContainer = document.getElementById("postags");
   var divs = {};
 
-  for (var i = 0; i < configs.pos.values.length; i++) {
+  for (let i = 0; i < configs.pos.values.length; i++) {
     if (configs.pos.values[i].key in posTags) {
       posTags[configs.pos.values[i].key].push(configs.pos.values[i].label);
-      var btn = document.createElement("BUTTON");
-      var text = document.createTextNode(configs.pos.values[i].label);
-      btn.appendChild(text);
-      btn.tabindex = -1;
-      btn.value = configs.pos.values[i].label;
-      btn.onclick = editPOSByButton;
-
+      let btn = createButton(configs.pos.values[i].label, editPOSByButton);
+      
       group = configs.pos.values[i].group;
-      if (!(group in divs)) {
-        divs[group] = document.createElement("div");
-      }
-      divs[group].classList.add('editTagsAndLabels');
-      divs[group].appendChild(btn);
+      addButtonToDivGroup(divs, group, btn);
 
     } else {
       posTags[configs.pos.values[i].key] = [];
       posTags[configs.pos.values[i].key].push(configs.pos.values[i].label);
-      var btn = document.createElement("BUTTON");
-      var text = document.createTextNode(configs.pos.values[i].label);
-      btn.appendChild(text);
-      btn.tabindex = -1;
-      btn.value = configs.pos.values[i].label;
-      btn.onclick = editPOSByButton;
-
+      
+      let btn = createButton(configs.pos.values[i].label, editPOSByButton);
+      
       group = configs.pos.values[i].group;
-      if (group in divs) {
-        divs[group].appendChild(btn);
-      } else {
-        divs[group] = document.createElement("div");
-        divs[group].appendChild(btn);
-      }
+      addButtonToDivGroup(divs, group, btn);
     }
   }
 
