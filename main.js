@@ -1174,6 +1174,10 @@ var updateSentenceText = function (node) {
 };
 
 function saveTreeRemote() {
+  if (!isAuthenticated) {
+    alert("When uploading a Conll-U/X file, please login to your Google account to use this feature.")
+    return;
+  }
   saveTree();
   if (sessionStorage.treeData !== "undefined") {
     var fileData = convertTreesArrayToString();
