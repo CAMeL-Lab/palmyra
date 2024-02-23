@@ -1200,7 +1200,7 @@ function addFileExtension(fileName, extension) {
 // multipart upload only works for file < 5 MB
 // need to construct request body with specification from Drive API: https://developers.google.com/drive/api/guides/manage-uploads#multipart
 function uploadFile(fileData) {
-  let accessToken = gapi.client.getToken().access_token;
+  let accessToken = getTokenFromSessionStorage();
   let xhr = new XMLHttpRequest();
   let fileName = document.getElementById("filename_remote").value == "" ? document.getElementById("conlluFileName").innerHTML : document.getElementById("filename_remote").value;
   let requestBody;
@@ -1244,24 +1244,25 @@ function uploadFile(fileData) {
 };
 
 function saveTreeRemoteHelper(fileData) {
-  tokenClient.callback = (resp) => {
-    if (resp.error !== undefined) {
-      throw (resp);
-    }
-    // setTokenInSessionStorage(gapi.client.getToken().access_token);
-    onAuthenticated();
-    uploadFile(fileData);
-  };
+  // tokenClient.callback = (resp) => {
+  //   if (resp.error !== undefined) {
+  //     throw (resp);
+  //   }
+  //   // setTokenInSessionStorage(gapi.client.getToken().access_token);
+  //   onAuthenticated();
+  //   uploadFile(fileData);
+  // };
+  uploadFile(fileData);
 
-  if (gapi.client.getToken() === null) {
-    // Prompt the user to select a Google Account and ask for consent to share their data
-    // when establishing a new session
-    tokenClient.requestAccessToken({prompt: 'consent'});
-  }
-  else {
-    // Skip display of account chooser and consent dialog for an existing session.
-    uploadFile(fileData);
-  }
+  // if (gapi.client.getToken() === null) {
+  //   // Prompt the user to select a Google Account and ask for consent to share their data
+  //   // when establishing a new session
+  //   tokenClient.requestAccessToken({prompt: 'consent'});
+  // }
+  // else {
+  //   // Skip display of account chooser and consent dialog for an existing session.
+  //   uploadFile(fileData);
+  // }
 }
 
 function convertTreesArrayToString() {
