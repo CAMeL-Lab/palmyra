@@ -90,22 +90,15 @@ var parseConfig = function (content) {
   var divs = {};
 
   for (let i = 0; i < configs.pos.values.length; i++) {
-    if (configs.pos.values[i].key in posTags) {
-      posTags[configs.pos.values[i].key].push(configs.pos.values[i].label);
-      let btn = createButton(configs.pos.values[i].label, editPOSByButton);
-      
-      group = configs.pos.values[i].group;
-      addButtonToDivGroup(divs, group, btn);
-
-    } else {
+    if (!(configs.pos.values[i].key in posTags)) {
       posTags[configs.pos.values[i].key] = [];
-      posTags[configs.pos.values[i].key].push(configs.pos.values[i].label);
-      
-      let btn = createButton(configs.pos.values[i].label, editPOSByButton);
-      
-      group = configs.pos.values[i].group;
-      addButtonToDivGroup(divs, group, btn);
     }
+    
+    posTags[configs.pos.values[i].key].push(configs.pos.values[i].label);
+    let btn = createButton(configs.pos.values[i].label, editPOSByButton);
+    
+    group = configs.pos.values[i].group;
+    addButtonToDivGroup(divs, group, btn);
   }
 
   for (var div in divs) {
