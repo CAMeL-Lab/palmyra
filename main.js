@@ -824,28 +824,21 @@ var editLabel = function (labelText) {
   //showSelection();
 };
 
-// edit the relation labels through button clicks
-var editLabelByButton = function (inputSource) {
+function editByButton(inputSource, linkType) {
   if (selectedNodeLink) {
     UndoRedoHelperOnTreeUpdate();
-    labelText = inputSource.currentTarget.value;
-    d3.select("text#linkLabel" + selectedNodeLink.id).text(labelText);
-    selectedNodeLink.link = labelText;
-
-    // d3.select('.links').selectAll('path').style('stroke', '#b3b3b3');
-    // d3.select('.links').selectAll('text').style('stroke', 'white');
-    // d3.select('.nodes').selectAll('text').style('stroke', '');
-
-    // d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'cornflowerblue'); // Link line
-    // d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightgreen');       // POS Label
-    // d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightgreen');        // Rel Label
-    // d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'black');  //Node name??
-    // d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'orange');
-
-    // nodeSingleClick(selectedNodeLink);
-    // update(root);
+    const textValue = inputSource.currentTarget.value;
+    // d3.select("text#linkLabel" + selectedNodeLink.id).text(labelText);
+    // selectedNodeLink.link = labelText;
+    d3.select(`text#${linkType}` + selectedNodeLink.id).text(textValue);
+    selectedNodeLink.link = textValue;
     showSelection();
   }
+}
+
+// edit the relation labels through button clicks
+function editLabelByButton(inputSource) {
+  editByButton(inputSource, 'linkLabel')
 };
 
 // edit the POS tags through keystrokes
@@ -859,27 +852,8 @@ var editPOS = function (posText) {
 };
 
 // edit the POS tags through button clicks
-var editPOSByButton = function (inputSource) {
-  if (selectedNodeLink) {
-    UndoRedoHelperOnTreeUpdate();
-    posText = inputSource.currentTarget.value;
-    d3.select("text#nodePOS" + selectedNodeLink.id).text(posText);
-    selectedNodeLink.pos = posText; 
-
-    // d3.select('.links').selectAll('path').style('stroke', '#b3b3b3');
-    // d3.select('.links').selectAll('text').style('stroke', 'white');
-    // d3.select('.nodes').selectAll('text').style('stroke', '');
-
-    // d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'cornflowerblue'); // Link line
-    // d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightgreen');       // POS Label
-    // d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightgreen');        // Rel Label
-    // d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'black');  //Node name??
-    // d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'orange');
-
-    // nodeSingleClick(selectedNodeLink);
-    // update(root);
-    showSelection();
-  }
+function editPOSByButton(inputSource) {
+  editByButton(inputSource, 'nodePOS');
 };
 
 // Morhology Handling
