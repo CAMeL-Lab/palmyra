@@ -81,12 +81,10 @@ var parseConfig = function (content) {
       btn.onclick = editPOSByButton;
 
       group = configs.pos.values[i].group;
-      if (group in divs) {
-        divs[group].appendChild(btn);
-      } else {
+      if (!(group in divs)) {
         divs[group] = document.createElement("div");
-        divs[group].appendChild(btn);
       }
+      divs[group].appendChild(btn);
     } else {
       posTags[configs.pos.values[i].key] = [];
       posTags[configs.pos.values[i].key].push(configs.pos.values[i].label);
