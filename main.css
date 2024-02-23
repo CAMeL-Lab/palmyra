@@ -617,7 +617,7 @@ div.scroll {
   overflow: scroll;
 }
 
-.editTags {
+.editTagsAndLabels {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;

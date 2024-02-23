@@ -84,7 +84,7 @@ var parseConfig = function (content) {
       if (!(group in divs)) {
         divs[group] = document.createElement("div");
       }
-      divs[group].classList.add('editTags');
+      divs[group].classList.add('editTagsAndLabels');
       divs[group].appendChild(btn);
 
     } else {
@@ -129,12 +129,11 @@ var parseConfig = function (content) {
       btn.onclick = editLabelByButton;
 
       group = configs.relation.values[i].group;
-      if (group in divs) {
-        divs[group].appendChild(btn);
-      } else {
+      if (!(group in divs)) {
         divs[group] = document.createElement("div");
-        divs[group].appendChild(btn);
       }
+      divs[group].classList.add('editTagsAndLabels');
+      divs[group].appendChild(btn);
     } else {
       relLabels[configs.relation.values[i].key] = [];
       relLabels[configs.relation.values[i].key].push(
