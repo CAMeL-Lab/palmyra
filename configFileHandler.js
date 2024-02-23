@@ -84,7 +84,9 @@ var parseConfig = function (content) {
       if (!(group in divs)) {
         divs[group] = document.createElement("div");
       }
+      divs[group].classList.add('editTags');
       divs[group].appendChild(btn);
+
     } else {
       posTags[configs.pos.values[i].key] = [];
       posTags[configs.pos.values[i].key].push(configs.pos.values[i].label);

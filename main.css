@@ -617,6 +617,13 @@ div.scroll {
   overflow: scroll;
 }
 
+.editTags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    row-gap: 0.5vw;
+}
+
 /****************************************************************/
 /* Server button classes */
 /****************************************************************/
