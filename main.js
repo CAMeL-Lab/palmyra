@@ -814,14 +814,16 @@ var directionToggle = function () {
   update(root);
 };
 
-// edit the relation labels through keystrokes
-var editLabel = function (labelText) {
+function editByKeyboard(linkType, textValue) {
   UndoRedoHelperOnTreeUpdate();
-  d3.select("text#linkLabel" + selectedNodeLink.id).text(labelText);
-  selectedNodeLink.link = labelText;
-  //nodeSingleClick(selectedNodeLink);
-  //update(root);
-  //showSelection();
+  d3.select(`text#${linkType}` + selectedNodeLink.id).text(textValue);
+  selectedNodeLink.link = textValue;
+
+}
+
+// edit the relation labels through keystrokes
+function editLabel(labelText) {
+  editByKeyboard('linkLabel', labelText)
 };
 
 function editByButton(inputSource, linkType) {
@@ -842,13 +844,8 @@ function editLabelByButton(inputSource) {
 };
 
 // edit the POS tags through keystrokes
-var editPOS = function (posText) {
-  UndoRedoHelperOnTreeUpdate();
-  d3.select("text#nodePOS" + selectedNodeLink.id).text(posText);
-  selectedNodeLink.pos = posText;
-  //nodeSingleClick(selectedNodeLink);
-  //update(root);
-  //showSelection();
+function editPOS(posText) {
+  editByKeyboard('nodePOS', posText)
 };
 
 // edit the POS tags through button clicks
