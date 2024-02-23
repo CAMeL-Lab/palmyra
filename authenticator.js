@@ -14,7 +14,6 @@ function logout() {
 }
 
 function onAuthenticated() {
-  console.log("onAuthenticated");
   // set access token in gapi client for future requests
   // gapi.client.setToken({ access_token: getTokenFromSessionStorage() });
   const accessToken = getTokenFromSessionStorage();

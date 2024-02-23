@@ -172,7 +172,6 @@ var findStorage = function () {
 
 // wait to call 'main' until the page has finished loading
 $(document).ready(main);
-$("#auth_btn").show();
 $("[id='upload1']").hide();
 
 $(window).resize(function () {
@@ -568,8 +567,6 @@ function RemoteFileInputChecker() {
 }
 
 async function setupTreePage(FileInputChecker) {
-  view([$("#auth_logout_btns")], hideComponents);
-
   let file = FileInputChecker();
   if (!file) return;
   if (!isValidExtension(file.name)) {return;}
@@ -577,7 +574,8 @@ async function setupTreePage(FileInputChecker) {
   addFilenameToHtmlElements(file.name);
   await readConfigFile();
   parseConllFile(file);
-  addParseButton();
+  // addParseButton();
+  $("#auth_logout_btns").remove()
 }
 
 var parseConllFile = function (file) {
@@ -633,7 +631,7 @@ var readSentenceTreeData = function () {
       // try to store tree data and display tree
       treesArray = convertToJSON(treeDataArray.join("\n"));
       getTree(treesArray[0]);
-      view([$(".upload")], hideComponents);
+      view([$(".upload"), $('#auth_logout_btns')], hideComponents);
       UndoRedoHelperOnTreePageSetUp();
     } catch (e) {
       // alert user if error occurs
@@ -641,14 +639,15 @@ var readSentenceTreeData = function () {
       throw(e);
     }
   } else {
-    view([$(".upload")], hideComponents)
+    view([$(".upload"), $('#auth_logout_btns')], hideComponents)
     addNewTree();
   }
   return treesArray;
 };
 
 var setSentenceTreeData = function () {
-  view([$("#auth_logout_btns")], hideComponents);
+  // console.log("sadfakl")
+  // console.log($("#auth_logout_btns").hide())
   //we conly call the readConfigFileForSentence here to insure that the configuration file is
   //completely read before moving on to the rest of the funcion. The actual reading of the sentence
   //data happens in the readSentenceTreeData function which gets called in the readConfigFileForSentence
