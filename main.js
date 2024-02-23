@@ -1206,10 +1206,10 @@ function uploadFile(fileData) {
   let requestBody;
 
   if (isConlluLocal) { // upload local file
-    xhr.open('POST', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', true);
+    xhr.open('POST', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart' + `&key=${getAkFromSessionStorage()}`, true);
   }
   else { // update an existing file
-    xhr.open('PATCH', 'https://www.googleapis.com/upload/drive/v3/files/'+fileId+'?uploadType=multipart', true);
+    xhr.open('PATCH', 'https://www.googleapis.com/upload/drive/v3/files/'+fileId+'?uploadType=multipart' + `&key=${getAkFromSessionStorage()}`, true);
   }
   fileName = addFileExtension(fileName, '.conllu');
   requestBody =
