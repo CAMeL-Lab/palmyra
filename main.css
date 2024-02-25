@@ -337,6 +337,12 @@ body.viewtree {
     display: none;
 }
 
+.download-section-class {
+    position: fixed;
+    top: 50%;
+    right: 40%;
+}
+
 .dropdown {
     /* font-size: 15px; */
     color: white;

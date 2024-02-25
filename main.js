@@ -1374,7 +1374,7 @@ var search = function (treesArray) {
 
 // return all settings to defaults
 var hideAllWindows = function () {
-  view([$("#rename"), $("#download"), $("#morphology")], hideComponents);
+  view([$("#rename"), $("#download-section"), $("#morphology")], hideComponents);
   d3.selectAll(".morphology").style("stroke", "");
 
   if (
@@ -1413,6 +1413,7 @@ var downloadToggle = function () {
   if (focusWindow !== "download") {
     hideAllWindows();
     $("#download").show();
+    $("#download-section").show();
     focusWindow = "download";
   } else {
     hideAllWindows();
