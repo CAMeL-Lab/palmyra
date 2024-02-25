@@ -1374,7 +1374,7 @@ var search = function (treesArray) {
 
 // return all settings to defaults
 var hideAllWindows = function () {
-  view([$("#rename"), $("#download-section"), $("#morphology")], hideComponents);
+  view([$("#rename-section"), $("#download-section"), $("#morphology")], hideComponents);
   d3.selectAll(".morphology").style("stroke", "");
 
   if (
@@ -1443,11 +1443,12 @@ var goToTreeToggle = function () {
   }
 };
 
-var renameToggle = function () {
+function renameToggle() {
   if (focusWindow !== "saveas") {
     hideAllWindows();
     $("#rename").show();
-    focusWindow = "rename";
+    $("#rename-section").show();
+    focusWindow = "rename-section";
     $("#filename_remote").val(addFileExtension(document.getElementById("conlluFileName").innerHTML, ".conllu"));
   } else {
     hideAllWindows();

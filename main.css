@@ -343,6 +343,12 @@ body.viewtree {
     right: 40%;
 }
 
+.rename-section-class {
+    position: fixed;
+    top: 50%;
+    right: 40%;
+}
+
 .dropdown {
     /* font-size: 15px; */
     color: white;
