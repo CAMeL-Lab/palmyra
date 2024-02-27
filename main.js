@@ -538,8 +538,12 @@ function isValidExtension(original_filename) {
 }
 
 function addFilenameToHtmlElements(original_filename) {
-  // display filename on page and when downloading files
-  document.getElementById("conlluFileName").innerHTML = original_filename;
+  // // display filename on page and when downloading files
+  // document.getElementById("conlluFileName").innerHTML = original_filename;
+  filenameIdx = 0 // the index of the filename in the parent div is always 0 (1 is the tree number)
+  filenameParent = document.getElementById("conlluFileNameDiv");
+  const span = renderFilenameInReadMode(original_filename, filenameParent, filenameIdx);
+  filenameParent.replaceChild(span, filenameParent.children[0]);
 }
 
 function LocalFileInputChecker() {
@@ -1443,16 +1447,82 @@ var goToTreeToggle = function () {
   }
 };
 
+function addEditListenerToSpan(span, filenameParent, filenameIdx) {
+  span.addEventListener('dblclick', () => {
+      filenameParent.replaceChild(
+          renderRenameMode(span.textContent, filenameParent, filenameIdx),
+          filenameParent.children[filenameIdx]
+      )
+  });
+}
+
+
+function renderFilenameInReadMode(filename, filenameParent, filenameIdx) {
+  const span = document.createElement('span');
+  span.textContent = filename;
+  span.id = "conlluFileName";
+
+  addEditListenerToSpan(span, filenameParent, filenameIdx);
+
+  return span;
+}
+
+function renderRenameMode(oldFilename, filenameParent, filenameIdx) {
+  const div = document.createElement('div');
+  div.id = "conlluFileName";
+  
+  const textInput = document.createElement('input');
+  textInput.type = 'text';
+  textInput.value = oldFilename;
+  textInput.className = "rename-mode-input";
+
+  div.appendChild(textInput);
+  
+  // add save button
+  const saveButton = document.createElement('button');
+  saveButton.textContent = 'Save';
+  saveButton.addEventListener('click', () => {
+      filenameParent.replaceChild(
+          renderFilenameInReadMode(textInput.value, filenameParent, filenameIdx),
+          filenameParent.children[filenameIdx]
+      );
+  });
+  div.appendChild(saveButton);
+  
+  // add cancel button
+  const cancelButton = document.createElement('button');
+  cancelButton.textContent = 'Cancel';
+  cancelButton.addEventListener('click', () => {
+      filenameParent.replaceChild(
+          renderFilenameInReadMode(oldFilename, filenameParent, filenameIdx),
+          filenameParent.children[filenameIdx]
+      );
+  });
+
+  div.appendChild(cancelButton);
+
+  return div;
+}
+
 function renameToggle() {
-  if (focusWindow !== "saveas") {
-    hideAllWindows();
-    $("#rename").show();
-    $("#rename-section").show();
-    focusWindow = "rename-section";
-    $("#filename_remote").val(addFileExtension(document.getElementById("conlluFileName").innerHTML, ".conllu"));
-  } else {
-    hideAllWindows();
-  }
+  filenameIdx = 0 // the index of the filename in the parent div is always 0 (1 is the tree number)
+
+  filenameParent = document.getElementById("conlluFileNameDiv");
+  oldFilename = filenameParent.children[filenameIdx].textContent;
+
+  filenameParent.replaceChild(
+    renderRenameMode(oldFilename, filenameParent, filenameIdx), // 0 is the index 
+    filenameParent.children[filenameIdx]
+  )
+  // if (focusWindow !== "saveas") {
+  //   hideAllWindows();
+  //   $("#rename").show();
+  //   $("#rename-section").show();
+  //   focusWindow = "rename-section";
+  //   $("#filename_remote").val(addFileExtension(document.getElementById("conlluFileName").innerHTML, ".conllu"));
+  // } else {
+  //   hideAllWindows();
+  // }
 };
 
 // END SETTINGS
