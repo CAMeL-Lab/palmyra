@@ -57,8 +57,6 @@ var isConlluLocal;
 
 var configRead = false;
 
-// const GCP_CLIENT_ID = '872006556701-id30aupvkt32jgbqbe3gtqvbqq7oa914.apps.googleusercontent.com';
-// const GCP_API_KEY = 'AIzaSyBphS90C05DkTg3INkMSv1iMQrvh0pcIGA';
 var settings = [
   ["customwidth", 0.25],
   ["customdepth", 100],
@@ -175,6 +173,7 @@ var findStorage = function () {
 
 // wait to call 'main' until the page has finished loading
 $(document).ready(main);
+$("[id='upload1']").hide();
 
 $(window).resize(function () {
   sessionStorage.removeItem("treeData");
@@ -540,8 +539,12 @@ function isValidExtension(original_filename) {
 }
 
 function addFilenameToHtmlElements(original_filename) {
-  // display filename on page and when downloading files
-  document.getElementById("conlluFileName").innerHTML = original_filename;
+  // // display filename on page and when downloading files
+  // document.getElementById("conlluFileName").innerHTML = original_filename;
+  filenameIdx = 0 // the index of the filename in the parent div is always 0 (1 is the tree number)
+  filenameParent = document.getElementById("conlluFileNameDiv");
+  const span = renderFilenameInReadMode(original_filename, filenameParent, filenameIdx);
+  filenameParent.replaceChild(span, filenameParent.children[0]);
 }
 
 function LocalFileInputChecker() {
@@ -576,6 +579,8 @@ async function setupTreePage(FileInputChecker) {
   addFilenameToHtmlElements(file.name);
   await readConfigFile();
   parseConllFile(file);
+  // addParseButton();
+  $("#auth_logout_btns").remove()
 }
 
 var parseConllFile = function (file) {
@@ -631,7 +636,7 @@ var readSentenceTreeData = function () {
       // try to store tree data and display tree
       treesArray = convertToJSON(treeDataArray.join("\n"));
       getTree(treesArray[0]);
-      view([$(".upload")], hideComponents);
+      view([$(".upload"), $('#auth_logout_btns')], hideComponents);
       UndoRedoHelperOnTreePageSetUp();
     } catch (e) {
       // alert user if error occurs
@@ -639,13 +644,15 @@ var readSentenceTreeData = function () {
       throw(e);
     }
   } else {
-    view([$(".upload")], hideComponents)
+    view([$(".upload"), $('#auth_logout_btns')], hideComponents)
     addNewTree();
   }
   return treesArray;
 };
 
 var setSentenceTreeData = function () {
+  // console.log("sadfakl")
+  // console.log($("#auth_logout_btns").hide())
   //we conly call the readConfigFileForSentence here to insure that the configuration file is
   //completely read before moving on to the rest of the funcion. The actual reading of the sentence
   //data happens in the readSentenceTreeData function which gets called in the readConfigFileForSentence
@@ -811,72 +818,43 @@ var directionToggle = function () {
   update(root);
 };
 
-// edit the relation labels through keystrokes
-var editLabel = function (labelText) {
+function editByKeyboard(linkType, textValue) {
   UndoRedoHelperOnTreeUpdate();
-  d3.select("text#linkLabel" + selectedNodeLink.id).text(labelText);
-  selectedNodeLink.link = labelText;
-  //nodeSingleClick(selectedNodeLink);
-  //update(root);
-  //showSelection();
+  d3.select(`text#${linkType}` + selectedNodeLink.id).text(textValue);
+  selectedNodeLink.link = textValue;
+
+}
+
+// edit the relation labels through keystrokes
+function editLabel(labelText) {
+  editByKeyboard('linkLabel', labelText)
 };
 
-// edit the relation labels through button clicks
-var editLabelByButton = function (inputSource) {
+function editByButton(inputSource, linkType) {
   if (selectedNodeLink) {
     UndoRedoHelperOnTreeUpdate();
-    labelText = inputSource.currentTarget.value;
-    d3.select("text#linkLabel" + selectedNodeLink.id).text(labelText);
-    selectedNodeLink.link = labelText;
-
-    // d3.select('.links').selectAll('path').style('stroke', '#b3b3b3');
-    // d3.select('.links').selectAll('text').style('stroke', 'white');
-    // d3.select('.nodes').selectAll('text').style('stroke', '');
-
-    // d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'cornflowerblue'); // Link line
-    // d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightgreen');       // POS Label
-    // d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightgreen');        // Rel Label
-    // d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'black');  //Node name??
-    // d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'orange');
-
-    // nodeSingleClick(selectedNodeLink);
-    // update(root);
+    const textValue = inputSource.currentTarget.value;
+    // d3.select("text#linkLabel" + selectedNodeLink.id).text(labelText);
+    // selectedNodeLink.link = labelText;
+    d3.select(`text#${linkType}` + selectedNodeLink.id).text(textValue);
+    selectedNodeLink.link = textValue;
     showSelection();
   }
+}
+
+// edit the relation labels through button clicks
+function editLabelByButton(inputSource) {
+  editByButton(inputSource, 'linkLabel')
 };
 
 // edit the POS tags through keystrokes
-var editPOS = function (posText) {
-  UndoRedoHelperOnTreeUpdate();
-  d3.select("text#nodePOS" + selectedNodeLink.id).text(posText);
-  selectedNodeLink.pos = posText;
-  //nodeSingleClick(selectedNodeLink);
-  //update(root);
-  //showSelection();
+function editPOS(posText) {
+  editByKeyboard('nodePOS', posText)
 };
 
 // edit the POS tags through button clicks
-var editPOSByButton = function (inputSource) {
-  if (selectedNodeLink) {
-    UndoRedoHelperOnTreeUpdate();
-    posText = inputSource.currentTarget.value;
-    d3.select("text#nodePOS" + selectedNodeLink.id).text(posText);
-    selectedNodeLink.pos = posText; 
-
-    // d3.select('.links').selectAll('path').style('stroke', '#b3b3b3');
-    // d3.select('.links').selectAll('text').style('stroke', 'white');
-    // d3.select('.nodes').selectAll('text').style('stroke', '');
-
-    // d3.select('#link' + selectedNodeLink.id).select('path').style('stroke', 'cornflowerblue'); // Link line
-    // d3.select('text#nodePOS' + selectedNodeLink.id).style('stroke', 'lightgreen');       // POS Label
-    // d3.select('text#linkLabel' + selectedNodeLink.id).style('stroke', 'lightgreen');        // Rel Label
-    // d3.select('text#nodeLabel' + selectedNodeLink.id).style('stroke', 'black');  //Node name??
-    // d3.select('circle#nodeCircle' + selectedNodeLink.id).style('fill', 'orange');
-
-    // nodeSingleClick(selectedNodeLink);
-    // update(root);
-    showSelection();
-  }
+function editPOSByButton(inputSource) {
+  editByButton(inputSource, 'nodePOS');
 };
 
 // Morhology Handling
@@ -939,10 +917,8 @@ var saveMorphology = function () {
     if (selectedIndex != -1) {
       featureDisplay = document
         .getElementById("morphoFeats")
-        .getElementsByClassName("morphoFeat")
-        [i].getElementsByClassName("inputArray")[0].options[
-        selectedIndex
-      ].value;
+        .getElementsByClassName("morphoFeat")[i]
+        .getElementsByClassName("inputArray")[0].options[selectedIndex].value;
       featureValue = "";
 
       for (var j = 0; j < featureValues[feature].length; j++) {
@@ -951,8 +927,11 @@ var saveMorphology = function () {
         }
       }
 
-      if (feature in selectedMorphology.parent.feats) {
+      // if a valid feature was selected, update node feature
+      if (featureValue !== "u") {
         selectedMorphology.parent.feats[feature] = featureValue;
+      } else { // if unspecified was selected, remove feature from node
+        delete selectedMorphology.parent.feats[feature]
       }
     }
   }
@@ -1200,6 +1179,10 @@ var updateSentenceText = function (node) {
 };
 
 function saveTreeRemote() {
+  if (!isAuthenticated) {
+    alert("When uploading a Conll-U/X file, please login to your Google account to use this feature.")
+    return;
+  }
   saveTree();
   if (sessionStorage.treeData !== "undefined") {
     var fileData = convertTreesArrayToString();
@@ -1222,16 +1205,16 @@ function addFileExtension(fileName, extension) {
 // multipart upload only works for file < 5 MB
 // need to construct request body with specification from Drive API: https://developers.google.com/drive/api/guides/manage-uploads#multipart
 function uploadFile(fileData) {
-  let accessToken = gapi.client.getToken().access_token;
+  let accessToken = getTokenFromSessionStorage();
   let xhr = new XMLHttpRequest();
   let fileName = document.getElementById("filename_remote").value == "" ? document.getElementById("conlluFileName").innerHTML : document.getElementById("filename_remote").value;
   let requestBody;
 
   if (isConlluLocal) { // upload local file
-    xhr.open('POST', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', true);
+    xhr.open('POST', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart' + `&key=${getAkFromSessionStorage()}`, true);
   }
   else { // update an existing file
-    xhr.open('PATCH', 'https://www.googleapis.com/upload/drive/v3/files/'+fileId+'?uploadType=multipart', true);
+    xhr.open('PATCH', 'https://www.googleapis.com/upload/drive/v3/files/'+fileId+'?uploadType=multipart' + `&key=${getAkFromSessionStorage()}`, true);
   }
   fileName = addFileExtension(fileName, '.conllu');
   requestBody =
@@ -1266,24 +1249,25 @@ function uploadFile(fileData) {
 };
 
 function saveTreeRemoteHelper(fileData) {
-  tokenClient.callback = (resp) => {
-    if (resp.error !== undefined) {
-      throw (resp);
-    }
-    setTokenInSessionStorage(gapi.client.getToken().access_token);
-    onAuthenticated();
-    uploadFile(fileData);
-  };
+  // tokenClient.callback = (resp) => {
+  //   if (resp.error !== undefined) {
+  //     throw (resp);
+  //   }
+  //   // setTokenInSessionStorage(gapi.client.getToken().access_token);
+  //   onAuthenticated();
+  //   uploadFile(fileData);
+  // };
+  uploadFile(fileData);
 
-  if (gapi.client.getToken() === null) {
-    // Prompt the user to select a Google Account and ask for consent to share their data
-    // when establishing a new session
-    tokenClient.requestAccessToken({prompt: 'consent'});
-  }
-  else {
-    // Skip display of account chooser and consent dialog for an existing session.
-    uploadFile(fileData);
-  }
+  // if (gapi.client.getToken() === null) {
+  //   // Prompt the user to select a Google Account and ask for consent to share their data
+  //   // when establishing a new session
+  //   tokenClient.requestAccessToken({prompt: 'consent'});
+  // }
+  // else {
+  //   // Skip display of account chooser and consent dialog for an existing session.
+  //   uploadFile(fileData);
+  // }
 }
 
 function convertTreesArrayToString() {
@@ -1395,7 +1379,7 @@ var search = function (treesArray) {
 
 // return all settings to defaults
 var hideAllWindows = function () {
-  view([$("#rename"), $("#download"), $("#morphology")], hideComponents);
+  view([$("#rename-section"), $("#download-section"), $("#morphology")], hideComponents);
   d3.selectAll(".morphology").style("stroke", "");
 
   if (
@@ -1434,6 +1418,7 @@ var downloadToggle = function () {
   if (focusWindow !== "download") {
     hideAllWindows();
     $("#download").show();
+    $("#download-section").show();
     focusWindow = "download";
   } else {
     hideAllWindows();
@@ -1463,15 +1448,82 @@ var goToTreeToggle = function () {
   }
 };
 
-var renameToggle = function () {
-  if (focusWindow !== "saveas") {
-    hideAllWindows();
-    $("#rename").show();
-    focusWindow = "rename";
-    $("#filename_remote").val(addFileExtension(document.getElementById("conlluFileName").innerHTML, ".conllu"));
-  } else {
-    hideAllWindows();
-  }
+function addEditListenerToSpan(span, filenameParent, filenameIdx) {
+  span.addEventListener('dblclick', () => {
+      filenameParent.replaceChild(
+          renderRenameMode(span.textContent, filenameParent, filenameIdx),
+          filenameParent.children[filenameIdx]
+      )
+  });
+}
+
+
+function renderFilenameInReadMode(filename, filenameParent, filenameIdx) {
+  const span = document.createElement('span');
+  span.textContent = filename;
+  span.id = "conlluFileName";
+
+  addEditListenerToSpan(span, filenameParent, filenameIdx);
+
+  return span;
+}
+
+function renderRenameMode(oldFilename, filenameParent, filenameIdx) {
+  const div = document.createElement('div');
+  div.id = "conlluFileName";
+  
+  const textInput = document.createElement('input');
+  textInput.type = 'text';
+  textInput.value = oldFilename;
+  textInput.className = "rename-mode-input";
+
+  div.appendChild(textInput);
+  
+  // add save button
+  const saveButton = document.createElement('button');
+  saveButton.textContent = 'Save';
+  saveButton.addEventListener('click', () => {
+      filenameParent.replaceChild(
+          renderFilenameInReadMode(textInput.value, filenameParent, filenameIdx),
+          filenameParent.children[filenameIdx]
+      );
+  });
+  div.appendChild(saveButton);
+  
+  // add cancel button
+  const cancelButton = document.createElement('button');
+  cancelButton.textContent = 'Cancel';
+  cancelButton.addEventListener('click', () => {
+      filenameParent.replaceChild(
+          renderFilenameInReadMode(oldFilename, filenameParent, filenameIdx),
+          filenameParent.children[filenameIdx]
+      );
+  });
+
+  div.appendChild(cancelButton);
+
+  return div;
+}
+
+function renameToggle() {
+  filenameIdx = 0 // the index of the filename in the parent div is always 0 (1 is the tree number)
+
+  filenameParent = document.getElementById("conlluFileNameDiv");
+  oldFilename = filenameParent.children[filenameIdx].textContent;
+
+  filenameParent.replaceChild(
+    renderRenameMode(oldFilename, filenameParent, filenameIdx), // 0 is the index 
+    filenameParent.children[filenameIdx]
+  )
+  // if (focusWindow !== "saveas") {
+  //   hideAllWindows();
+  //   $("#rename").show();
+  //   $("#rename-section").show();
+  //   focusWindow = "rename-section";
+  //   $("#filename_remote").val(addFileExtension(document.getElementById("conlluFileName").innerHTML, ".conllu"));
+  // } else {
+  //   hideAllWindows();
+  // }
 };
 
 // END SETTINGS
@@ -1512,6 +1564,7 @@ function addEngBdiToNum(tempFullSen) {
   }
   return tempNewFullSen;
 }
+
 
 // ************** Generate the tree diagram  *****************
 var getTree = function (treeData) {
@@ -1952,6 +2005,7 @@ var getTree = function (treeData) {
 
   // toggle morphology info window
   function morphologyClick(d) {
+    console.log("morphologyClick");
     // when nodes are collapsed, token IDs were not being updated. So nodes are uncollapsed before token splits are made.
     uncollapseAllNodes(treesArray[currentTreeIndex]);
 
@@ -1971,82 +2025,56 @@ var getTree = function (treeData) {
         document.getElementById("lemma").value = d.parent.lemma;
       }
 
-      for (var i = 0; i < lexicalFeatsList.length; i++) {
-        document.getElementById(lexicalFeatsList[i]).value =
-          d.parent.feats[lexicalFeatsList[i]];
+      // for (var i = 0; i < lexicalFeatsList.length; i++) {
+      //   document.getElementById(lexicalFeatsList[i]).value =
+      //     d.parent.feats[lexicalFeatsList[i]];
+      // }
+
+      // iterate over existing morpho features (i.e. Gender, Number, etc..)
+      for (var i = 0; i < document.getElementById("morphoFeats").getElementsByClassName("morphoFeat").length;i++
+      ) {
+        // for each morpho feat (i.e. Gender), there are choices (i.e. Masculine)
+        // these are within the select element. They are enabled by setting disabled to false.
+        document.getElementById("morphoFeats").getElementsByClassName("morphoFeat")[i].getElementsByClassName("inputArray")[0].disabled = false;
       }
 
-      for (
-        var i = 0;
-        i <
-        document
-          .getElementById("morphoFeats")
-          .getElementsByClassName("morphoFeat").length;
-        i++
-      ) {
-        document
-          .getElementById("morphoFeats")
-          .getElementsByClassName("morphoFeat")
-          [i].getElementsByClassName("inputArray")[0].disabled = false;
-      }
 
-      for (
-        var i = 0;
-        i <
-        document
-          .getElementById("morphoFeats")
-          .getElementsByClassName("morphoFeat").length;
-        i++
-      ) {
-        featName = document
-          .getElementById("morphoFeats")
-          .getElementsByClassName("morphoFeat")[i].id;
+      morphoFeats = document.getElementById("morphoFeats").getElementsByClassName("morphoFeat")
+      for (var i = 0;i <morphoFeats.length;i++) {
+        // get feature name from all features (i.e. Gender)
+        featName = morphoFeats[i].id;
 
+        // if the current node (token) contains a valid pos,
+        // and it also contains a valid feature value
         if (
-          d.parent.pos.toUpperCase() in defaultFeatValues &&
-          featName in defaultFeatValues[d.parent.pos.toUpperCase()]
+          d.parent.pos.toLowerCase() in defaultFeatValues &&
+          featName in defaultFeatValues[d.parent.pos.toLowerCase()]
         ) {
+          // disable features that are invalid (i.e. case for verbs)
           if (
-            defaultFeatValues[d.parent.pos.toUpperCase()][featName] === "N/A"
+            defaultFeatValues[d.parent.pos.toLowerCase()][featName] === "N/A"
           ) {
-            document
-              .getElementById("morphoFeats")
-              .getElementsByClassName("morphoFeat")
-              [i].getElementsByClassName("inputArray")[0].value = "N/A";
-            document
-              .getElementById("morphoFeats")
-              .getElementsByClassName("morphoFeat")
-              [i].getElementsByClassName("inputArray")[0].disabled = true;
-          } else {
+            morphoFeats[i].getElementsByClassName("inputArray")[0].value = "N/A";
+            morphoFeats[i].getElementsByClassName("inputArray")[0].disabled = true;
+          } else { // assign the dropdown the value
             if (featName in selectedMorphology.parent.feats) {
               for (var j = 0; j < featureValues[featName].length; j++) {
                 if (
                   featureValues[featName][j]["value"] ===
                   selectedMorphology.parent.feats[featName]
                 ) {
-                  document
-                    .getElementById("morphoFeats")
-                    .getElementsByClassName("morphoFeat")
-                    [i].getElementsByClassName("inputArray")[0].value =
+                  morphoFeats[i].getElementsByClassName("inputArray")[0].value =
                     featureValues[featName][j]["display"];
                 }
               }
-            } else {
-              document
-                .getElementById("morphoFeats")
-                .getElementsByClassName("morphoFeat")
-                [i].getElementsByClassName("inputArray")[0].value =
-                defaultFeatValues[d.parent.pos][featName];
+            } else { // assign the dropdown value "unspecified"
+              morphoFeats[i].getElementsByClassName("inputArray")[0].value = 
+              morphoFeats[i].getElementsByClassName("inputArray")[0][0].value;
             }
           }
-        } else {
-          document
-            .getElementById("morphoFeats")
-            .getElementsByClassName("morphoFeat")
-            [i].getElementsByClassName("inputArray")[0].value = document
-            .getElementById("morphoFeats")
-            .getElementsByClassName("morphoFeat")
-            [i].getElementsByClassName("inputArray")[0][0].value;
+        } else { // if pos not valid, or if feature not in default values
+          morphoFeats[i].getElementsByClassName("inputArray")[0].value = 
+            morphoFeats[i].getElementsByClassName("inputArray")[0][0].value;
         }
       }
     }
@@ -2695,7 +2723,8 @@ var getTree = function (treeData) {
     $("#conlluFileNameDiv").show();
     view([$("#save_remote")], hideComponents); 
     maybeEnableSaveRemoteButton();
-    view([$("#auth_btn"), $("#logout_btn")], hideComponents); 
+    view([$("#auth_btn", "#logout_btn")], hideComponents); 
+    $("#auth_logout_btns").remove()
 
     // force full tree redraw to update dynamic changes like doubleclick etc.
     fullTree.selectAll(".node").remove();

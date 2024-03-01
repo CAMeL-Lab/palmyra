@@ -202,6 +202,9 @@ li #faq {
     font-size: 1.2em;
     font-family: 'arial';
     display: none;
+
+    display: flex;
+    justify-content: space-between;
 }
 
 #conlluFileName #currentTreeNumber{
@@ -320,6 +323,7 @@ body.viewtree {
 /* toolbar buttons */
 .toolbar { 
     /* display: inline-block;  */
+    flex: 0 0 20%
 } 
 
 .toolbar input {
@@ -335,6 +339,18 @@ body.viewtree {
     margin-top: 18px;
     cursor: pointer;
     display: none;
+}
+
+.download-section-class {
+    position: fixed;
+    top: 50%;
+    right: 40%;
+}
+
+.rename-section-class {
+    position: fixed;
+    top: 50%;
+    right: 40%;
 }
 
 .dropdown {
@@ -616,6 +632,20 @@ section textarea {
 
 div.scroll {
   overflow: scroll;
+}
+
+.editTagsAndLabels {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    row-gap: 0.5vw;
+}
+
+.rename-mode-input {
+    display: inline-block !important;
+    margin-top: 0px !important;
+    background: white !important;
+    color: black !important;
 }
 
 /****************************************************************/
