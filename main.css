@@ -378,6 +378,7 @@ body.viewtree {
     z-index: 1;
     font-size: 0.9em;
     font-family: 'arial';
+    padding: 0 10px 0 10px;
 }
 .dropdown:hover .dropdown-content {
     display: block;
@@ -748,3 +749,7 @@ display: none;
 .tab { margin-left: 40px; } /* adding tab in html text */
 .parens::before { content: '('}
 .parens::after { content: ')'}
+
+.parens:empty {
+    display: none;
+}
