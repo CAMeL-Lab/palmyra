@@ -31,7 +31,7 @@ function initGetParsedModalButton(parse_data_id) {
 }
 
 function parseFile(textSentences) {
-    fetch("http://localhost:8000/parser/", {method: 'POST', body: textSentences})
+    fetch("https://mra9407.pythonanywhere.com/parse_data/", {method: 'POST', body: {'sentences': textSentences}})
     .then(res => res.json())
     .then(data => {
         initGetParsedModalButton(data[0]['parsed_conll_file_id'])
@@ -40,7 +40,7 @@ function parseFile(textSentences) {
 }
 
 function getParsedData(parse_data_id) {
-    fetch(`http://localhost:8000/parser/?parsed_conll_file_id=${parse_data_id}`, {method: 'GET'})
+    fetch(`https://mra9407.pythonanywhere.com/get_parsed_data/?parsed_conll_file_id=${parse_data_id}`, {method: 'GET'})
     .then(res => res.json())
     .then(data => {
         file_data = data[0]['parsed_data'];
