@@ -54,7 +54,7 @@ function parseFile(textSentences) {
     // let raw = JSON.stringify({
     // "sentences": "مزجتْ زها حديد بِ+ بَراعةٍ نادرةٍ الفنَّ و+ العلمَ و+ الثّقافةَ ل+ تغيّرَ الهندسةَ المِعْماريّةَ إلى الأبد ."
     // });
-    let raw = JSON.stringify({"sentences": textSentences})
+    let raw = JSON.stringify({"sentences": textSentences.split("\n")});
 
     let requestOptions = {
     method: 'POST',
