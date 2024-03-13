@@ -63,7 +63,7 @@ function parseFile(textSentences) {
     redirect: 'follow'
     };
 
-    fetch("http://mra9407.pythonanywhere.com/parse_data", requestOptions)
+    fetch("https://mra9407.pythonanywhere.com/parse_data", requestOptions)
     .then(res => res.json())
     .then(data => {
         initGetParsedModalButton(data[0]['parsed_conll_file_id'])
