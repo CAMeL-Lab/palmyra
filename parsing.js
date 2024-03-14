@@ -54,21 +54,15 @@ function parseFile(textSentences) {
 
 function getParsedData(parse_data_id) {
     let myHeaders = new Headers();
-    myHeaders.append("parsed_conll_file_id", "some_id");
     myHeaders.append("Content-Type", "application/json");
-
-    let raw = JSON.stringify({
-        "data_id": parse_data_id
-    });
 
     let requestOptions = {
         method: 'GET',
         headers: myHeaders,
-        body: raw,
         redirect: 'follow'
     };
 
-    fetch("https://mra9407.pythonanywhere.com/get_parsed_data", requestOptions)
+    fetch(`https://mra9407.pythonanywhere.com/get_parsed_data?data_id=${parse_data_id}`, requestOptions)
         .then(response => response.text())
         .then(data => {
             treesArray = convertToJSON(data);
