@@ -31,29 +31,9 @@ function initGetParsedModalButton(parse_data_id) {
 }
 
 function parseFile(textSentences) {
-    // console.log(JSON.stringify({"sentences": textSentences}));
-    // fetch("https://mra9407.pythonanywhere.com/parse_data/", {method: 'POST', body: JSON.stringify({'sentences': textSentences})})
-    // fetch("https://localhost:8080/parse_data/", {method: 'POST', body: textSentences})
-    // fetch("https://localhost:8080/parse_data/", {method: 'POST', body: {'sentences':textSentences}})
-    // fetch("https://localhost:8080/parse_data/", {
-    // headers: {
-    //         'Accept': 'application/json',
-    //         'Content-Type': 'application/json',
-    //         'Charset': 'UTF-8'
-    //     },
-    //     method: 'POST', 
-    //     body: JSON.stringify({"sentences": textSentences})
-    // })
-    // .then(res => res.json())
-    // .then(data => {
-    //     initGetParsedModalButton(data[0]['parsed_conll_file_id'])
-    // });
     let myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
-    // let raw = JSON.stringify({
-    // "sentences": "مزجتْ زها حديد بِ+ بَراعةٍ نادرةٍ الفنَّ و+ العلمَ و+ الثّقافةَ ل+ تغيّرَ الهندسةَ المِعْماريّةَ إلى الأبد ."
-    // });
     let raw = JSON.stringify({"sentences": textSentences.split("\n")});
 
     let requestOptions = {
@@ -64,37 +44,63 @@ function parseFile(textSentences) {
     };
 
     fetch("https://mra9407.pythonanywhere.com/parse_data", requestOptions)
-    .then(res => res.json())
+    .then(res => res.text())
     .then(data => {
-        initGetParsedModalButton(data[0]['parsed_conll_file_id'])
+        initGetParsedModalButton(data)
     })
     .catch(error => console.log('error', error));
     initParseModalButton();
 }
 
 function getParsedData(parse_data_id) {
-    fetch(`https://mra9407.pythonanywhere.com/get_parsed_data/?parsed_conll_file_id=${parse_data_id}`, {method: 'GET'})
-    .then(res => res.json())
-    .then(data => {
-        file_data = data[0]['parsed_data'];
-        treesArray = convertToJSON(file_data);
-        // reinitialize trees
-        // setupPageZero(file_data);
-        // UndoRedoHelperOnTreePageSetUp();
-    // hide upload window
-        view([$(".upload")], hideComponents);
-        getTree(treesArray[0]);
+    let myHeaders = new Headers();
+    myHeaders.append("parsed_conll_file_id", "some_id");
+    myHeaders.append("Content-Type", "application/json");
+
+    let raw = JSON.stringify({
+        "data_id": parse_data_id
+    });
+
+    let requestOptions = {
+        method: 'GET',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow'
+    };
+
+    fetch("https://mra9407.pythonanywhere.com/get_parsed_data", requestOptions)
+        .then(response => response.text())
+        .then(data => {
+            treesArray = convertToJSON(data);
+            
+            view([$(".upload")], hideComponents);
+            getTree(treesArray[0]);
+        })
+        .catch(error => console.log('error', error));
+    
+    
+    // fetch(`https://mra9407.pythonanywhere.com/get_parsed_data/?parsed_conll_file_id=${parse_data_id}`, {method: 'GET'})
+    // .then(res => res.json())
+    // .then(data => {
+    //     file_data = data[0]['parsed_data'];
+    //     treesArray = convertToJSON(file_data);
+    //     // reinitialize trees
+    //     // setupPageZero(file_data);
+    //     // UndoRedoHelperOnTreePageSetUp();
+    // // hide upload window
+    //     view([$(".upload")], hideComponents);
+    //     getTree(treesArray[0]);
 
         
-        // sessionStorage.removeItem("treeData");
-        // saveTree();
-        // d3.select("body").select("svg").remove();
-        // getTree(json_data);
-        // update(root);
-        // selectRoot();
-        // showSelection();
-        // // reset focusWindow
-        // focusWindow = "";
-    });
-    // initParseModalButton();
+    //     // sessionStorage.removeItem("treeData");
+    //     // saveTree();
+    //     // d3.select("body").select("svg").remove();
+    //     // getTree(json_data);
+    //     // update(root);
+    //     // selectRoot();
+    //     // showSelection();
+    //     // // reset focusWindow
+    //     // focusWindow = "";
+    // });
+    // // initParseModalButton();
 }
