@@ -821,8 +821,13 @@ var directionToggle = function () {
 function editByKeyboard(linkType, textValue) {
   UndoRedoHelperOnTreeUpdate();
   d3.select(`text#${linkType}` + selectedNodeLink.id).text(textValue);
-  selectedNodeLink.link = textValue;
-
+  
+  if(linkType == "nodePOS") {
+    selectedNodeLink.pos = textValue;
+  } else if(linkType === "linkLabel") {
+    selectedNodeLink.link = textValue;
+  }
+  
 }
 
 // edit the relation labels through keystrokes
