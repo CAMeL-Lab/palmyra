@@ -57,8 +57,6 @@ var isConlluLocal;
 
 var configRead = false;
 
-$(".toolbar [id='auth_btn']").show()
-
 // const GCP_CLIENT_ID = '872006556701-id30aupvkt32jgbqbe3gtqvbqq7oa914.apps.googleusercontent.com';
 // const GCP_API_KEY = 'AIzaSyBphS90C05DkTg3INkMSv1iMQrvh0pcIGA';
 var settings = [
@@ -577,7 +575,6 @@ async function setupTreePage(FileInputChecker) {
   addFilenameToHtmlElements(file.name);
   await readConfigFile();
   parseConllFile(file);
-  addParseButton();
 }
 
 var parseConllFile = function (file) {
@@ -3199,16 +3196,3 @@ var getTree = function (treeData) {
   // lay out the initial tree
   update(root);
 };
-
-// parser functionality
-
-// used in setupTreePage
-function addParseButton() {
-  parseButton = document.createElement('button');
-  parseButton.textContent = 'parse';
-  parseButton.addEventListener('click', () => {
-    let fileData = convertTreesArrayToString();
-    parseFile(fileData);
-  });
-  document.getElementById('parseButton').append(parseButton);
-}
