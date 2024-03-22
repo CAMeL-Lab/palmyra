@@ -31,7 +31,7 @@ function retrieveConfigFiles() {
         let files = rsp.data;
         for (let file of files) {
           rsp = await axios.get(file.download_url);
-          let fileObject = new File([rsp], file.name, { type: "text/plain" });
+          let fileObject = new File([JSON.stringify(rsp.data)], file.name, { type: "text/plain" });
           fileObjects.push(fileObject);
         }
         resolve(fileObjects);
