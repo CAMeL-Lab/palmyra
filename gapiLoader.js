@@ -2,7 +2,8 @@ let gapiClientInited = false;
 let gapiPickerInited = false;
 let gisInited = false;
 // set this to the right server origin when pushed to Github
-const SERVER_ORIGIN = "http://localhost:3000";
+// const SERVER_ORIGIN = "https://mra9407.pythonanywhere.com";
+const SERVER_ORIGIN = "http://localhost:8080";
 let tokenClient;
 let pickedFile;
 let fileId;
@@ -19,12 +20,12 @@ function gapiLoaded(libraryName, callback) {
  */
 function gisLoaded() {
   axios
-    .get(`${SERVER_ORIGIN}/gis_credentials`)
+    .get(`${SERVER_ORIGIN}/get_gis_credentials`)
     .then((rsp) => {
       let credentials = rsp.data;
       tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: credentials.client_id,
-        scope: credentials.scope,
+        scope: credentials.scope.join(' '),
         callback: "", // defined later
       });
       gisInited = true;
@@ -40,7 +41,7 @@ function gisLoaded() {
  */
 function initializeGapiClient() {
   axios
-    .get(`${SERVER_ORIGIN}/gapi_credentials`)
+    .get(`${SERVER_ORIGIN}/get_gapi_credentials`)
     .then((rsp) => {
       let credentials = rsp.data;
       gapi.client
@@ -67,7 +68,7 @@ function initializeGapiPicker() {
 
 function showPicker(accessToken, callback) {
   axios
-    .get(`${SERVER_ORIGIN}/gapi_credentials`)
+    .get(`${SERVER_ORIGIN}/get_gapi_credentials`)
     .then((rsp) => {
       let credentials = rsp.data;
       let view = new google.picker.DocsView(google.picker.ViewId.DOCS);
