@@ -103,11 +103,11 @@ function pickerCallback(data) {
     }
     // need to add extension for conllx files as well
     let url =
-      "https://www.googleapis.com/drive/v3/files/" + doc.id + "?alt=media" + `&key=${getAkFromSessionStorage()}`;
+      "https://www.googleapis.com/drive/v3/files/" + doc.id + "?alt=media";
     axios
       .get(url, {
         headers: {
-          Authorization: "Bearer " + getTokenFromSessionStorage(),
+          Authorization: "Bearer " + gapi.client.getToken().access_token,
         },
       })
       .then((rsp) => {

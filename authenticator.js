@@ -1,7 +1,7 @@
 let isAuthenticated = false;
 
 function logout() {
-  const token = getTokenFromSessionStorage();
+  const token = gapi.client.getToken().access_token;
   if (token !== null) {
     google.accounts.oauth2.revoke(token.access_token);
     // remove access token from session storage
@@ -19,7 +19,7 @@ function logout() {
 
 function onAuthenticated() {
   // set access token in gapi client for future requests
-  const accessToken = getTokenFromSessionStorage();
+  const accessToken = gapi.client.getToken().access_token;
   gapi.client.setToken({ access_token: accessToken});
   if (accessToken) {
     isAuthenticated = true;
@@ -53,7 +53,7 @@ function authenticate() {
   }
 }
 
-function setTokenInSessionStorage(token, ak) {
+function setTokenInSessionStorage(token) {
   sessionStorage.setItem("GCP_access_token", token);
 }
 
