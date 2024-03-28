@@ -1521,17 +1521,17 @@ function renameToggle() {
   )
 };
 
-function renameRemote() {
-  if (focusWindow !== "saveas") {
-    hideAllWindows();
-    $("#rename").show();
-    $("#rename-section").show();
-    focusWindow = "rename-section";
-    $("#filename_remote").val(addFileExtension(document.getElementById("conlluFileName").innerHTML, ".conllu"));
-  } else {
-    hideAllWindows();
-  }
-}
+// function renameRemote() {
+//   if (focusWindow !== "saveas") {
+//     hideAllWindows();
+//     $("#rename").show();
+//     $("#rename-section").show();
+//     focusWindow = "rename-section";
+//     $("#filename_remote").val(addFileExtension(document.getElementById("conlluFileName").innerHTML, ".conllu"));
+//   } else {
+//     hideAllWindows();
+//   }
+// }
 
 // END SETTINGS
 
