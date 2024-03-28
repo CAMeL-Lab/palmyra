@@ -1,16 +1,20 @@
 let isAuthenticated = false;
 
 function logout() {
-  // remove access token from session storage
-  sessionStorage.removeItem("GCP_access_token");
-  // remove access token from gapi client
-  gapi.client.setToken(null);
-  // disable browse button
-  $("#browse_btn").hide();
-  // if logged out successfully, hide logout button && show authentication button
-  $(".toolbar [id='logout_btn']").hide();
-  $("[id='upload1']").hide();
-  $(".toolbar [id='auth_btn']").show();
+  const token = getTokenFromSessionStorage();
+  if (token !== null) {
+    google.accounts.oauth2.revoke(token.access_token);
+    // remove access token from session storage
+    sessionStorage.removeItem("GCP_access_token");
+    // remove access token from gapi client
+    gapi.client.setToken('');
+    // disable browse button
+    $("#browse_btn").hide();
+    // if logged out successfully, hide logout button && show authentication button
+    $(".toolbar [id='logout_btn']").hide();
+    $("[id='upload1']").hide();
+    $(".toolbar [id='auth_btn']").show();
+  }
 }
 
 function onAuthenticated() {
@@ -43,6 +47,9 @@ function authenticate() {
     // Prompt the user to select a Google Account and ask for consent to share their data
     // when establishing a new session.
     tokenClient.requestAccessToken({ prompt: "consent" });
+  } else {
+    // Skip display of account chooser and consent dialog for an existing session.
+    tokenClient.requestAccessToken({prompt: ''});
   }
 }
 
