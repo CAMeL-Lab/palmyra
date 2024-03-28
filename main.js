@@ -57,8 +57,6 @@ var isConlluLocal;
 
 var configRead = false;
 
-// const GCP_CLIENT_ID = '872006556701-id30aupvkt32jgbqbe3gtqvbqq7oa914.apps.googleusercontent.com';
-// const GCP_API_KEY = 'AIzaSyBphS90C05DkTg3INkMSv1iMQrvh0pcIGA';
 var settings = [
   ["customwidth", 0.25],
   ["customdepth", 100],
@@ -938,10 +936,8 @@ var saveMorphology = function () {
     if (selectedIndex != -1) {
       featureDisplay = document
         .getElementById("morphoFeats")
-        .getElementsByClassName("morphoFeat")
-        [i].getElementsByClassName("inputArray")[0].options[
-        selectedIndex
-      ].value;
+        .getElementsByClassName("morphoFeat")[i]
+        .getElementsByClassName("inputArray")[0].options[selectedIndex].value;
       featureValue = "";
 
       for (var j = 0; j < featureValues[feature].length; j++) {
@@ -1199,6 +1195,10 @@ var updateSentenceText = function (node) {
 };
 
 function saveTreeRemote() {
+  if (!isAuthenticated) {
+    alert("When uploading a Conll-U/X file, please login to your Google account to use this feature.")
+    return;
+  }
   saveTree();
   if (sessionStorage.treeData !== "undefined") {
     var fileData = convertTreesArrayToString();

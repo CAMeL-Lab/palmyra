@@ -14,14 +14,17 @@ function logout() {
 
 function onAuthenticated() {
   // set access token in gapi client for future requests
-  gapi.client.setToken({ access_token: getTokenFromSessionStorage() });
-  isAuthenticated = true;
-  // alert("Authenticated with Google Drive successfully!");
-  // enable browse button
-  enableBrowseButton();
-  // if authenticated successfully, hide authentication button && show logout button
-  $(".toolbar [id='auth_btn']").hide();
-  $(".toolbar [id='logout_btn']").show();
+  const accessToken = getTokenFromSessionStorage();
+  gapi.client.setToken({ access_token: accessToken});
+  if (accessToken) {
+    isAuthenticated = true;
+    // alert("Authenticated with Google Drive successfully!");
+    // enable browse button
+    enableBrowseButton();
+    // if authenticated successfully, hide authentication button && show logout button
+    $(".toolbar [id='auth_btn']").hide();
+    $(".toolbar [id='logout_btn']").show();
+  }
 }
 
 function authenticate() {
