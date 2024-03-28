@@ -3250,7 +3250,16 @@ function addParseButton() {
     parseFile(textSentences);
   });
   // document.getElementById('parseButton').append(parseButton);
-  document.getElementById('upload2').append(parseButton);
+  document.getElementById('upload2parse').append(parseButton);
+}
+
+function addSelectParserDropdown() {
+  let parserList = document.createElement("select");
+
+  parserList.appendChild(new Option("CATiB, Ar", "ar_catib"));
+  parserList.appendChild(new Option("UD, Ar", "ar_ud"));
+
+  document.getElementById('upload2parse').append(parserList);
 }
 
 /*************************************************************************************************/

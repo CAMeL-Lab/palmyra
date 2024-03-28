@@ -131,7 +131,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                     <textarea id="treedata2" rows="5"
                         placeholder="Each line of text will become a seperate tree."></textarea>
                 </form>
-                <input style="float:right" type="button" id="treebtn2" value="Upload" onClick="setSentenceTreeData()" />
+                <div id="upload2items">
+                    <input style="float:right" type="button" id="treebtn2" value="Upload" onClick="setSentenceTreeData()" />
+                    <div id="upload2parse"></div>
+                </div>
                 <!-- <div id="parseButton"></div> -->
                 <div class="modal_parent">
                     <section id="parse-modal" class="modal hidden">
@@ -257,6 +260,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 
     <script>
         addParseButton();
+        addSelectParserDropdown();
         function goToKeyPress(e) {
             // look for window.event in case event isn't passed in
             e = e || window.event;
