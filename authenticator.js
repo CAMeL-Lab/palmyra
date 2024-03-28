@@ -30,8 +30,16 @@ function authenticate() {
     if (resp.error !== undefined) {
       throw resp;
     }
-    setTokenInSessionStorage(gapi.client.getToken().access_token);
-    onAuthenticated();
+    // get client token from backend
+    axios({method: 'get', url:`${SERVER_ORIGIN}/authenticate_user`})
+    .then((rsp) => {
+      let credentials = rsp.data;
+      console.log("credentials");
+      console.log(credentials);
+      // setTokenInSessionStorage(credentials.client_token);
+      setTokenInSessionStorage(gapi.client.getToken().access_token);
+      onAuthenticated();
+    });
   };
   // need to add a check for when the token expires
   if (gapi.client.getToken() === null) {
