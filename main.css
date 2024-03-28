@@ -17,7 +17,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
 /* OVERALL APPLICATION STYLING */
 
 /* background */
-body.gen {
+body {
     background-color: #57068c;
 }
 
@@ -202,6 +202,9 @@ li #faq {
     font-size: 1.2em;
     font-family: 'arial';
     display: none;
+
+    display: flex;
+    justify-content: space-between;
 }
 
 #conlluFileName #currentTreeNumber{
@@ -320,6 +323,7 @@ body.viewtree {
 /* toolbar buttons */
 .toolbar { 
     /* display: inline-block;  */
+    flex: 0 0 20%
 } 
 
 .toolbar input {
@@ -335,6 +339,18 @@ body.viewtree {
     margin-top: 18px;
     cursor: pointer;
     display: none;
+}
+
+.download-section-class {
+    position: fixed;
+    top: 50%;
+    right: 40%;
+}
+
+.rename-section-class {
+    position: fixed;
+    top: 50%;
+    right: 40%;
 }
 
 .dropdown {
@@ -361,6 +377,8 @@ body.viewtree {
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
     font-size: 0.9em;
+    font-family: 'arial';
+    padding: 0 10px 0 10px;
 }
 .dropdown:hover .dropdown-content {
     display: block;
@@ -617,17 +635,40 @@ div.scroll {
   overflow: scroll;
 }
 
+.editTagsAndLabels {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    row-gap: 0.5vw;
+}
+
+.rename-mode-input {
+    display: inline-block !important;
+    margin-top: 0px !important;
+    background: white !important;
+    color: black !important;
+}
+
 /****************************************************************/
 /* Server button classes */
 /****************************************************************/
+.modal_parent {
+    display: flex;
+    /* flex-direction: column; */
+    justify-content: center;
+    align-items: center;
+    /* height: 100%; */
+}
+
 .modal {
 display: flex;
 flex-direction: column;
 justify-content: center;
+align-items: center;
 gap: 0.4rem;
-width: 450px;
+width: 350px;
 padding: 1.3rem;
-min-height: 250px;
+min-height: 200px;
 position: absolute;
 z-index: 2;
 top: 20%;
@@ -704,3 +745,11 @@ display: none;
 /****************************************************************/
 /* End of server button classes */
 /****************************************************************/
+
+.tab { margin-left: 40px; } /* adding tab in html text */
+.parens::before { content: '('}
+.parens::after { content: ')'}
+
+.parens:empty {
+    display: none;
+}

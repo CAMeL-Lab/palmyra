@@ -1,4 +1,3 @@
-let gapiClientInited = false;
 let gapiPickerInited = false;
 let gisInited = false;
 // set this to the right server origin when pushed to Github
@@ -103,11 +102,11 @@ function pickerCallback(data) {
     }
     // need to add extension for conllx files as well
     let url =
-      "https://www.googleapis.com/drive/v3/files/" + doc.id + "?alt=media";
+      "https://www.googleapis.com/drive/v3/files/" + doc.id + "?alt=media" + `&key=${getAkFromSessionStorage()}`;
     axios
       .get(url, {
         headers: {
-          Authorization: "Bearer " + gapi.client.getToken().access_token,
+          Authorization: "Bearer " + getTokenFromSessionStorage(),
         },
       })
       .then((rsp) => {

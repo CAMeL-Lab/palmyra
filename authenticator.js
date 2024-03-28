@@ -9,6 +9,7 @@ function logout() {
   $("#browse_btn").hide();
   // if logged out successfully, hide logout button && show authentication button
   $(".toolbar [id='logout_btn']").hide();
+  $("[id='upload1']").hide();
   $(".toolbar [id='auth_btn']").show();
 }
 
@@ -24,6 +25,7 @@ function onAuthenticated() {
     // if authenticated successfully, hide authentication button && show logout button
     $(".toolbar [id='auth_btn']").hide();
     $(".toolbar [id='logout_btn']").show();
+    $("[id='upload1']").show();
   }
 }
 
@@ -37,10 +39,9 @@ function authenticate() {
     axios({method: 'get', url:`${SERVER_ORIGIN}/authenticate_user`})
     .then((rsp) => {
       let credentials = rsp.data;
-      console.log("credentials");
-      console.log(credentials);
-      // setTokenInSessionStorage(credentials.client_token);
-      setTokenInSessionStorage(gapi.client.getToken().access_token);
+      setTokenInSessionStorage(credentials.client_token);
+      // ! may need
+      // setTokenInSessionStorage(gapi.client.getToken().access_token);
       onAuthenticated();
     });
   };
@@ -52,7 +53,7 @@ function authenticate() {
   }
 }
 
-function setTokenInSessionStorage(token) {
+function setTokenInSessionStorage(token, ak) {
   sessionStorage.setItem("GCP_access_token", token);
 }
 
