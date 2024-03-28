@@ -60,7 +60,7 @@ h3 {
     border: none;
     border-radius: 30px;
     text-decoration: none;
-    font-family: 'bebas';
+    font-family: 'arial';
     color: #303030;
     padding: 4px 15px 6px 15px;
     cursor: pointer;
@@ -117,7 +117,7 @@ h3 {
 .mainbox nav a {
     text-decoration: none;
     color: #fff;
-    font-family: 'bebas';
+    font-family: 'arial';
     font-size: 30px;
 }
 
@@ -215,7 +215,7 @@ li #faq {
 /* navigation menu links */
 .navlinks a {
     text-decoration: none;
-    font-family: 'bebas';
+    font-family: 'arial';
     font-size: 15px;
     color: #fff;
     padding: 10px 20px 10px 20px;
@@ -333,7 +333,7 @@ body.viewtree {
     border: none;
     border-radius: 2px;
     text-decoration: none;
-    font-family: 'bebas';
+    font-family: 'arial';
     font-size: 15px;
     padding: 4px 15px 6px 15px;
     margin-top: 18px;

@@ -16,73 +16,73 @@ function gapiLoaded(libraryName, callback) {
 /**
  * Callback after Google Identity Services are loaded.
  */
-// function gisLoaded() {
-//   axios
-//     .get(`${SERVER_ORIGIN}/gis_credentials`)
-//     .then((rsp) => {
-//       let credentials = rsp.data;
-//       tokenClient = google.accounts.oauth2.initTokenClient({
-//         client_id: credentials.client_id,
-//         scope: credentials.scope,
-//         callback: "", // defined later
-//       });
-//       gisInited = true;
-//       maybeEnableAuthButton();
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//     });
-// }
+function gisLoaded() {
+  axios
+    .get(`${SERVER_ORIGIN}/get_gis_credentials`)
+    .then((rsp) => {
+      let credentials = rsp.data;
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: credentials.client_id,
+        scope: credentials.scope.join(' '),
+        callback: "", // defined later
+      });
+      gisInited = true;
+      maybeEnableAuthButton();
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
 
 /**
  * Callback after the API client is loaded.
  */
-// function initializeGapiClient() {
-//   axios
-//     .get(`${SERVER_ORIGIN}/gapi_credentials`)
-//     .then((rsp) => {
-//       let credentials = rsp.data;
-//       gapi.client
-//         .init({
-//           apiKey: credentials.apiKey,
-//           discoveryDocs: credentials.discoveryDocs,
-//         })
-//         .then(() => {
-//           gapiClientInited = true;
-//           maybeEnableAuthButton();
-//         })
-//         .catch((err) => {
-//           console.log(err);
-//         });
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//     });
-// }
+function initializeGapiClient() {
+  axios
+    .get(`${SERVER_ORIGIN}/get_gapi_credentials`)
+    .then((rsp) => {
+      let credentials = rsp.data;
+      gapi.client
+        .init({
+          apiKey: credentials.apiKey,
+          discoveryDocs: credentials.discoveryDocs,
+        })
+        .then(() => {
+          gapiClientInited = true;
+          maybeEnableAuthButton();
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
 
 function initializeGapiPicker() {
   gapiPickerInited = true;
 }
 
 function showPicker(accessToken, callback) {
-  // axios
-  //   .get(`${SERVER_ORIGIN}/gapi_credentials`)
-  //   .then((rsp) => {
-  //     let credentials = rsp.data;
-  let view = new google.picker.DocsView(google.picker.ViewId.DOCS);
-  view.setMimeTypes("text/plain");
-  view.setMode(google.picker.DocsViewMode.LIST);
-  let picker = new google.picker.PickerBuilder()
-    .addView(view)
-    .setOAuthToken(accessToken)
-    // .setDeveloperKey(credentials.apiKey)
-    .setCallback(callback)
-    .build();
-  picker.setVisible(true);
-    // })
-    // .catch((err) => {
-    //   console.log(err);
-    // });
+  axios
+    .get(`${SERVER_ORIGIN}/get_gapi_credentials`)
+    .then((rsp) => {
+      let credentials = rsp.data;
+      let view = new google.picker.DocsView(google.picker.ViewId.DOCS);
+      view.setMimeTypes("text/plain");
+      view.setMode(google.picker.DocsViewMode.LIST);
+      let picker = new google.picker.PickerBuilder()
+        .addView(view)
+        .setOAuthToken(accessToken)
+        .setDeveloperKey(credentials.apiKey)
+        .setCallback(callback)
+        .build();
+      picker.setVisible(true);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 }
 
 function pickerCallback(data) {
@@ -123,18 +123,25 @@ function pickerCallback(data) {
   }
 }
 
-function enableBrowseButton(accessToken) {
+function enableBrowseButton() {
   let browseBtn = document.getElementById("browse_btn");
   browseBtn.style.display = "inline-block";
   browseBtn.onclick = () => {
-    showPicker(accessToken, pickerCallback);
-    // showPicker(gapi.client.getToken().access_token, pickerCallback);
+    showPicker(gapi.client.getToken().access_token, pickerCallback);
   };
 }
 
 /**
  * Enables user interaction after all libraries are loaded.
  */
+function maybeEnableAuthButton() {
+  if (gapiClientInited && gapiPickerInited && gisInited && !isAuthenticated) {
+    $(".toolbar [id='auth_btn']").show();
+  }
+}
+
 function maybeEnableSaveRemoteButton() {
-  $("#save_remote").show();
+  if (gapiClientInited && gisInited) {
+    $("#save_remote").show();
+  }
 }

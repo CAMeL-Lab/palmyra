@@ -579,7 +579,6 @@ async function setupTreePage(FileInputChecker) {
   addFilenameToHtmlElements(file.name);
   await readConfigFile();
   parseConllFile(file);
-  // addParseButton();
   $("#auth_logout_btns").remove()
 }
 
@@ -1520,16 +1519,19 @@ function renameToggle() {
     renderRenameMode(oldFilename, filenameParent, filenameIdx), // 0 is the index 
     filenameParent.children[filenameIdx]
   )
-  // if (focusWindow !== "saveas") {
-  //   hideAllWindows();
-  //   $("#rename").show();
-  //   $("#rename-section").show();
-  //   focusWindow = "rename-section";
-  //   $("#filename_remote").val(addFileExtension(document.getElementById("conlluFileName").innerHTML, ".conllu"));
-  // } else {
-  //   hideAllWindows();
-  // }
 };
+
+// function renameRemote() {
+//   if (focusWindow !== "saveas") {
+//     hideAllWindows();
+//     $("#rename").show();
+//     $("#rename-section").show();
+//     focusWindow = "rename-section";
+//     $("#filename_remote").val(addFileExtension(document.getElementById("conlluFileName").innerHTML, ".conllu"));
+//   } else {
+//     hideAllWindows();
+//   }
+// }
 
 // END SETTINGS
 
