@@ -1,4 +1,5 @@
 let gapiPickerInited = false;
+let gapiClientInited = false;
 let gisInited = false;
 // set this to the right server origin when pushed to Github
 const SERVER_ORIGIN = "https://mra9407.pythonanywhere.com";
