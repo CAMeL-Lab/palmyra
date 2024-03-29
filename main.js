@@ -549,9 +549,11 @@ function addFilenameToHtmlElements(original_filename) {
 
 function LocalFileInputChecker() {
   let x = document.getElementById("inputFile");
-  if (("files" in x) && (x.files.length == 0)) {
+  let textArea = document.getElementById("treedata2").value // upload text counts as local
+
+  if ((("files" in x) && (x.files.length == 0) && !textArea)) {
     alert(
-      "Please select a ConllU/X file, or use use the Upload button in the sentence uploader section."
+      "Please select a ConllU/X file, or enter sentences in the text area below."
     );
     return null;
   };
@@ -650,6 +652,7 @@ var readSentenceTreeData = function () {
 };
 
 var setSentenceTreeData = function () {
+  setupTreePage(LocalFileInputChecker);
   // console.log("sadfakl")
   // console.log($("#auth_logout_btns").hide())
   //we conly call the readConfigFileForSentence here to insure that the configuration file is
