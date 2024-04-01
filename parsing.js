@@ -30,11 +30,19 @@ function initGetParsedModalButton(parse_data_id) {
     });
 }
 
-function parseFile(textSentences) {
+function parseFile() {
+    let textSentences = $("#treedata2").val();
+    let parserType = $("#select-parser").val();
+
+    if(parserType === "") {
+        alert("Please select a parser");
+        return;
+    }
+
     let myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
-    let raw = JSON.stringify({"sentences": textSentences.split("\n")});
+    let raw = JSON.stringify({"sentences": textSentences.split("\n"), "parserType": parserType});
 
     let requestOptions = {
     method: 'POST',

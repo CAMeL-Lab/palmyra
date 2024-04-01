@@ -3241,21 +3241,6 @@ var getTree = function (treeData) {
 /*************************************************************************************************/
 // remaining functions are in parsing.js
 
-// used in setupTreePage
-function addParseButton() {
-  // parseButton = document.createElement('button');
-  // parseButton.textContent = 'parse';
-  parseButton = document.createElement('input');
-  parseButton.value = 'Parse';
-  parseButton.type = 'button';
-  parseButton.style = 'float:right';
-  parseButton.addEventListener('click', () => {
-    let textSentences = $("#treedata2").val();
-    parseFile(textSentences);
-  });
-  // document.getElementById('parseButton').append(parseButton);
-  document.getElementById('upload2').append(parseButton);
-}
 
 /*************************************************************************************************/
 /* parser functionality */

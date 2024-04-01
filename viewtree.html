@@ -20,6 +20,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="main.css">
+    <link rel="stylesheet" type="text/css" href="text_upload.css">
     <title>Palmyra v2.4</title>
 </head>
 
@@ -127,12 +128,23 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         <div class="container" style="width:100%">
             <section class="upload">
                 <form id="upload2">
-                    <p><i>Or Enter Text:</i></p><br>
-                    <textarea id="treedata2" rows="5"
-                        placeholder="Each line of text will become a seperate tree."></textarea>
+                    <div id="upload-2-row-1">
+                        <label id="label-treedata2" for="treedata2"> Or enter text:</label>
+                        <br>
+                        <textarea id="treedata2" placeholder="Each line of text will become a seperate tree."></textarea>
+                    </div>
+                    
+                    <div id="upload-2-row-2">
+                        <input type="button" id="treebtn2" value="Upload" onClick="setSentenceTreeData()" />
+                        <label for="parser-select">or parse sentences</label>
+                        <select name="parsers" id="select-parser">
+                            <option value="">--Please select a parser--</option>
+                            <option value="ar_catib">CATiB, Ar</option>
+                            <option value="ar_ud">UD, Ar</option>
+                        </select>
+                        <input type="button" id="parse" value="Parse" onClick="parseFile()" />
+                    </div>
                 </form>
-                <input style="float:right" type="button" id="treebtn2" value="Upload" onClick="setSentenceTreeData()" />
-                <!-- <div id="parseButton"></div> -->
                 <div class="modal_parent">
                     <section id="parse-modal" class="modal hidden">
                         <div>
