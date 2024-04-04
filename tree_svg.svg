@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="645" fill="none" viewBox="0 0 820 645">
+<style>
+    path {
+      fill: #6A6A6A; opacity: 0;
+      animation: 6s opacity infinite;
+    }
+    circle {
+      fill: white; opacity: 0;
+      animation: 6s opacity infinite;
+    }
+    @keyframes opacity {
+      15% {opacity: 0} 
+      35% {opacity: 1}
+      65% {opacity: 1} 
+      85% {opacity: 0}
+    }
+    #c1 {animation-delay: 1.0s}
+    #l1 {animation-delay: 2.0s}
+    #c2 {animation-delay: 2.0s}
+    #c3 {animation-delay: 2.0s}
+    #c4 {animation-delay: 2.0s}
+    #c5 {animation-delay: 2.0s}
+    #l2 {animation-delay: 3.0s}
+  </style>
+  <circle id="c3" cx="810" cy="210" r="8.5" stroke="#6A6A6A" stroke-width="3"/>
+  <circle id="c1" cx="610" cy="10" r="8.5" stroke="#6A6A6A" stroke-width="3"/>
+  <circle id="c2" cx="410" cy="210" r="8.5" stroke="#6A6A6A" stroke-width="3"/>
+  <circle id="c4" cx="210" cy="445" r="8.5" stroke="#6A6A6A" stroke-width="3"/>
+  <circle id="c5" cx="10" cy="210" r="8.5" stroke="#6A6A6A" stroke-width="3"/>
+  <path id="l1" stroke="#6A6A6A" stroke-width="4" d="m603.425 14.403-187 190M616.418 14.589l189 190.001M602.626 11.9 16.624 204.856m388.905 10.434-189 224"/>
+  <path id="l2" stroke="#6A6A6A" stroke-dasharray="10 10" d="m10.5 221.001-1.032 414M210.5 455v190m200.032-420.999-1.032 414m201-614-1 614m202.032-412-1.032 414"/>
+</svg>
