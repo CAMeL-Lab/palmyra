@@ -665,7 +665,7 @@ var setSentenceTreeData = function () {
 // helper function
 // reset the tree data (to an empty string) and reload the window
 var clearTree = function () {
-  if (window.confirm("Do you really want to clear?")) {
+  if (window.confirm("Do you really want to leave?")) {
     sessionStorage.removeItem("treeData");
     window.location.reload();
   }
