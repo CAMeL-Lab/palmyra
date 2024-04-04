@@ -341,17 +341,12 @@ body.viewtree {
     display: none;
 }
 
-.download-section-class {
+.section-alignment {
     position: fixed;
     top: 50%;
     right: 40%;
 }
 
-.rename-section-class {
-    position: fixed;
-    top: 50%;
-    right: 40%;
-}
 
 .dropdown {
     /* font-size: 15px; */

@@ -1397,7 +1397,7 @@ var hideAllWindows = function () {
       .removeChild(document.getElementById("searchList"));
     view([$("#listing")], hideComponents);
   }
-  view([$("#gototree"), $("#labels"), $("#postags"), $(".morphologyMerge")], hideComponents);
+  view([$("#gototree-section"), $("#labels"), $("#postags"), $(".morphologyMerge")], hideComponents);
 
   editingControl = "pos";
 
@@ -1447,7 +1447,7 @@ var editToggle = function () {
 var goToTreeToggle = function () {
   if (focusWindow !== "goToTree") {
     hideAllWindows();
-    $("#gototree").show();
+    $("#gototree-section").show();
     focusWindow = "goToTree";
   } else {
     hideAllWindows();
