@@ -147,10 +147,14 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
                 </form>
                 <div class="modal_parent">
                     <section id="parse-modal" class="modal hidden">
-                        <div>
-                            <p>Parsing sentences, this will take a moment.</p>
+                        <div style="display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;">
+                            <img src="tree_svg.svg" alt="tree loading gif" style="width: 100%; height: 100%;"/>
+                            <p style="text-align: center;">Parsing sentences, this will take a moment.</p>
                         </div>
-                        <button id="parse-close-btn" class="btn"></button>
+                        <!-- <button id="parse-close-btn" class="btn"></button> -->
                     </section>
                     <div id="parse-overlay" class="parse-overlay-class hidden"></div>
                     <section id="get-parsed-modal" class="modal hidden">
