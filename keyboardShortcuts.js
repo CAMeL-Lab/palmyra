@@ -10,3 +10,10 @@ window.addEventListener('keydown', function(event) {
 window.addEventListener('keydown', function(event) {
     if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'l') {search(treesArray);}
   });
+
+// file menu shortcuts
+window.addEventListener('keydown', function(event) {
+  if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 's') {saveTreeRemote();}
+  else if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'r') {renameToggle();}
+  else if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'd') {downloadToggle();}
+});
