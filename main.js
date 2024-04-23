@@ -652,6 +652,7 @@ var readSentenceTreeData = function () {
 };
 
 var setSentenceTreeData = function () {
+  addFilenameToHtmlElements('Untitled.conllx');
   setupTreePage(LocalFileInputChecker);
   // console.log("sadfakl")
   // console.log($("#auth_logout_btns").hide())
