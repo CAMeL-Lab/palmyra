@@ -16,8 +16,8 @@ describe('Upload tree content', () => {
   // tests to be used
   // Run a specfic test: npm test -- -t  'test_name_matcher' --verbose
 
-  test('Page title should be Palmyra v2.4', async () => {
-    await expect(page.title()).resolves.toMatch('Palmyra v2.4');
+  test('Page title should be Palmyra v3.0', async () => {
+    await expect(page.title()).resolves.toMatch('Palmyra v3.0');
   });
 
   test('Body should contain class viewtree', async () => {
