@@ -76,6 +76,7 @@ function getParsedData(parse_data_id) {
             treesArray = convertToJSON(data);
             
             view([$(".upload")], hideComponents);
+            addFilenameToHtmlElements('Untitled.conllx');
             getTree(treesArray[0]);
         })
         .catch(error => console.log('error', error));
