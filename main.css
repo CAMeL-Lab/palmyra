@@ -323,7 +323,8 @@ body.viewtree {
 /* toolbar buttons */
 .toolbar { 
     /* display: inline-block;  */
-    flex: 0 0 20%
+    flex: 0 0 20%;
+    flex-grow: 1;
 } 
 
 .toolbar input {
@@ -652,3 +653,9 @@ div.scroll {
 .parens:empty {
     display: none;
 }
+
+/* Nav bar */
+.file-name-tree-number {
+    justify-content: left;
+}
+
