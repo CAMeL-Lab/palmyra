@@ -193,7 +193,7 @@ li #faq {
     vertical-align:middle;
 }
 
-#conlluFileNameDiv {
+.file-name-tree-number {
     padding-top: 1vh;
     margin-top: 6px;
     margin-left: 6px;
@@ -202,9 +202,9 @@ li #faq {
     font-size: 1.2em;
     font-family: 'arial';
     display: none;
-
+    
     display: flex;
-    justify-content: space-between;
+    justify-content: left;
 }
 
 #conlluFileName #currentTreeNumber{
@@ -653,9 +653,3 @@ div.scroll {
 .parens:empty {
     display: none;
 }
-
-/* Nav bar */
-.file-name-tree-number {
-    justify-content: left;
-}
-
