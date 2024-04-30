@@ -1332,22 +1332,25 @@ var search = function (treesArray) {
   ) {
     var list = document.createElement("OL");
     list.setAttribute("id", "searchList");
-    if (orientation === "r-to-l") {
-      list.setAttribute("dir", "rtl");
-    } else {
-      list.setAttribute("dir", "ltr");
-    }
+    // if (orientation === "r-to-l") {
+    //   list.setAttribute("dir", "rtl");
+    // } else {
+    //   list.setAttribute("dir", "ltr");
+    // }
+    list.setAttribute("dir", "auto");
     
     for (var i = 0; i < treesArray.length; i++) {
       var x = document.createElement("LI");
       x.setAttribute("id", i);
-      if (orientation === "r-to-l") {
-        x.style.direction = "rtl";
-        x.style.textAlign = "right";
-      } else {
-        x.style.direction = "ltr";
-        x.style.textAlign = "left";
-      }
+      // if (orientation === "r-to-l") {
+      //   x.style.direction = "rtl";
+      //   x.style.textAlign = "right";
+      // } else {
+      //   x.style.direction = "ltr";
+      //   x.style.textAlign = "left";
+      // }
+      x.style.direction = "auto";
+      // x.style.textAlign = "justify"
 
       if (listingKey in treesArray[i].meta) {
         var t = document.createTextNode(treesArray[i].meta[listingKey]);
@@ -1590,7 +1593,7 @@ var getTree = function (treeData) {
   else var viewerWidth = $(document).width();
   viewerHeight = $(document).height();
   d3.select("svg").attr("dir", "rtl");
-  d3.select("#sents").attr("dir", "rtl");
+  d3.select("#sents").attr("dir", "auto");
   document.getElementById("currentTreeNumber").textContent =
     parseInt(currentTreeIndex) + 1 + "/" + numberOfNodesArray.length;
   document.getElementById("treeNumberInput").max = numberOfNodesArray.length;
