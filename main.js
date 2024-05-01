@@ -3244,10 +3244,9 @@ $('#treedata2').keyup(function(){
 
 
   if (sentences.split(/\s+/).length > 100) {
-      $('#treebtn2').attr('disabled', 'disabled');
+    document.getElementById('parse-limit-note').style.display = 'inline';
   } else {
-    
-      $('#treebtn2').removeAttr('disabled');
+    document.getElementById('parse-limit-note').style.display = 'none';
   }
 })
 

@@ -140,12 +140,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
             <section class="upload">
                 <form id="upload2">
                     <div id="upload-2-row-1">
-                        <label id="label-treedata2" for="treedata2"> Or enter text (parse limit is 100 words):</label>
+                        <label id="label-treedata2" for="treedata2"> Or enter text</label>
                         <br>
                         <textarea id="treedata2" placeholder="Each line of text will become a seperate tree."></textarea>
                     </div>
                     
                     <div id="upload-2-row-2">
+                        <p id="parse-limit-note" style="display: none;">Parse limit is 100 words. The remaining sentences will not be parsed.</p>
                         <input type="button" id="treebtn2" value="Upload" onClick="setSentenceTreeData()" />
                         <label for="parser-select">or parse sentences</label>
                         <select name="parsers" id="select-parser">
