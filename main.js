@@ -2960,7 +2960,6 @@ var getTree = function (treeData) {
           .attr("id", function (d) {
             return "morphologyLeftMerge" + d.id;
           })
-          .attr("class", localStorage["currentFont"])
           .classed("morphology", true)
           .classed("morphologyMerge", true)
           .attr("dx", "1.3em")
@@ -2981,7 +2980,6 @@ var getTree = function (treeData) {
           .attr("id", function (d) {
             return "morphologyLeftMerge" + d.id;
           })
-          .attr("class", localStorage["currentFont"])
           .classed("morphology", true)
           .classed("morphologyMerge", true)
           .attr("dx", "-1.3em")
@@ -3005,7 +3003,6 @@ var getTree = function (treeData) {
           .attr("id", function (d) {
             return "morphologyRightMerge" + d.id;
           })
-          .attr("class", localStorage["currentFont"])
           .classed("morphology", true)
           .classed("morphologyMerge", true)
           .attr("dx", "-1.3em")
@@ -3026,7 +3023,6 @@ var getTree = function (treeData) {
           .attr("id", function (d) {
             return "morphologyRightMerge" + d.id;
           })
-          .attr("class", localStorage["currentFont"])
           .classed("morphology", true)
           .classed("morphologyMerge", true)
           .attr("dx", "1.3em")
