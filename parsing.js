@@ -22,7 +22,7 @@ function initGetParsedModalButton(parse_data_id) {
 
     // set up button that sends a request to the backend to get the new trees
     closeButton = document.getElementById("get-parsed-btn");
-    closeButton.textContent = 'Update';
+    closeButton.textContent = 'View trees';
     closeButton.addEventListener('click', () => {
       document.getElementById('get-parsed-modal').classList.add("hidden");
       document.getElementById('get-parsed-overlay').classList.add("hidden");

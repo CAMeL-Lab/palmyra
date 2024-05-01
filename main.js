@@ -3237,11 +3237,21 @@ var getTree = function (treeData) {
 };
 
 /*************************************************************************************************/
-/* parser functionality */
+/* view_tree */
 /*************************************************************************************************/
-// remaining functions are in parsing.js
+$('#treedata2').keyup(function(){
+  var sentences = $(this).val();
+
+
+  if (sentences.split(/\s+/).length > 100) {
+      $('#treebtn2').attr('disabled', 'disabled');
+  } else {
+    
+      $('#treebtn2').removeAttr('disabled');
+  }
+})
 
 
 /*************************************************************************************************/
-/* parser functionality */
+/* view_tree */
 /*************************************************************************************************/
