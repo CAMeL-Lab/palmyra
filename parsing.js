@@ -2,13 +2,6 @@
 function initParseModalButton() {
     document.getElementById('parse-modal').classList.remove("hidden");
     document.getElementById('parse-overlay').classList.remove("hidden");
-
-    closeButton = document.getElementById("parse-close-btn");
-    closeButton.textContent = 'Close';
-    closeButton.addEventListener('click', () => {
-      document.getElementById('parse-modal').classList.add("hidden");
-      document.getElementById('parse-overlay').classList.add("hidden");
-    });
 }
 
 function initGetParsedModalButton(parse_data_id) {
