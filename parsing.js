@@ -53,6 +53,10 @@ function parseFile() {
     initParseModalButton();
 }
 
+var readConfigFileForParsedSentences = async function () {
+    await readConfigFile();
+}
+
 function getParsedData(parse_data_id) {
     let myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -66,6 +70,7 @@ function getParsedData(parse_data_id) {
     fetch(`https://mra9407.pythonanywhere.com/get_parsed_data?data_id=${parse_data_id}`, requestOptions)
         .then(response => response.text())
         .then(data => {
+            readConfigFileForParsedSentences();
             treesArray = convertToJSON(data);
             
             view([$(".upload")], hideComponents);
