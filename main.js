@@ -845,7 +845,12 @@ function editByButton(inputSource, linkType) {
     // d3.select("text#linkLabel" + selectedNodeLink.id).text(labelText);
     // selectedNodeLink.link = labelText;
     d3.select(`text#${linkType}` + selectedNodeLink.id).text(textValue);
-    selectedNodeLink.link = textValue;
+
+    if(linkType == "nodePOS") {
+      selectedNodeLink.pos = textValue;
+    } else if(linkType === "linkLabel") {
+      selectedNodeLink.link = textValue;
+    }
     showSelection();
   }
 }
