@@ -123,11 +123,7 @@ var parseConfig = function (content) {
       btn.onclick = editLabelByButton;
 
       group = configs.relation.values[i].group;
-      if (!(group in divs)) {
-        divs[group] = document.createElement("div");
-      }
-      divs[group].classList.add('editTagsAndLabels');
-      divs[group].appendChild(btn);
+      addButtonToDivGroup(divs, group, btn)
     } else {
       relLabels[configs.relation.values[i].key] = [];
       relLabels[configs.relation.values[i].key].push(
