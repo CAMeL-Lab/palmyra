@@ -423,7 +423,7 @@ var convertToJSON = function (inputData) {
     for (var i = 0; i < lines.length; i++) {
       if (lines[i].trim().length == 0) {
         if (newTree.length > 0) {
-          newTree.meta["sentenceText"] = sentenceText.trim();
+          newTree.meta["treeTokens"] = sentenceText.trim();
           inputArray.push(newTree);
           numberOfNodesArray.push(newTree.length / 2);
           newTree = [];
@@ -685,7 +685,7 @@ var addNewTree = function () {
   rootNode.children = [];
 
   rootNode.meta = {};
-  rootNode.meta["sentenceText"] = "";
+  rootNode.meta["treeTokens"] = "";
 
   rootNode.lemma = "";
   rootNode.pos = "";
@@ -1288,7 +1288,7 @@ function convertTreesArrayToString() {
     meta_keys = Object.keys(treesArray[i].meta);
 
     for (var key_index = 0; key_index < meta_keys.length; key_index++) {
-      if (meta_keys[key_index] === "sentenceText") {
+      if (meta_keys[key_index] === "treeTokens") {
         //clone the treeArray to use that to generate the complete sentenceText comment
         let clone = JSON.parse(JSON.stringify(JSON.decycle(treesArray[i])));
         output =
@@ -1360,7 +1360,7 @@ var search = function (treesArray) {
       if (listingKey in treesArray[i].meta) {
         var t = document.createTextNode(treesArray[i].meta[listingKey]);
       } else {
-        var t = document.createTextNode(treesArray[i].meta["sentenceText"]);
+        var t = document.createTextNode(treesArray[i].meta["treeTokens"]);
       }
       x.appendChild(t);
       x.onclick = function () {
@@ -2645,7 +2645,7 @@ var getTree = function (treeData) {
     for (var i = 0; i < sentenceArray.length; i++) {
       sentenceText += sentenceArray[i][1] + " ";
     }
-    root.meta["sentenceText"] = sentenceText.trim();
+    root.meta["treeTokens"] = sentenceText.trim();
 
     var counter = 0;
 
