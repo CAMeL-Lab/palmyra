@@ -70,12 +70,17 @@ function getParsedData(parse_data_id) {
     fetch(`https://mra9407.pythonanywhere.com/get_parsed_data?data_id=${parse_data_id}`, requestOptions)
         .then(response => response.text())
         .then(data => {
+            readConfigFile();
             // readConfigFileForParsedSentences();
             treesArray = convertToJSON(data);
+            
+            currentTreeIndex = 0;
+            UndoRedoHelperOnTreePageSetUp();
             
             view([$(".upload")], hideComponents);
             addFilenameToHtmlElements('Untitled.conllx');
             getTree(treesArray[0]);
+
         })
         .catch(error => console.log('error', error));
     
