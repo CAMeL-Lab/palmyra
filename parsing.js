@@ -81,6 +81,8 @@ function getParsedData(parse_data_id) {
             addFilenameToHtmlElements('Untitled.conllx');
             getTree(treesArray[0]);
 
+            isConlluLocal = true;
+
         })
         .catch(error => console.log('error', error));
     
