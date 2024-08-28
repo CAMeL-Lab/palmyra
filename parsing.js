@@ -26,7 +26,11 @@ function initGetParsedModalButton(parse_data_id) {
 function parseFile() {
     let textSentences = $("#treedata2").val();
     let parserType = $("#select-parser").val();
-
+    
+    // removing empty lines
+    textSentences = textSentences.split("\n");
+    textSentences = textSentences.filter(function(el) { return el != ""});
+    
     if(parserType === "") {
         alert("Please select a parser");
         return;
@@ -35,7 +39,7 @@ function parseFile() {
     let myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
-    let raw = JSON.stringify({"sentences": textSentences.split("\n"), "parserType": parserType});
+    let raw = JSON.stringify({"sentences": textSentences, "parserType": parserType});
 
     let requestOptions = {
     method: 'POST',
