@@ -1208,6 +1208,9 @@ function saveTreeRemote() {
 }
 
 function addFileExtension(fileName, extension) {
+  if (fileName.endsWith('conllu') || fileName.endsWith('conllx')) {
+    return fileName;
+  }
   let fileNameParts = fileName.split('.');
   // need to add extension for conllx files as well
   if (fileNameParts.length > 1) fileNameParts = fileNameParts.slice(0, fileNameParts.length-1);
