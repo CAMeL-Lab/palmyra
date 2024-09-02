@@ -71,7 +71,7 @@ function showPicker(accessToken, callback) {
     .then((rsp) => {
       let credentials = rsp.data;
       let view = new google.picker.DocsView(google.picker.ViewId.DOCS).setParent('root').setIncludeFolders(true);
-      view.setMimeTypes("text/conllx, text/conllu");
+      // view.setMimeTypes("conllx, conllu");
       view.setMode(google.picker.DocsViewMode.LIST);
       let picker = new google.picker.PickerBuilder()
         .addView(view)
