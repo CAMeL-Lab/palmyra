@@ -70,7 +70,7 @@ function showPicker(accessToken, callback) {
     .get(`${SERVER_ORIGIN}/get_gapi_credentials`)
     .then((rsp) => {
       let credentials = rsp.data;
-      let view = new google.picker.DocsView(google.picker.ViewId.DOCS);
+      let view = new google.picker.DocsView(google.picker.ViewId.DOCS).setParent('root').setIncludeFolders(true);
       view.setMimeTypes("text/plain");
       view.setMode(google.picker.DocsViewMode.LIST);
       let picker = new google.picker.PickerBuilder()
