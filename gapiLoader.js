@@ -2,7 +2,8 @@ let gapiPickerInited = false;
 let gapiClientInited = false;
 let gisInited = false;
 // set this to the right server origin when pushed to Github
-const SERVER_ORIGIN = "https://mra9407.pythonanywhere.com";
+// const SERVER_ORIGIN = "https://mra9407.pythonanywhere.com";
+const SERVER_ORIGIN = "http://127.0.0.1:8000";
 let tokenClient;
 let pickedFile;
 let fileId;
@@ -71,14 +72,15 @@ function showPicker(accessToken, callback) {
     .then((rsp) => {
       let credentials = rsp.data;
       let view = new google.picker.DocsView(google.picker.ViewId.DOCS).setParent('root').setIncludeFolders(true);
-      view.setMimeTypes("text/plain");
-      // view.setMimeTypes("application/octet-stream");
+      // view.setMimeTypes("text/plain");
       view.setMode(google.picker.DocsViewMode.LIST);
+      
       let picker = new google.picker.PickerBuilder()
         .addView(view)
         .setOAuthToken(accessToken)
         .setDeveloperKey(credentials.apiKey)
         .setCallback(callback)
+        .setAppId((credentials.clientId).split('-')[0])
         .build();
       picker.setVisible(true);
     })

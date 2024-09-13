@@ -5,7 +5,7 @@
   "source": "index.html",
   "scripts": {
     "test": "jest",
-    "start": "parcel",
+    "start": "parcel --https",
     "build": "parcel build"
   },
   "repository": {
