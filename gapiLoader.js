@@ -88,6 +88,32 @@ function showPicker(accessToken, callback) {
     });
 }
 
+function showSaveAsPicker(accessToken, callback) {
+  axios
+    .get(`${SERVER_ORIGIN}/get_gapi_credentials`)
+    .then((rsp) => {
+      let credentials = rsp.data;
+      let view = new google.picker.DocsView(google.picker.ViewId.DOCS)
+        .setParent('root')
+        .setIncludeFolders(true)
+        .setSelectFolderEnabled(true);
+      // view.setMimeTypes("text/plain");
+      view.setMode(google.picker.DocsViewMode.LIST);
+      
+      let picker = new google.picker.PickerBuilder()
+        .addView(view)
+        .setOAuthToken(accessToken)
+        .setDeveloperKey(credentials.apiKey)
+        .setCallback(callback)
+        .setAppId((credentials.clientId).split('-')[0])
+        .build();
+      picker.setVisible(true);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
+
 function pickerCallback(data) {
   // if the user picked a file
   // need to check if the file is a conllu file
@@ -126,11 +152,26 @@ function pickerCallback(data) {
   }
 }
 
+function saveAsPickerCallback(data) {
+  if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
+    let doc = data[google.picker.Response.DOCUMENTS][0];
+    saveTreeRemote(remoteLocation=doc.id, saveType="saveAs")
+  }
+}
+
 function enableBrowseButton() {
   let browseBtn = document.getElementById("browse_btn");
   browseBtn.style.display = "inline-block";
   browseBtn.onclick = () => {
     showPicker(gapi.client.getToken().access_token, pickerCallback);
+  };
+}
+
+function saveAsPicker() {
+  let browseBtn = document.getElementById("save_as_option");
+  browseBtn.style.display = "inline-block";
+  browseBtn.onclick = () => {
+    showSaveAsPicker(gapi.client.getToken().access_token, saveAsPickerCallback);
   };
 }
 

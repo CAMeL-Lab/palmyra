@@ -1191,7 +1191,7 @@ var updateSentenceText = function (node) {
   }
 };
 
-function saveTreeRemote() {
+function saveTreeRemote(remoteLocation="root", saveType="save") {
   if (!isAuthenticated) {
     alert("When uploading a Conll-U/X file, please login to your Google account to use this feature.")
     return;
@@ -1200,7 +1200,7 @@ function saveTreeRemote() {
   if (sessionStorage.treeData !== "undefined") {
     var fileData = convertTreesArrayToString();
     // make API request to Google Drive to store file
-    saveTreeRemoteHelper(fileData);
+    saveTreeRemoteHelper(fileData, remoteLocation, saveType);
   } else {
     alert("Tree not found.");
   }
@@ -1220,28 +1220,34 @@ function addFileExtension(fileName, extension) {
 
 // multipart upload only works for file < 5 MB
 // need to construct request body with specification from Drive API: https://developers.google.com/drive/api/guides/manage-uploads#multipart
-function uploadFile(fileData) {
+function uploadFile(fileData, remoteLocation, saveType) {
   let accessToken = gapi.client.getToken().access_token;
   let xhr = new XMLHttpRequest();
   let fileName = document.getElementById("filename_remote").value == "" ? document.getElementById("conlluFileName").innerHTML : document.getElementById("filename_remote").value;
   let requestBody;
 
-  if (isConlluLocal) { // upload local file
-    xhr.open('POST', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', true);
+  fileName = addFileExtension(fileName, '.conllu');
+
+  let fileMetadata = {
+    name: fileName,
+    appProperties: {
+      'parser': 'PALMYRA'
+    },
   }
-  else { // update an existing file
+  
+  if (saveType == "saveAs" || isConlluLocal) { // upload new or local file
+    xhr.open('POST', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', true);
+    
+    fileMetadata['parents'] = [remoteLocation] // add location when saving a new file to drive
+  }
+  else if(saveType == "save") { // update an existing file
     xhr.open('PATCH', `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`, true);
   }
-  fileName = addFileExtension(fileName, '.conllu');
+
   requestBody =
     '--boundary\r\n' +
     'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
-    JSON.stringify({
-      name: fileName,
-      appProperties: {
-        'parser': 'PALMYRA'
-      }
-    }) +
+    JSON.stringify(fileMetadata) +
     '\r\n\r\n' +
     '--boundary\r\n' +
     'Content-Type: ' + 'text/plain;charset=utf-8' + '\r\n\r\n' + 
@@ -1257,21 +1263,21 @@ function uploadFile(fileData) {
       document.getElementById("conlluFileName").innerHTML = fileName;
       alert("File saved to MyDrive sucessfully!");
     } else {
-      console.log('Error uploading file:', xhr.statusText);
+      console.log('Error uploading file:', xhr);
       alert("Failed to save file to MyDrive!")
     }
 	};
   xhr.send(requestBody);
 };
 
-function saveTreeRemoteHelper(fileData) {
+function saveTreeRemoteHelper(fileData, remoteLocation, saveType) {
   tokenClient.callback = (resp) => {
     if (resp.error !== undefined) {
       throw (resp);
     }
     setTokenInSessionStorage(gapi.client.getToken().access_token);
     onAuthenticated();
-    uploadFile(fileData);
+    uploadFile(fileData, remoteLocation, saveType);
   };
 
   if (gapi.client.getToken() === null) {
@@ -1281,7 +1287,7 @@ function saveTreeRemoteHelper(fileData) {
   }
   else {
     // Skip display of account chooser and consent dialog for an existing session.
-    uploadFile(fileData);
+    uploadFile(fileData, remoteLocation, saveType);
   }
 }
 
