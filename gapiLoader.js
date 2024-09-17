@@ -169,7 +169,6 @@ function enableBrowseButton() {
 
 function saveAsPicker() {
   let browseBtn = document.getElementById("save_as_option");
-  browseBtn.style.display = "inline-block";
   browseBtn.onclick = () => {
     showSaveAsPicker(gapi.client.getToken().access_token, saveAsPickerCallback);
   };
