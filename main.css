@@ -376,6 +376,12 @@ body.viewtree {
     font-family: 'arial';
     padding: 0 10px 0 10px;
 }
+
+.dropdown-content p:hover {
+    background-color: #57068c;
+    color:white;
+}
+
 .dropdown:hover .dropdown-content {
     display: block;
 }
