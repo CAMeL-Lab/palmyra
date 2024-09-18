@@ -93,11 +93,11 @@ function showSaveAsPicker(accessToken, callback) {
     .get(`${SERVER_ORIGIN}/get_gapi_credentials`)
     .then((rsp) => {
       let credentials = rsp.data;
-      let view = new google.picker.DocsView(google.picker.ViewId.DOCS)
+      let view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
         .setParent('root')
         .setIncludeFolders(true)
         .setSelectFolderEnabled(true);
-      // view.setMimeTypes("text/plain");
+      view.setMimeTypes('application/vnd.google-apps.folder');
       view.setMode(google.picker.DocsViewMode.LIST);
       
       let picker = new google.picker.PickerBuilder()
