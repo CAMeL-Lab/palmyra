@@ -1481,6 +1481,8 @@ function addEditListenerToSpan(span, filenameParent, filenameIdx) {
           renderRenameMode(span.textContent, filenameParent, filenameIdx),
           filenameParent.children[filenameIdx]
       )
+      hideAllWindows();
+      disableUndoRedoShortcuts();
   });
 }
 
@@ -1514,6 +1516,8 @@ function renderRenameMode(oldFilename, filenameParent, filenameIdx) {
           renderFilenameInReadMode(textInput.value, filenameParent, filenameIdx),
           filenameParent.children[filenameIdx]
       );
+      hideAllWindows();
+      enableUndoRedoShortcuts();
   });
   div.appendChild(saveButton);
   
@@ -1525,6 +1529,8 @@ function renderRenameMode(oldFilename, filenameParent, filenameIdx) {
           renderFilenameInReadMode(oldFilename, filenameParent, filenameIdx),
           filenameParent.children[filenameIdx]
       );
+      hideAllWindows();
+      enableUndoRedoShortcuts();
   });
 
   div.appendChild(cancelButton);
@@ -1533,6 +1539,9 @@ function renderRenameMode(oldFilename, filenameParent, filenameIdx) {
 }
 
 function renameToggle() {
+  hideAllWindows();
+  disableUndoRedoShortcuts();
+
   filenameIdx = 0 // the index of the filename in the parent div is always 0 (1 is the tree number)
 
   filenameParent = document.getElementById("conlluFileNameDiv");
