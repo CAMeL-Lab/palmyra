@@ -137,7 +137,7 @@ var main = function () {
   findStorage();
   $(".upload").show();
   populateConfigFileSelector();
-  enableUndoRedoShortcuts();
+  enableKeyboardShortcuts();
 };
 
 function hideComponents(ComponentsList) {
@@ -786,7 +786,7 @@ function prevTree() {
 // go to the input tree number
 function goToTree() {
   hideAllWindows();
-  enableUndoRedoShortcuts()
+  enableKeyboardShortcuts()
   if (
     currentTreeIndex !==
     document.getElementById("treeNumberInput").value - 1
@@ -803,7 +803,7 @@ function goToTree() {
 
 function cancelGoToTree() {
   hideAllWindows();
-  enableUndoRedoShortcuts();
+  enableKeyboardShortcuts();
 }
 
 // toggle between English and Arabic
@@ -874,7 +874,7 @@ function editPOSByButton(inputSource) {
 // reset the morphology changes
 var cancelMorphology = function () {
   hideAllWindows();
-  enableUndoRedoShortcuts();
+  enableKeyboardShortcuts();
 };
 
 // reset the morphology changes
@@ -951,7 +951,7 @@ var saveMorphology = function () {
   }
 
   hideAllWindows();
-  enableUndoRedoShortcuts();
+  enableKeyboardShortcuts();
   update(root);
 };
 
@@ -1467,7 +1467,7 @@ var editToggle = function () {
 var goToTreeToggle = function () {
   if (focusWindow !== "goToTree") {
     hideAllWindows();
-    disableUndoRedoShortcuts();
+    disableKeyboardShortcuts();
     $("#gototree-section").show();
     focusWindow = "goToTree";
   } else {
@@ -1482,7 +1482,7 @@ function addEditListenerToSpan(span, filenameParent, filenameIdx) {
           filenameParent.children[filenameIdx]
       )
       hideAllWindows();
-      disableUndoRedoShortcuts();
+      disableKeyboardShortcuts();
   });
 }
 
@@ -1517,7 +1517,7 @@ function renderRenameMode(oldFilename, filenameParent, filenameIdx) {
           filenameParent.children[filenameIdx]
       );
       hideAllWindows();
-      enableUndoRedoShortcuts();
+      enableKeyboardShortcuts();
   });
   div.appendChild(saveButton);
   
@@ -1530,7 +1530,7 @@ function renderRenameMode(oldFilename, filenameParent, filenameIdx) {
           filenameParent.children[filenameIdx]
       );
       hideAllWindows();
-      enableUndoRedoShortcuts();
+      enableKeyboardShortcuts();
   });
 
   div.appendChild(cancelButton);
@@ -1540,7 +1540,7 @@ function renderRenameMode(oldFilename, filenameParent, filenameIdx) {
 
 function renameToggle() {
   hideAllWindows();
-  disableUndoRedoShortcuts();
+  disableKeyboardShortcuts();
 
   filenameIdx = 0 // the index of the filename in the parent div is always 0 (1 is the tree number)
 
@@ -2050,7 +2050,7 @@ var getTree = function (treeData) {
 
     if (!d.parent.collapsed) {
       hideAllWindows();
-      disableUndoRedoShortcuts()
+      disableKeyboardShortcuts()
       $("#morphology").show();
       focusWindow = "morphology";
 
