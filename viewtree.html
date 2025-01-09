@@ -208,11 +208,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
         <section id="gototree-section" class="section-alignment">
             <form id="gototree">
                 <p>Please select tree number:</p>
-                <input type="number" id="treeNumberInput" min="1" max="1" style="width: 3em"
-                    onkeypress="return goToKeyPress(event);">
+                <input type="number" id="treeNumberInput" min="1" max="1" style="width: 3em">
             </form><br>
             <input type="button" id="goTreebtn" value="Go" onClick="goToTree()" />
-            <button onClick="hideAllWindows()">Close</button>
+            <button onClick="cancelGoToTree()">Close</button>
         </section>
 
         <section id='labels'>
@@ -285,15 +284,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)
     
 
     <script>
-        function goToKeyPress(e) {
-            // look for window.event in case event isn't passed in
-            e = e || window.event;
-            if (e.keyCode == 13) {
-                document.getElementById('goTreebtn').click();
-                return false;
-            }
-            return true;
-        }
+        
     </script>
 
 </body>

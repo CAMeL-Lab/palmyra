@@ -786,7 +786,7 @@ function prevTree() {
 // go to the input tree number
 function goToTree() {
   hideAllWindows();
-
+  enableUndoRedoShortcuts()
   if (
     currentTreeIndex !==
     document.getElementById("treeNumberInput").value - 1
@@ -799,6 +799,11 @@ function goToTree() {
       moveToTreeHelper(document.getElementById("treeNumberInput").value - 1);
     }
   }
+}
+
+function cancelGoToTree() {
+  hideAllWindows();
+  enableUndoRedoShortcuts();
 }
 
 // toggle between English and Arabic
@@ -1462,6 +1467,7 @@ var editToggle = function () {
 var goToTreeToggle = function () {
   if (focusWindow !== "goToTree") {
     hideAllWindows();
+    disableUndoRedoShortcuts();
     $("#gototree-section").show();
     focusWindow = "goToTree";
   } else {
