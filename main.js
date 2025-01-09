@@ -123,11 +123,22 @@ function UndoRedoHelperOnTreePageSetUp() {
   undo_stack = new Array(treesArray[0]);
 }
 
-// TODO: move to keyboardShortcuts.js
-window.addEventListener('keydown', function(event) {
+function undoRedoKeyboardShortcuts(event) {
   if ((event.metaKey || event.ctrlKey) && !event.shiftKey && (event.key === 'z' || event.key === 'Z')) undo();
   if ((event.metaKey || event.ctrlKey) && event.shiftKey && ( event.key === 'z' || event.key === 'Z')) redo();
-});
+}
+
+
+function disableUndoRedoShortcuts() {
+  window.removeEventListener('keydown', undoRedoKeyboardShortcuts);
+}
+
+function enableUndoRedoShortcuts() {
+  window.addEventListener('keydown', undoRedoKeyboardShortcuts);
+}
+
+// TODO: move to keyboardShortcuts.js
+window.addEventListener('keydown', undoRedoKeyboardShortcuts);
 
 // if custom setting not saved, initialize with default
 for (var k = 0; k < settings.length; k++) {
@@ -874,6 +885,7 @@ function editPOSByButton(inputSource) {
 // reset the morphology changes
 var cancelMorphology = function () {
   hideAllWindows();
+  enableUndoRedoShortcuts();
 };
 
 // reset the morphology changes
@@ -950,6 +962,7 @@ var saveMorphology = function () {
   }
 
   hideAllWindows();
+  enableUndoRedoShortcuts();
   update(root);
 };
 
@@ -2038,6 +2051,7 @@ var getTree = function (treeData) {
 
     if (!d.parent.collapsed) {
       hideAllWindows();
+      disableUndoRedoShortcuts()
       $("#morphology").show();
       focusWindow = "morphology";
 
