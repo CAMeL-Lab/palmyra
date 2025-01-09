@@ -123,23 +123,6 @@ function UndoRedoHelperOnTreePageSetUp() {
   undo_stack = new Array(treesArray[0]);
 }
 
-function undoRedoKeyboardShortcuts(event) {
-  if ((event.metaKey || event.ctrlKey) && !event.shiftKey && (event.key === 'z' || event.key === 'Z')) undo();
-  if ((event.metaKey || event.ctrlKey) && event.shiftKey && ( event.key === 'z' || event.key === 'Z')) redo();
-}
-
-
-function disableUndoRedoShortcuts() {
-  window.removeEventListener('keydown', undoRedoKeyboardShortcuts);
-}
-
-function enableUndoRedoShortcuts() {
-  window.addEventListener('keydown', undoRedoKeyboardShortcuts);
-}
-
-// TODO: move to keyboardShortcuts.js
-window.addEventListener('keydown', undoRedoKeyboardShortcuts);
-
 // if custom setting not saved, initialize with default
 for (var k = 0; k < settings.length; k++) {
   if (!localStorage[settings[k][0]]) {
@@ -154,6 +137,7 @@ var main = function () {
   findStorage();
   $(".upload").show();
   populateConfigFileSelector();
+  enableUndoRedoShortcuts();
 };
 
 function hideComponents(ComponentsList) {

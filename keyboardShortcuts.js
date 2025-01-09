@@ -19,3 +19,18 @@ window.addEventListener('keydown', function(event) {
   else if (event.ctrlKey && event.shiftKey && event.code === 'KeyM') {editToggle();}
   else if (event.ctrlKey && event.shiftKey && event.code === 'KeyT') {tagsToggle()}
 });
+
+// undo redo shortcuts
+function undoRedoKeyboardShortcuts(event) {
+  if ((event.metaKey || event.ctrlKey) && !event.shiftKey && (event.key === 'z' || event.key === 'Z')) undo();
+  if ((event.metaKey || event.ctrlKey) && event.shiftKey && ( event.key === 'z' || event.key === 'Z')) redo();
+}
+
+
+function disableUndoRedoShortcuts() {
+  window.removeEventListener('keydown', undoRedoKeyboardShortcuts);
+}
+
+function enableUndoRedoShortcuts() {
+  window.addEventListener('keydown', undoRedoKeyboardShortcuts);
+}
