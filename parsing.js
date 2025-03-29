@@ -1,6 +1,4 @@
 
-const SERVER_ORIGIN = "http://camel-parser.abudhabi.nyu.edu/api";
-
 function initParseModalButton() {
     document.getElementById('parse-modal').classList.remove("hidden");
     document.getElementById('parse-overlay').classList.remove("hidden");
