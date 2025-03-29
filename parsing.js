@@ -92,29 +92,4 @@ function getParsedData(parse_data_id) {
         })
         .catch(error => console.log('error', error));
     
-    
-    // fetch(`https://mra9407.pythonanywhere.com/get_parsed_data/?parsed_conll_file_id=${parse_data_id}`, {method: 'GET'})
-    // .then(res => res.json())
-    // .then(data => {
-    //     file_data = data[0]['parsed_data'];
-    //     treesArray = convertToJSON(file_data);
-    //     // reinitialize trees
-    //     // setupPageZero(file_data);
-    //     // UndoRedoHelperOnTreePageSetUp();
-    // // hide upload window
-    //     view([$(".upload")], hideComponents);
-    //     getTree(treesArray[0]);
-
-        
-    //     // sessionStorage.removeItem("treeData");
-    //     // saveTree();
-    //     // d3.select("body").select("svg").remove();
-    //     // getTree(json_data);
-    //     // update(root);
-    //     // selectRoot();
-    //     // showSelection();
-    //     // // reset focusWindow
-    //     // focusWindow = "";
-    // });
-    // // initParseModalButton();
 }
