@@ -1,4 +1,6 @@
 
+const SERVER_ORIGIN = "https://mra9407.pythonanywhere.com";
+
 function initParseModalButton() {
     document.getElementById('parse-modal').classList.remove("hidden");
     document.getElementById('parse-overlay').classList.remove("hidden");
@@ -48,7 +50,7 @@ function parseFile() {
     redirect: 'follow'
     };
 
-    fetch("https://mra9407.pythonanywhere.com/parse_data", requestOptions)
+    fetch(`${SERVER_ORIGIN}/parse_data`, requestOptions)
     .then(res => res.text())
     .then(data => {
         initGetParsedModalButton(data)
@@ -71,7 +73,7 @@ function getParsedData(parse_data_id) {
         redirect: 'follow'
     };
 
-    fetch(`https://mra9407.pythonanywhere.com/get_parsed_data?data_id=${parse_data_id}`, requestOptions)
+    fetch(`${SERVER_ORIGIN}/get_parsed_data?data_id=${parse_data_id}`, requestOptions)
         .then(response => response.text())
         .then(data => {
             readConfigFile();
