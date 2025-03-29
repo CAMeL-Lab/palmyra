@@ -1,5 +1,5 @@
 
-const SERVER_ORIGIN = "https://mra9407.pythonanywhere.com";
+const SERVER_ORIGIN = "http://camel-parser.abudhabi.nyu.edu/api";
 
 function initParseModalButton() {
     document.getElementById('parse-modal').classList.remove("hidden");
@@ -91,5 +91,5 @@ function getParsedData(parse_data_id) {
 
         })
         .catch(error => console.log('error', error));
-    
+
 }
