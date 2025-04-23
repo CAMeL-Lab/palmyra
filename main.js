@@ -72,6 +72,9 @@ var redo_stack = new Array();
 function undo() {
   if (undo_stack.length > 1 && redo_stack.length < 10) {
     redo_stack.push(undo_stack.pop());
+    // get current location of window
+    windowLoc = d3.select("g").attr('transform');
+
     // display tree
     sessionStorage.removeItem("treeData");
     saveTree();
@@ -82,12 +85,21 @@ function undo() {
     showSelection();
     // reset focusWindow
     focusWindow = "";
+
+    // set window location after refreshing tree
+    setTimeout(() => {
+      // console.log("Delayed for 1 second.");
+      d3.select("g").attr('transform', windowLoc);
+    }, "10");
   }
 }
 
 function redo() {
   if (redo_stack.length > 0) {
     undo_stack.push(redo_stack.pop());
+    // get current location of window
+    windowLoc = d3.select("g").attr('transform');
+
     // display tree
     sessionStorage.removeItem("treeData");
     saveTree();
@@ -98,6 +110,12 @@ function redo() {
     showSelection();
     // reset focusWindow
     focusWindow = "";
+
+    // set window location after refreshing tree
+    setTimeout(() => {
+      // console.log("Delayed for 1 second.");
+      d3.select("g").attr('transform', windowLoc);
+    }, "10");
   }
 }
 
