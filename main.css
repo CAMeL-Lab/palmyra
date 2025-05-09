@@ -662,3 +662,7 @@ div.scroll {
 .parens:empty {
     display: none;
 }
+
+#searchList {
+    cursor: pointer;
+}
