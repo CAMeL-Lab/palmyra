@@ -60,13 +60,14 @@ function populateConfigFileSelector() {
     });
 }
 
-function createButton(buttonText, editPOSByButton) {
+function createButton(buttonText, editByButton) {
   let btn = document.createElement("BUTTON");
   let text = document.createTextNode(buttonText);
   btn.appendChild(text);
   btn.tabindex = -1;
   btn.value = buttonText;
-  btn.onclick = editPOSByButton;
+  btn.onclick = editByButton;
+  btn.setAttribute("id", buttonText);
 
   return btn
 }
@@ -115,13 +116,7 @@ var parseConfig = function (content) {
       relLabels[configs.relation.values[i].key].push(
         configs.relation.values[i].label
       );
-      var btn = document.createElement("BUTTON");
-      var text = document.createTextNode(configs.relation.values[i].label);
-      btn.appendChild(text);
-      btn.setAttribute("id", configs.relation.values[i].label);
-      btn.value = configs.relation.values[i].label;
-      btn.onclick = editLabelByButton;
-
+      let btn = createButton(configs.relation.values[i].label, editLabelByButton);
       group = configs.relation.values[i].group;
       addButtonToDivGroup(divs, group, btn)
     } else {
