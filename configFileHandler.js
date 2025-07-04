@@ -96,8 +96,8 @@ var parseConfig = function (content) {
     }
     
     posTags[configs.pos.values[i].key].push(configs.pos.values[i].label);
-    let btn = createButton(configs.pos.values[i].label, editPOSByButton);
     
+    let btn = createButton(configs.pos.values[i].label, editPOSByButton);
     group = configs.pos.values[i].group;
     addButtonToDivGroup(divs, group, btn);
   }
@@ -112,10 +112,9 @@ var parseConfig = function (content) {
   var divs = {};
 
   for (var i = 0; i < configs.relation.values.length; i++) {
-    if (configs.relation.values[i].key in relLabels) {
+    if (!(configs.relation.values[i].key in relLabels)) {
       relLabels[configs.relation.values[i].key] = [];
     }
-
     relLabels[configs.relation.values[i].key].push(configs.relation.values[i].label);
 
     let btn = createButton(configs.relation.values[i].label, editLabelByButton);
