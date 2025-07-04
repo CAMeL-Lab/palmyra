@@ -113,32 +113,15 @@ var parseConfig = function (content) {
 
   for (var i = 0; i < configs.relation.values.length; i++) {
     if (configs.relation.values[i].key in relLabels) {
-      relLabels[configs.relation.values[i].key].push(
-        configs.relation.values[i].label
-      );
-      let btn = createButton(configs.relation.values[i].label, editLabelByButton);
-      group = configs.relation.values[i].group;
-      addButtonToDivGroup(divs, group, btn)
-    } else {
       relLabels[configs.relation.values[i].key] = [];
-      relLabels[configs.relation.values[i].key].push(
-        configs.relation.values[i].label
-      );
-      var btn = document.createElement("BUTTON");
-      var text = document.createTextNode(configs.relation.values[i].label);
-      btn.appendChild(text);
-      btn.setAttribute("id", configs.relation.values[i].label);
-      btn.value = configs.relation.values[i].label;
-      btn.onclick = editLabelByButton;
-
-      group = configs.relation.values[i].group;
-      if (group in divs) {
-        divs[group].appendChild(btn);
-      } else {
-        divs[group] = document.createElement("div");
-        divs[group].appendChild(btn);
-      }
     }
+
+    relLabels[configs.relation.values[i].key].push(configs.relation.values[i].label);
+
+    let btn = createButton(configs.relation.values[i].label, editLabelByButton);
+    group = configs.relation.values[i].group;
+    addButtonToDivGroup(divs, group, btn)
+      
   }
 
   for (var div in divs) {
