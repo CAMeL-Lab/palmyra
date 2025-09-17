@@ -1393,10 +1393,10 @@ var search = function (treesArray) {
       }
       x.appendChild(t);
       x.onclick = function () {
-        if (currentTreeIndex !== event.target.id) {
+        if (currentTreeIndex !== parseInt(event.target.id)) {
           sessionStorage.removeItem("treeData");
           saveTree();
-          currentTreeIndex = event.target.id;
+          currentTreeIndex = parseInt(event.target.id);
           d3.select("body").select("svg").remove();
           getTree(treesArray[currentTreeIndex]);
           update(root);
