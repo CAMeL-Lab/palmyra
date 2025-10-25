@@ -1393,14 +1393,7 @@ var search = function (treesArray) {
       }
       x.appendChild(t);
       x.onclick = function () {
-        if (currentTreeIndex !== parseInt(event.target.id)) {
-          sessionStorage.removeItem("treeData");
-          saveTree();
-          currentTreeIndex = parseInt(event.target.id);
-          d3.select("body").select("svg").remove();
-          getTree(treesArray[currentTreeIndex]);
-          update(root);
-        }
+        moveToTreeHelper(parseInt(event.target.id));
       };
       list.appendChild(x);
     }
